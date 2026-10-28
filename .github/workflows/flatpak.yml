@@ -1,0 +1,97 @@
+name: Build and publish Flatpak
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: warehouse-flatpak-pages
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Prepare locked offline source archive
+        run: |
+          version=$(python3 -c 'import pathlib,tomllib; print(tomllib.loads(pathlib.Path("rust-toolchain.toml").read_text())["toolchain"]["channel"])')
+          rustup toolchain install "$version" --profile minimal
+          python3 ci/prepare-flatpak.py build-inputs
+      - uses: actions/upload-artifact@v7
+        with:
+          name: flatpak-inputs
+          path: build-inputs/
+
+  build:
+    needs: prepare
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-26.08
+      options: --privileged
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: flatpak-inputs
+          path: build-inputs
+      - name: Import repository signing key
+        id: signing
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: |
+          test -n "$GPG_PRIVATE_KEY" || { echo '::error::Set the GPG_PRIVATE_KEY repository secret.'; exit 1; }
+          export GNUPGHOME="$RUNNER_TEMP/warehouse-signing"
+          mkdir -p "$GNUPGHOME"
+          chmod 700 "$GNUPGHOME"
+          echo "GNUPGHOME=$GNUPGHOME" >> "$GITHUB_ENV"
+          printf '%s\n' "$GPG_PRIVATE_KEY" | gpg --batch --import
+          key=$(gpg --batch --with-colons --list-secret-keys | awk -F: '$1=="fpr" {print $10; exit}')
+          test -n "$key"
+          echo "key=$key" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v6
+        with:
+          path: flatpak/out/builder-state
+          key: flatpak-26.08-${{ hashFiles('build-inputs/inputs.json') }}
+          restore-keys: flatpak-26.08-
+      - name: Build and export signed repository
+        env:
+          FLATPAK_SIGNING_KEY: ${{ steps.signing.outputs.key }}
+        run: |
+          flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user --noninteractive -y flathub org.freedesktop.Platform//26.08 org.freedesktop.Sdk//26.08
+          flatpak/build.sh flatpak/out build-inputs
+      - name: Prepare Pages install files
+        env:
+          SIGNING_KEY: ${{ steps.signing.outputs.key }}
+          PAGES_BASE_URL: ${{ vars.PAGES_BASE_URL }}
+        run: |
+          base="${PAGES_BASE_URL:-https://${GITHUB_REPOSITORY_OWNER,,}.github.io/${GITHUB_REPOSITORY#*/}/}"
+          python3 ci/publish.py flatpak/out/repo site "$base" "$SIGNING_KEY" build-inputs/inputs.json "$GITHUB_SHA"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: warehouse-cosmic-x86_64
+          path: flatpak/out/dev.nilltadios.WarehouseCosmic.flatpak
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

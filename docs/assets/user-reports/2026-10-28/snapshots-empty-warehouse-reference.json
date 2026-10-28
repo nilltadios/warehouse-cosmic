@@ -1,0 +1,19 @@
+{
+  "reported_date": "2026-10-28",
+  "source": "User-supplied screenshot",
+  "role": "Supplied reference Warehouse Snapshots empty state",
+  "original_path": "/tmp/clipboard-c72a4fb9-0a39-4219-a402-12ced3423747.png",
+  "saved_path": "docs/assets/user-reports/2026-10-28/snapshots-empty-warehouse-reference.png",
+  "sha256": "f117be9892e91412393f9b9349e49412eed9cfedb856b709256bda75e72c5a57",
+  "capture_method": "Provided in chat; no desktop capture or live reproduction in this documentation-only session",
+  "copy_command": [
+    "cp",
+    "/tmp/clipboard-c72a4fb9-0a39-4219-a402-12ced3423747.png",
+    "docs/assets/user-reports/2026-10-28/snapshots-empty-warehouse-reference.png"
+  ],
+  "verify_command": [
+    "sha256sum",
+    "docs/assets/user-reports/2026-10-28/snapshots-empty-warehouse-reference.png"
+  ],
+  "byte_for_byte_copy_verified": true
+}

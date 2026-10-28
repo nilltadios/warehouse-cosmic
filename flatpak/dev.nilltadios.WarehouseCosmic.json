@@ -1,0 +1,62 @@
+{
+  "app-id": "dev.nilltadios.WarehouseCosmic",
+  "runtime": "org.freedesktop.Platform",
+  "runtime-version": "26.08",
+  "sdk": "org.freedesktop.Sdk",
+  "command": "warehouse-cosmic",
+  "finish-args": [
+    "--share=ipc",
+    "--socket=wayland",
+    "--device=dri",
+    "--talk-name=org.freedesktop.Flatpak",
+    "--talk-name=com.system76.CosmicSettingsDaemon",
+    "--talk-name=org.kde.KWin",
+    "--own-name=dev.nilltadios.WarehouseCosmic.UI.*",
+    "--filesystem=home",
+    "--filesystem=~/.var/app",
+    "--filesystem=~/.local/share/flatpak:ro",
+    "--filesystem=xdg-config/cosmic:ro",
+    "--filesystem=/var/lib/flatpak:ro",
+    "--filesystem=host-etc"
+  ],
+  "cleanup": ["/lib/rust", "/include", "/lib/pkgconfig", "/share/man", "*.a", "*.la"],
+  "modules": [
+    {
+      "name": "rust-toolchain",
+      "buildsystem": "simple",
+      "build-options": {"no-debuginfo": true, "strip": false},
+      "build-commands": [
+        "./install.sh --prefix=/app/lib/rust --components=rustc,cargo,rust-std-x86_64-unknown-linux-gnu --disable-ldconfig"
+      ],
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://static.rust-lang.org/dist/rust-1.99.1-x86_64-unknown-linux-gnu.tar.xz",
+          "sha256": "231fcae47ee950621374725b5fc3b5441d2fbda2955ac45dd7dc816d8876cfe7"
+        }
+      ]
+    },
+    {
+      "name": "warehouse-cosmic",
+      "buildsystem": "simple",
+      "build-options": {
+        "prepend-path": "/app/lib/rust/bin",
+        "env": {"CARGO_HOME": "/run/build/warehouse-cosmic/cargo", "CARGO_INCREMENTAL": "0", "CARGO_TARGET_DIR": "/run/ccache/warehouse-target"}
+      },
+      "build-commands": [
+        "rustc --version && cargo --version",
+        "touch Cargo.toml Cargo.lock && find src resources -type f -exec touch {} +",
+        "cargo build --offline --frozen --release --bins -j ${FLATPAK_BUILDER_N_JOBS:-4}",
+        "install -Dm755 /run/ccache/warehouse-target/release/warehouse-cosmic /app/bin/warehouse-cosmic",
+        "install -Dm755 /run/ccache/warehouse-target/release/warehouse-cosmic-cli /app/bin/warehouse-cosmic-cli",
+        "install -Dm644 resources/dev.nilltadios.WarehouseCosmic.desktop /app/share/applications/dev.nilltadios.WarehouseCosmic.desktop",
+        "install -Dm644 resources/dev.nilltadios.WarehouseCosmic.svg /app/share/icons/hicolor/scalable/apps/dev.nilltadios.WarehouseCosmic.svg",
+        "cp -r resources/icons/WarehouseCosmic /app/share/icons/",
+        "install -Dm644 resources/dev.nilltadios.WarehouseCosmic.metainfo.xml /app/share/metainfo/dev.nilltadios.WarehouseCosmic.metainfo.xml",
+        "install -d /app/share/warehouse-cosmic && cp -r docs examples schemas llms.txt LICENSE NOTICE /app/share/warehouse-cosmic/",
+        "cp -r resources/licenses /app/share/warehouse-cosmic/"
+      ],
+      "sources": [{"type": "archive", "path": "warehouse-cosmic-source.tar.gz", "strip-components": 0}]
+    }
+  ]
+}

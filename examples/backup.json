@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "commands": [
+    {"command": "snapshot.create", "params": {"ids": ["org.example.App"], "name": "Before changing packages"}}
+  ]
+}

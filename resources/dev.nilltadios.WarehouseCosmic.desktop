@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=Warehouse COSMIC
+Comment=Manage Flatpak apps with a native interface and CLI
+Exec=warehouse-cosmic %F
+Icon=dev.nilltadios.WarehouseCosmic
+Terminal=false
+Categories=System;PackageManager;
+Keywords=flatpak;warehouse;cosmic;snapshot;runtime;
+MimeType=application/vnd.flatpak;application/vnd.flatpak.ref;application/vnd.flatpak.repo;
+StartupNotify=true
+StartupWMClass=dev.nilltadios.WarehouseCosmic
+PrefersNonDefaultGPU=false

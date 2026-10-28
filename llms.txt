@@ -1,0 +1,25 @@
+# Warehouse COSMIC
+
+Native Rust/libcosmic Flatpak toolbox and standalone headless CLI.
+
+- CLI executable: warehouse-cosmic-cli
+- Flatpak CLI: flatpak run --command=warehouse-cosmic-cli dev.nilltadios.WarehouseCosmic
+- Discover: warehouse-cosmic-cli commands --json
+- Describe: warehouse-cosmic-cli describe COMMAND
+- Request schema: warehouse-cosmic-cli schema
+- Run: warehouse-cosmic-cli run --cmd 'command.id={"params":"value"}'
+- Scripts: warehouse-cosmic-cli run --script job.json
+- Mutations are plans unless --apply is supplied.
+- System mutation also needs --allow-system and can show PolicyKit.
+- Backend commands require no MCP, background server, listening socket, or running GUI.
+- ui commands: inspect/control a live GUI through its own desktop D-Bus interface; no separate server.
+- ui commands and ui schema discover the GUI API; select an exact instance when several are running.
+- docs/cli.md: contract, parameters, scripts, exit codes, roots, recovery
+- docs/agents.md: inspect, plan, apply and verify workflow
+- schemas/commands.json: generated command catalog with parameter schemas
+- schemas/request.json: generated request JSON Schema
+- examples/audit.json: read-only audit
+- docs/verification.md: reproducible tests and known limits
+- docs/flatpak.md: runtime, build, signed publishing, permissions and updates
+- docs/project-brief.md: product goals and UI requirements
+- docs/ui-cli.md: live GUI actions, native pointer checks, captures and limits

@@ -1,0 +1,18 @@
+{
+  "reported_date": "2026-10-28",
+  "source": "User-supplied screenshot",
+  "original_path": "/tmp/clipboard-1a790187-e46f-4c84-93a6-6a736e372bbd.png",
+  "saved_path": "docs/assets/user-reports/2026-10-28/install-scope-menu-overlap.png",
+  "sha256": "428613d72a37dd9956bb63f4e8fd9e53c0bdf73b3dde0112e98632d4a3cfa9b0",
+  "capture_method": "Provided in chat; no desktop capture or live reproduction in this documentation-only session",
+  "copy_command": [
+    "cp",
+    "/tmp/clipboard-1a790187-e46f-4c84-93a6-6a736e372bbd.png",
+    "docs/assets/user-reports/2026-10-28/install-scope-menu-overlap.png"
+  ],
+  "verify_command": [
+    "sha256sum",
+    "docs/assets/user-reports/2026-10-28/install-scope-menu-overlap.png"
+  ],
+  "byte_for_byte_copy_verified": true
+}

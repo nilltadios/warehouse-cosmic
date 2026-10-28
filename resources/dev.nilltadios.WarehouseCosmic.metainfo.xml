@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>dev.nilltadios.WarehouseCosmic</id>
+  <name>Warehouse COSMIC</name>
+  <summary>Manage Flatpak apps with a native interface and CLI</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <url type="homepage">https://github.com/nilltadios</url>
+  <developer id="dev.nilltadios"><name>nilltadios</name></developer>
+  <description>
+    <p>Manage Flatpak apps with a native graphical interface and CLI. Inspired by flattool/Warehouse and built with Rust and libcosmic. Search installed applications and runtimes, manage remotes, check updates, change package sources, and create or restore app-data snapshots.</p>
+    <p>The desktop interface runs on Wayland with GPU rendering when available. The standalone CLI provides command discovery, JSON schemas, dry-run plans and scripts without a server.</p>
+    <p>Package management needs host command access. This application can change your Flatpak installations and read or modify files in your home directory.</p>
+  </description>
+  <launchable type="desktop-id">dev.nilltadios.WarehouseCosmic.desktop</launchable>
+  <categories><category>System</category><category>PackageManager</category></categories>
+  <provides><binary>warehouse-cosmic</binary><binary>warehouse-cosmic-cli</binary></provides>
+  <supports><control>pointing</control><control>keyboard</control></supports>
+  <content_rating type="oars-1.1"/>
+  <releases><release version="0.1.0" date="2026-10-27"><description><p>Initial native desktop interface and standalone automation CLI.</p></description></release></releases>
+</component>

@@ -1,0 +1,863 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Request",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "package.update-check"
+        },
+        "params": {
+          "$ref": "#/$defs/Target"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "package.update"
+        },
+        "params": {
+          "$ref": "#/$defs/PackageRefs"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "package.reinstall"
+        },
+        "params": {
+          "$ref": "#/$defs/Reinstall"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "inventory.list"
+        },
+        "params": {
+          "$ref": "#/$defs/Empty"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "package.list"
+        },
+        "params": {
+          "$ref": "#/$defs/List"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "package.info"
+        },
+        "params": {
+          "$ref": "#/$defs/Target"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "package.history"
+        },
+        "params": {
+          "$ref": "#/$defs/Target"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "package.uninstall"
+        },
+        "params": {
+          "$ref": "#/$defs/Uninstall"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "package.mask"
+        },
+        "params": {
+          "$ref": "#/$defs/Toggle"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "package.pin"
+        },
+        "params": {
+          "$ref": "#/$defs/Toggle"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "package.version"
+        },
+        "params": {
+          "$ref": "#/$defs/Version"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "package.install"
+        },
+        "params": {
+          "$ref": "#/$defs/Install"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "package.install-files"
+        },
+        "params": {
+          "$ref": "#/$defs/InstallFiles"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "remote.list"
+        },
+        "params": {
+          "$ref": "#/$defs/Empty"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "remote.packages"
+        },
+        "params": {
+          "$ref": "#/$defs/RemoteSearch"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "remote.add"
+        },
+        "params": {
+          "$ref": "#/$defs/RemoteAdd"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "remote.enable"
+        },
+        "params": {
+          "$ref": "#/$defs/RemoteToggle"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "remote.remove"
+        },
+        "params": {
+          "$ref": "#/$defs/RemoteTarget"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "data.list"
+        },
+        "params": {
+          "$ref": "#/$defs/DataList"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "data.trash"
+        },
+        "params": {
+          "$ref": "#/$defs/Ids"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "snapshot.list"
+        },
+        "params": {
+          "$ref": "#/$defs/Empty"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "snapshot.create"
+        },
+        "params": {
+          "$ref": "#/$defs/CreateSnapshot"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "snapshot.restore"
+        },
+        "params": {
+          "$ref": "#/$defs/SnapshotPaths"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "snapshot.trash"
+        },
+        "params": {
+          "$ref": "#/$defs/SnapshotPaths"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "snapshot.rename"
+        },
+        "params": {
+          "$ref": "#/$defs/RenameSnapshot"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "snapshot.import"
+        },
+        "params": {
+          "$ref": "#/$defs/ImportSnapshot"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "snapshot.export"
+        },
+        "params": {
+          "$ref": "#/$defs/ExportSnapshot"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    }
+  ],
+  "$defs": {
+    "Target": {
+      "type": "object",
+      "properties": {
+        "installation": {
+          "type": "string"
+        },
+        "reference": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "installation",
+        "reference"
+      ]
+    },
+    "PackageRefs": {
+      "type": "object",
+      "properties": {
+        "installation": {
+          "type": "string"
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "installation",
+        "references"
+      ]
+    },
+    "Reinstall": {
+      "type": "object",
+      "properties": {
+        "installation": {
+          "type": "string"
+        },
+        "reference": {
+          "type": "string"
+        },
+        "remote": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "installation",
+        "reference",
+        "remote"
+      ]
+    },
+    "Empty": {
+      "type": "object",
+      "additionalProperties": false
+    },
+    "List": {
+      "type": "object",
+      "properties": {
+        "search": {
+          "type": "string",
+          "default": ""
+        },
+        "installation": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "kind": {
+          "$ref": "#/$defs/Kind",
+          "default": "all"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Kind": {
+      "type": "string",
+      "enum": [
+        "all",
+        "applications",
+        "runtimes"
+      ]
+    },
+    "Uninstall": {
+      "type": "object",
+      "properties": {
+        "installation": {
+          "type": "string"
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "trash_data": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "installation",
+        "references"
+      ]
+    },
+    "Toggle": {
+      "type": "object",
+      "properties": {
+        "installation": {
+          "type": "string"
+        },
+        "reference": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "installation",
+        "reference",
+        "enabled"
+      ]
+    },
+    "Version": {
+      "type": "object",
+      "properties": {
+        "installation": {
+          "type": "string"
+        },
+        "reference": {
+          "type": "string"
+        },
+        "commit": {
+          "type": "string"
+        },
+        "block_updates": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "installation",
+        "reference",
+        "commit"
+      ]
+    },
+    "Install": {
+      "type": "object",
+      "properties": {
+        "installation": {
+          "type": "string"
+        },
+        "remote": {
+          "type": "string"
+        },
+        "refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "installation",
+        "remote",
+        "refs"
+      ]
+    },
+    "InstallFiles": {
+      "type": "object",
+      "properties": {
+        "installation": {
+          "type": "string"
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "installation",
+        "files"
+      ]
+    },
+    "RemoteSearch": {
+      "type": "object",
+      "properties": {
+        "installation": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "search": {
+          "type": "string",
+          "default": ""
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "installation",
+        "name"
+      ]
+    },
+    "RemoteAdd": {
+      "type": "object",
+      "properties": {
+        "installation": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "location": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "installation",
+        "name",
+        "location"
+      ]
+    },
+    "RemoteToggle": {
+      "type": "object",
+      "properties": {
+        "installation": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "installation",
+        "name",
+        "enabled"
+      ]
+    },
+    "RemoteTarget": {
+      "type": "object",
+      "properties": {
+        "installation": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "installation",
+        "name"
+      ]
+    },
+    "DataList": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "$ref": "#/$defs/DataState",
+          "default": "all"
+        },
+        "search": {
+          "type": "string",
+          "default": ""
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataState": {
+      "type": "string",
+      "enum": [
+        "all",
+        "active",
+        "leftover"
+      ]
+    },
+    "Ids": {
+      "type": "object",
+      "properties": {
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "ids"
+      ]
+    },
+    "CreateSnapshot": {
+      "type": "object",
+      "properties": {
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "ids",
+        "name"
+      ]
+    },
+    "SnapshotPaths": {
+      "type": "object",
+      "properties": {
+        "paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "paths"
+      ]
+    },
+    "RenameSnapshot": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "name"
+      ]
+    },
+    "ImportSnapshot": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "file": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "file",
+        "name"
+      ]
+    },
+    "ExportSnapshot": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "destination": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "destination"
+      ]
+    }
+  }
+}

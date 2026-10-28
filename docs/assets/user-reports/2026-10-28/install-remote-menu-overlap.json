@@ -1,0 +1,18 @@
+{
+  "reported_date": "2026-10-28",
+  "source": "User-supplied screenshot",
+  "original_path": "/tmp/clipboard-b2a00e12-6d3d-4a41-8d72-7a9528afcbdf.png",
+  "saved_path": "docs/assets/user-reports/2026-10-28/install-remote-menu-overlap.png",
+  "sha256": "046bded48ad21b79fc6989bd5fcaa0ad008672ce54bbbbec3168d2da92a41943",
+  "capture_method": "Provided in chat; no desktop capture or live reproduction in this documentation-only session",
+  "copy_command": [
+    "cp",
+    "/tmp/clipboard-b2a00e12-6d3d-4a41-8d72-7a9528afcbdf.png",
+    "docs/assets/user-reports/2026-10-28/install-remote-menu-overlap.png"
+  ],
+  "verify_command": [
+    "sha256sum",
+    "docs/assets/user-reports/2026-10-28/install-remote-menu-overlap.png"
+  ],
+  "byte_for_byte_copy_verified": true
+}

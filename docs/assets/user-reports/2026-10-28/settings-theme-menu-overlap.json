@@ -1,0 +1,19 @@
+{
+  "reported_date": "2026-10-28",
+  "source": "User-supplied screenshot",
+  "role": "Settings Appearance Theme dropdown with Match desktop selected and Dark hovered",
+  "original_path": "/tmp/clipboard-7b48b23e-1fa4-46ea-80ad-65e65b1cbfb4.png",
+  "saved_path": "docs/assets/user-reports/2026-10-28/settings-theme-menu-overlap.png",
+  "sha256": "5b7be4254ba0c99d2292352da935b23704f4f959ebad78328d9665b2786e822e",
+  "capture_method": "Provided in chat; no desktop capture or live reproduction in this documentation-only session",
+  "copy_command": [
+    "cp",
+    "/tmp/clipboard-7b48b23e-1fa4-46ea-80ad-65e65b1cbfb4.png",
+    "docs/assets/user-reports/2026-10-28/settings-theme-menu-overlap.png"
+  ],
+  "verify_command": [
+    "sha256sum",
+    "docs/assets/user-reports/2026-10-28/settings-theme-menu-overlap.png"
+  ],
+  "byte_for_byte_copy_verified": true
+}

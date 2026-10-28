@@ -1,0 +1,19 @@
+{
+  "reported_date": "2026-10-28",
+  "source": "User-supplied screenshot",
+  "role": "Supplied current Warehouse COSMIC Snapshots empty state",
+  "original_path": "/tmp/clipboard-756e44a4-f1b7-4794-9ce8-266a80ff99ff.png",
+  "saved_path": "docs/assets/user-reports/2026-10-28/snapshots-empty-cosmic-current.png",
+  "sha256": "e5b873eb52d660bf1f92f164cc8abb0d6902e2450c06255af4d82d718f0ac910",
+  "capture_method": "Provided in chat; no desktop capture or live reproduction in this documentation-only session",
+  "copy_command": [
+    "cp",
+    "/tmp/clipboard-756e44a4-f1b7-4794-9ce8-266a80ff99ff.png",
+    "docs/assets/user-reports/2026-10-28/snapshots-empty-cosmic-current.png"
+  ],
+  "verify_command": [
+    "sha256sum",
+    "docs/assets/user-reports/2026-10-28/snapshots-empty-cosmic-current.png"
+  ],
+  "byte_for_byte_copy_verified": true
+}

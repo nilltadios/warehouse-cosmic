@@ -1,0 +1,19 @@
+{
+  "reported_date": "2026-10-28",
+  "source": "User-supplied screenshot",
+  "role": "Supplied reference Warehouse confirmation",
+  "original_path": "/tmp/clipboard-61f2b9c0-905f-40d9-87cf-85b51f9c5bfb.png",
+  "saved_path": "docs/assets/user-reports/2026-10-28/uninstall-warehouse-reference.png",
+  "sha256": "c1fa4dd3b061d7afeb60310bc1220448e89221bd22f36fff974773043e94b2a8",
+  "capture_method": "Provided in chat; no desktop capture or live reproduction in this documentation-only session",
+  "copy_command": [
+    "cp",
+    "/tmp/clipboard-61f2b9c0-905f-40d9-87cf-85b51f9c5bfb.png",
+    "docs/assets/user-reports/2026-10-28/uninstall-warehouse-reference.png"
+  ],
+  "verify_command": [
+    "sha256sum",
+    "docs/assets/user-reports/2026-10-28/uninstall-warehouse-reference.png"
+  ],
+  "byte_for_byte_copy_verified": true
+}

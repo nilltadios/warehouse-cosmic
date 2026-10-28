@@ -1,0 +1,19 @@
+{
+  "reported_date": "2026-10-28",
+  "source": "User-supplied screenshot",
+  "role": "Supplied reference Warehouse New Snapshots app-selection dialog",
+  "original_path": "/tmp/clipboard-1a163a99-54a0-484f-a9fd-74476173bebb.png",
+  "saved_path": "docs/assets/user-reports/2026-10-28/snapshots-create-warehouse-reference.png",
+  "sha256": "e8d8c027ac232f94f07a1d03127f349ba5f321ff9f139bf1789a47f8a8e659a7",
+  "capture_method": "Provided in chat; no desktop capture or live reproduction in this documentation-only session",
+  "copy_command": [
+    "cp",
+    "/tmp/clipboard-1a163a99-54a0-484f-a9fd-74476173bebb.png",
+    "docs/assets/user-reports/2026-10-28/snapshots-create-warehouse-reference.png"
+  ],
+  "verify_command": [
+    "sha256sum",
+    "docs/assets/user-reports/2026-10-28/snapshots-create-warehouse-reference.png"
+  ],
+  "byte_for_byte_copy_verified": true
+}

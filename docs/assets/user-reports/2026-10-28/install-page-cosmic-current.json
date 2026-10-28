@@ -1,0 +1,19 @@
+{
+  "reported_date": "2026-10-28",
+  "source": "User-supplied screenshot",
+  "role": "Supplied current Warehouse COSMIC Install Packages layout",
+  "original_path": "/tmp/clipboard-df03c4cf-2fc4-448a-a060-3960a78ddb90.png",
+  "saved_path": "docs/assets/user-reports/2026-10-28/install-page-cosmic-current.png",
+  "sha256": "3200e5b8cc288d1d9a235dc6e8ee2e32a5f99d2354423cce8be16189ec920cb9",
+  "capture_method": "Provided in chat; no desktop capture or live reproduction in this documentation-only session",
+  "copy_command": [
+    "cp",
+    "/tmp/clipboard-df03c4cf-2fc4-448a-a060-3960a78ddb90.png",
+    "docs/assets/user-reports/2026-10-28/install-page-cosmic-current.png"
+  ],
+  "verify_command": [
+    "sha256sum",
+    "docs/assets/user-reports/2026-10-28/install-page-cosmic-current.png"
+  ],
+  "byte_for_byte_copy_verified": true
+}

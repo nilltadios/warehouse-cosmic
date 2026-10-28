@@ -1,0 +1,19 @@
+{
+  "reported_date": "2026-10-28",
+  "source": "User-supplied screenshot",
+  "role": "Supplied reference Warehouse Install Packages and Pending Packages layout",
+  "original_path": "/tmp/clipboard-1ffb41d8-8ae0-4f94-9661-adf4b67038f7.png",
+  "saved_path": "docs/assets/user-reports/2026-10-28/install-page-warehouse-reference.png",
+  "sha256": "292c88c110a514d395859a605e3d2da823c9ec2a67a8931e8e9edfe4d0eb853c",
+  "capture_method": "Provided in chat; no desktop capture or live reproduction in this documentation-only session",
+  "copy_command": [
+    "cp",
+    "/tmp/clipboard-1ffb41d8-8ae0-4f94-9661-adf4b67038f7.png",
+    "docs/assets/user-reports/2026-10-28/install-page-warehouse-reference.png"
+  ],
+  "verify_command": [
+    "sha256sum",
+    "docs/assets/user-reports/2026-10-28/install-page-warehouse-reference.png"
+  ],
+  "byte_for_byte_copy_verified": true
+}

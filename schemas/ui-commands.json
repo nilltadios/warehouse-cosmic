@@ -1,0 +1,327 @@
+{
+  "schema": "warehouse-cosmic-ui/1",
+  "ok": true,
+  "data": {
+    "commands": [
+      "instances",
+      "inspect",
+      "tree",
+      "activation-token",
+      "activate",
+      "navigate",
+      "open",
+      "fill",
+      "theme",
+      "window",
+      "capture",
+      "wait",
+      "start",
+      "hover",
+      "scroll",
+      "close"
+    ],
+    "request_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Envelope",
+      "type": "object",
+      "properties": {
+        "request": {
+          "$ref": "#/$defs/Request"
+        },
+        "apply": {
+          "type": "boolean",
+          "default": false
+        },
+        "allow_system": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "request"
+      ],
+      "$defs": {
+        "Request": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "command": {
+                  "type": "string",
+                  "const": "inspect"
+                }
+              },
+              "required": [
+                "command"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "command": {
+                  "type": "string",
+                  "const": "tree"
+                }
+              },
+              "required": [
+                "command"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "command": {
+                  "type": "string",
+                  "const": "present"
+                }
+              },
+              "required": [
+                "command"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "command": {
+                  "type": "string",
+                  "const": "activation-token"
+                }
+              },
+              "required": [
+                "command"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "command": {
+                  "type": "string",
+                  "const": "activate"
+                },
+                "params": {
+                  "type": "object",
+                  "properties": {
+                    "target": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "target"
+                  ]
+                }
+              },
+              "required": [
+                "command",
+                "params"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "command": {
+                  "type": "string",
+                  "const": "open"
+                },
+                "params": {
+                  "type": "object",
+                  "properties": {
+                    "files": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "files"
+                  ]
+                }
+              },
+              "required": [
+                "command",
+                "params"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "command": {
+                  "type": "string",
+                  "const": "theme"
+                },
+                "params": {
+                  "type": "object",
+                  "properties": {
+                    "theme": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "theme"
+                  ]
+                }
+              },
+              "required": [
+                "command",
+                "params"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "command": {
+                  "type": "string",
+                  "const": "window"
+                },
+                "params": {
+                  "type": "object",
+                  "properties": {
+                    "width": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint32",
+                      "minimum": 0
+                    },
+                    "height": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint32",
+                      "minimum": 0
+                    },
+                    "mode": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "command",
+                "params"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "command": {
+                  "type": "string",
+                  "const": "capture"
+                },
+                "params": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "overwrite": {
+                      "type": "boolean",
+                      "default": false
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "path"
+                  ]
+                }
+              },
+              "required": [
+                "command",
+                "params"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "command": {
+                  "type": "string",
+                  "const": "fill"
+                },
+                "params": {
+                  "type": "object",
+                  "properties": {
+                    "target": {
+                      "type": "string"
+                    },
+                    "text": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "target",
+                    "text"
+                  ]
+                }
+              },
+              "required": [
+                "command",
+                "params"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "command": {
+                  "type": "string",
+                  "const": "resolve"
+                },
+                "params": {
+                  "type": "object",
+                  "properties": {
+                    "target": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "target"
+                  ]
+                }
+              },
+              "required": [
+                "command",
+                "params"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "command": {
+                  "type": "string",
+                  "const": "close"
+                }
+              },
+              "required": [
+                "command"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      }
+    }
+  },
+  "error": null
+}

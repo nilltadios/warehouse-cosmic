@@ -1,0 +1,19 @@
+{
+  "reported_date": "2026-10-28",
+  "source": "User-supplied screenshot",
+  "original_path": "/tmp/clipboard-fb141d4c-0909-4e92-89ae-f9da1bf54623.png",
+  "saved_path": "docs/assets/user-reports/2026-10-28/data-filter-sizing.png",
+  "sha256": "b00e5b6cb17af8c6a9aaa05a9700293b31845870a53d97e9bc6c14b04e070032",
+  "installed_flatpak_commit": "78703b236aae2da4de6499047a4c32db3575455e6a3fb064e5f9821a347a9aec",
+  "capture_method": "Provided in chat; no desktop capture or live reproduction in this documentation-only session",
+  "copy_command": [
+    "cp",
+    "/tmp/clipboard-fb141d4c-0909-4e92-89ae-f9da1bf54623.png",
+    "docs/assets/user-reports/2026-10-28/data-filter-sizing.png"
+  ],
+  "verify_command": [
+    "sha256sum",
+    "docs/assets/user-reports/2026-10-28/data-filter-sizing.png"
+  ],
+  "byte_for_byte_copy_verified": true
+}

@@ -1,0 +1,49 @@
+[package]
+name = "warehouse-cosmic"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.99"
+license = "GPL-3.0-or-later"
+description = "A native Rust and libcosmic toolbox for Flatpak"
+default-run = "warehouse-cosmic"
+
+[features]
+default = ["gui", "gpu"]
+gui = ["dep:libcosmic", "dep:tokio", "dep:image", "dep:env_logger"]
+gpu = ["gui", "libcosmic/wgpu"]
+
+[dependencies]
+# Use the same Git source as cosmic-settings-daemon. Cargo.lock pins the commit;
+# two URL/rev identities for the same packages prevent offline Cargo vendoring.
+libcosmic = { git = "https://github.com/pop-os/libcosmic", optional = true, default-features = false, features = ["wayland", "tokio", "a11y", "dbus-config", "xdg-portal", "single-instance"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", optional = true, features = ["time", "sync", "rt-multi-thread"] }
+tar = "0.4"
+zstd = "0.14"
+trash = "5"
+url = "2"
+env_logger = { version = "0.11", optional = true }
+clap = { version = "4", features = ["derive"] }
+schemars = "1"
+ctrlc = "3"
+image = { version = "0.25", optional = true, default-features = false, features = ["png"] }
+zbus = { version = "6", default-features = false, features = ["tokio-multithread", "proxy", "service"] }
+reis = "0.7"
+rustix = { version = "1", features = ["time"] }
+
+[dev-dependencies]
+tempfile = "3"
+
+[profile.release]
+lto = "thin"
+strip = true
+
+[[bin]]
+name = "warehouse-cosmic"
+path = "src/main.rs"
+required-features = ["gui"]
+
+[[bin]]
+name = "warehouse-cosmic-cli"
+path = "src/cli_main.rs"

@@ -1,0 +1,8 @@
+[
+  {"name":"appcenter","title":"AppCenter","description":"Apps from elementary's curated store","url":"https://flatpak.elementaryos.org/repo.flatpakrepo"},
+  {"name":"flathub","title":"Flathub","description":"Community apps for Linux","url":"https://dl.flathub.org/repo/flathub.flatpakrepo"},
+  {"name":"flathub-beta","title":"Flathub beta","description":"Test versions published on Flathub","url":"https://dl.flathub.org/beta-repo/flathub-beta.flatpakrepo"},
+  {"name":"fedora","title":"Fedora","description":"Flatpak apps maintained by Fedora","url":"oci+https://registry.fedoraproject.org"},
+  {"name":"gnome-nightly","title":"GNOME Nightly","description":"Development versions of GNOME apps and runtimes","url":"https://nightly.gnome.org/gnome-nightly.flatpakrepo"},
+  {"name":"webkit-sdk","title":"WebKit Developer SDK","description":"Development tools and runtimes for WebKit","url":"https://software.igalia.com/flatpak-refs/webkit-sdk.flatpakrepo"}
+]

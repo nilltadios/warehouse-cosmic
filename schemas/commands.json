@@ -1,0 +1,817 @@
+{
+  "schema": "warehouse-cosmic-commands/1",
+  "commands": [
+    {
+      "command": "package.update-check",
+      "description": "Compare installed and remote commits using the package's actual origin.",
+      "mutates": false,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "Target",
+        "type": "object",
+        "properties": {
+          "installation": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "installation",
+          "reference"
+        ]
+      },
+      "example": {
+        "installation": "user",
+        "reference": "org.example.App/x86_64/stable"
+      },
+      "dry_run_by_default": false
+    },
+    {
+      "command": "package.update",
+      "description": "Update exact installed packages from their origins, preserving app data and honoring masks.",
+      "mutates": true,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "PackageRefs",
+        "type": "object",
+        "properties": {
+          "installation": {
+            "type": "string"
+          },
+          "references": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "installation",
+          "references"
+        ]
+      },
+      "example": {
+        "installation": "user",
+        "references": [
+          "app/org.example.App/x86_64/stable"
+        ]
+      },
+      "dry_run_by_default": true
+    },
+    {
+      "command": "package.reinstall",
+      "description": "Reinstall an exact package from a chosen remote in the same installation, preserving app data.",
+      "mutates": true,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "Reinstall",
+        "type": "object",
+        "properties": {
+          "installation": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          },
+          "remote": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "installation",
+          "reference",
+          "remote"
+        ]
+      },
+      "example": {
+        "installation": "user",
+        "reference": "app/org.example.App/x86_64/stable",
+        "remote": "custom-repo"
+      },
+      "dry_run_by_default": true
+    },
+    {
+      "command": "inventory.list",
+      "description": "Read packages, remotes, app data, snapshots and warnings.",
+      "mutates": false,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "Empty",
+        "type": "object",
+        "additionalProperties": false
+      },
+      "example": {},
+      "dry_run_by_default": false
+    },
+    {
+      "command": "package.list",
+      "description": "Filter installed packages by kind, installation and search text.",
+      "mutates": false,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "List",
+        "type": "object",
+        "properties": {
+          "search": {
+            "type": "string",
+            "default": ""
+          },
+          "installation": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "default": null
+          },
+          "kind": {
+            "$ref": "#/$defs/Kind",
+            "default": "all"
+          }
+        },
+        "additionalProperties": false,
+        "$defs": {
+          "Kind": {
+            "type": "string",
+            "enum": [
+              "all",
+              "applications",
+              "runtimes"
+            ]
+          }
+        }
+      },
+      "example": {
+        "kind": "applications"
+      },
+      "dry_run_by_default": false
+    },
+    {
+      "command": "package.info",
+      "description": "Read all Flatpak details of one exact installed package.",
+      "mutates": false,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "Target",
+        "type": "object",
+        "properties": {
+          "installation": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "installation",
+          "reference"
+        ]
+      },
+      "example": {
+        "installation": "user",
+        "reference": "org.example.App/x86_64/stable"
+      },
+      "dry_run_by_default": false
+    },
+    {
+      "command": "package.history",
+      "description": "Read the origin's available version commits (may use the network).",
+      "mutates": false,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "Target",
+        "type": "object",
+        "properties": {
+          "installation": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "installation",
+          "reference"
+        ]
+      },
+      "example": {
+        "installation": "user",
+        "reference": "org.example.App/x86_64/stable"
+      },
+      "dry_run_by_default": false
+    },
+    {
+      "command": "package.uninstall",
+      "description": "Uninstall exact packages; optionally move shared app data to Trash.",
+      "mutates": true,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "Uninstall",
+        "type": "object",
+        "properties": {
+          "installation": {
+            "type": "string"
+          },
+          "references": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "trash_data": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "installation",
+          "references"
+        ]
+      },
+      "example": {
+        "installation": "user",
+        "references": [
+          "org.example.App/x86_64/stable"
+        ],
+        "trash_data": false
+      },
+      "dry_run_by_default": true
+    },
+    {
+      "command": "package.mask",
+      "description": "Set an update mask. enabled=true blocks updates. Removal can affect wildcard matches.",
+      "mutates": true,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "Toggle",
+        "type": "object",
+        "properties": {
+          "installation": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "installation",
+          "reference",
+          "enabled"
+        ]
+      },
+      "example": {
+        "installation": "user",
+        "reference": "org.example.App/x86_64/stable",
+        "enabled": true
+      },
+      "dry_run_by_default": true
+    },
+    {
+      "command": "package.pin",
+      "description": "Pin or unpin an installed runtime. Applications cannot be pinned.",
+      "mutates": true,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "Toggle",
+        "type": "object",
+        "properties": {
+          "installation": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "installation",
+          "reference",
+          "enabled"
+        ]
+      },
+      "example": {
+        "installation": "user",
+        "reference": "runtime/org.example.Platform/x86_64/stable",
+        "enabled": true
+      },
+      "dry_run_by_default": true
+    },
+    {
+      "command": "package.version",
+      "description": "Switch to a remote commit; restore the old masks if the update fails.",
+      "mutates": true,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "Version",
+        "type": "object",
+        "properties": {
+          "installation": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          },
+          "commit": {
+            "type": "string"
+          },
+          "block_updates": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "installation",
+          "reference",
+          "commit"
+        ]
+      },
+      "example": {
+        "installation": "user",
+        "reference": "org.example.App/x86_64/stable",
+        "commit": "<64 hex characters>",
+        "block_updates": true
+      },
+      "dry_run_by_default": true
+    },
+    {
+      "command": "package.install",
+      "description": "Install exact references from an enabled remote.",
+      "mutates": true,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "Install",
+        "type": "object",
+        "properties": {
+          "installation": {
+            "type": "string"
+          },
+          "remote": {
+            "type": "string"
+          },
+          "refs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "installation",
+          "remote",
+          "refs"
+        ]
+      },
+      "example": {
+        "installation": "user",
+        "remote": "flathub",
+        "refs": [
+          "org.example.App"
+        ]
+      },
+      "dry_run_by_default": true
+    },
+    {
+      "command": "package.install-files",
+      "description": "Install .flatpak bundles and .flatpakref files in order.",
+      "mutates": true,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "InstallFiles",
+        "type": "object",
+        "properties": {
+          "installation": {
+            "type": "string"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "installation",
+          "files"
+        ]
+      },
+      "example": {
+        "installation": "user",
+        "files": [
+          "/path/app.flatpak"
+        ]
+      },
+      "dry_run_by_default": true
+    },
+    {
+      "command": "remote.list",
+      "description": "Read all remotes, including disabled remotes and their installation.",
+      "mutates": false,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "Empty",
+        "type": "object",
+        "additionalProperties": false
+      },
+      "example": {},
+      "dry_run_by_default": false
+    },
+    {
+      "command": "remote.packages",
+      "description": "Search applications in one enabled remote (may use the network).",
+      "mutates": false,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "RemoteSearch",
+        "type": "object",
+        "properties": {
+          "installation": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "search": {
+            "type": "string",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "installation",
+          "name"
+        ]
+      },
+      "example": {
+        "installation": "user",
+        "name": "flathub",
+        "search": "editor"
+      },
+      "dry_run_by_default": false
+    },
+    {
+      "command": "remote.add",
+      "description": "Add a URL or a local .flatpakrepo file.",
+      "mutates": true,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "RemoteAdd",
+        "type": "object",
+        "properties": {
+          "installation": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "installation",
+          "name",
+          "location"
+        ]
+      },
+      "example": {
+        "installation": "user",
+        "name": "flathub",
+        "location": "https://dl.flathub.org/repo/flathub.flatpakrepo"
+      },
+      "dry_run_by_default": true
+    },
+    {
+      "command": "remote.enable",
+      "description": "Enable or disable a remote. Disabling stops updates from it.",
+      "mutates": true,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "RemoteToggle",
+        "type": "object",
+        "properties": {
+          "installation": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "installation",
+          "name",
+          "enabled"
+        ]
+      },
+      "example": {
+        "installation": "user",
+        "name": "flathub",
+        "enabled": true
+      },
+      "dry_run_by_default": true
+    },
+    {
+      "command": "remote.remove",
+      "description": "Remove a remote. Flatpak refuses while installed packages need it.",
+      "mutates": true,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "RemoteTarget",
+        "type": "object",
+        "properties": {
+          "installation": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "installation",
+          "name"
+        ]
+      },
+      "example": {
+        "installation": "user",
+        "name": "example"
+      },
+      "dry_run_by_default": true
+    },
+    {
+      "command": "data.list",
+      "description": "List active or leftover app data and sizes without following directory symlinks.",
+      "mutates": false,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "DataList",
+        "type": "object",
+        "properties": {
+          "state": {
+            "$ref": "#/$defs/DataState",
+            "default": "all"
+          },
+          "search": {
+            "type": "string",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "$defs": {
+          "DataState": {
+            "type": "string",
+            "enum": [
+              "all",
+              "active",
+              "leftover"
+            ]
+          }
+        }
+      },
+      "example": {
+        "state": "leftover"
+      },
+      "dry_run_by_default": false
+    },
+    {
+      "command": "data.trash",
+      "description": "Move shared app data to the desktop Trash. Close these apps first.",
+      "mutates": true,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "Ids",
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "ids"
+        ]
+      },
+      "example": {
+        "ids": [
+          "org.example.App"
+        ]
+      },
+      "dry_run_by_default": true
+    },
+    {
+      "command": "snapshot.list",
+      "description": "List this app's snapshots and the official Warehouse library (read-only).",
+      "mutates": false,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "Empty",
+        "type": "object",
+        "additionalProperties": false
+      },
+      "example": {},
+      "dry_run_by_default": false
+    },
+    {
+      "command": "snapshot.create",
+      "description": "Create Warehouse-compatible tar.zst backups. Close these apps first.",
+      "mutates": true,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "CreateSnapshot",
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "ids",
+          "name"
+        ]
+      },
+      "example": {
+        "ids": [
+          "org.example.App"
+        ],
+        "name": "Before changes"
+      },
+      "dry_run_by_default": true
+    },
+    {
+      "command": "snapshot.restore",
+      "description": "Restore one snapshot per app after validating archives; keep current data in recovery folders.",
+      "mutates": true,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "SnapshotPaths",
+        "type": "object",
+        "properties": {
+          "paths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "paths"
+        ]
+      },
+      "example": {
+        "paths": [
+          "/path/to/library/org.example.App/123_data-0.tar.zst"
+        ]
+      },
+      "dry_run_by_default": true
+    },
+    {
+      "command": "snapshot.trash",
+      "description": "Move selected snapshots from this app's library to Trash.",
+      "mutates": true,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "SnapshotPaths",
+        "type": "object",
+        "properties": {
+          "paths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "paths"
+        ]
+      },
+      "example": {
+        "paths": [
+          "/path/to/library/org.example.App/123_data-0.tar.zst"
+        ]
+      },
+      "dry_run_by_default": true
+    },
+    {
+      "command": "snapshot.rename",
+      "description": "Rename a snapshot in this app's library; back up its metadata.",
+      "mutates": true,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "RenameSnapshot",
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "name"
+        ]
+      },
+      "example": {
+        "path": "/path/snapshot.tar.zst",
+        "name": "Before update"
+      },
+      "dry_run_by_default": true
+    },
+    {
+      "command": "snapshot.import",
+      "description": "Validate and copy a .tar.zst snapshot into this app's library.",
+      "mutates": true,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "ImportSnapshot",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "file": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "file",
+          "name"
+        ]
+      },
+      "example": {
+        "id": "org.example.App",
+        "file": "/path/backup.tar.zst",
+        "name": "Imported"
+      },
+      "dry_run_by_default": true
+    },
+    {
+      "command": "snapshot.export",
+      "description": "Export an archive and metadata. Back up existing destinations first.",
+      "mutates": true,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "ExportSnapshot",
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "destination": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "destination"
+        ]
+      },
+      "example": {
+        "path": "/path/to/library/snapshot.tar.zst",
+        "destination": "/path/export.tar.zst"
+      },
+      "dry_run_by_default": true
+    }
+  ]
+}

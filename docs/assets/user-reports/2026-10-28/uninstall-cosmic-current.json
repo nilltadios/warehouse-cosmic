@@ -1,0 +1,19 @@
+{
+  "reported_date": "2026-10-28",
+  "source": "User-supplied screenshot",
+  "role": "Supplied current Warehouse COSMIC confirmation",
+  "original_path": "/tmp/clipboard-83c8a54e-1a4b-4090-b798-df65a9237782.png",
+  "saved_path": "docs/assets/user-reports/2026-10-28/uninstall-cosmic-current.png",
+  "sha256": "3ea8bc89e23c6a9ffb0ea85ba46f95badc8f05c5e5120031aefc82f8a9e6401f",
+  "capture_method": "Provided in chat; no desktop capture or live reproduction in this documentation-only session",
+  "copy_command": [
+    "cp",
+    "/tmp/clipboard-83c8a54e-1a4b-4090-b798-df65a9237782.png",
+    "docs/assets/user-reports/2026-10-28/uninstall-cosmic-current.png"
+  ],
+  "verify_command": [
+    "sha256sum",
+    "docs/assets/user-reports/2026-10-28/uninstall-cosmic-current.png"
+  ],
+  "byte_for_byte_copy_verified": true
+}
