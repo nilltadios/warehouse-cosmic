@@ -15,4 +15,5 @@
 /flatpak/build-inputs/
 /flatpak/build-inputs-*/
 /flatpak/out/
+/flatpak/out-*/
 /.flatpak-builder/

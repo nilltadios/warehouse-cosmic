@@ -1,0 +1,46 @@
+Warehouse COSMIC: agent guide
+
+Two layers, one CLI. Neither needs MCP, a daemon or a server.
+
+1. Headless backend (no window needed). Same backend as the GUI.
+   commands --json            every command id, effects and parameter schema
+   describe COMMAND           one command, with an example
+   inspect                    full inventory: packages, remotes, data, snapshots, installations
+   run --cmd 'ID={json}'      run commands; mutations print a dry-run plan
+   run --apply --cmd ...      perform the plan you reviewed
+   run --apply --allow-system ...   system installation changes (PolicyKit may prompt)
+   Exit codes: 0 ok, 1 backend failure, 2 invalid request, 3 missing/ambiguous target,
+   4 authority refused, 5 cancelled, 6 another operation holds the lock.
+
+2. Live GUI (see and do what a person sees and does in the open window).
+   ui instances               running windows; pass --instance ID when several run
+   ui start                   present the normal window, or start one if none is running
+   ui inspect                 page, dialog contents, page content ("view"), text fields
+                              ("fields") and every clickable control ("controls") with a
+                              label and what it requires: none, apply, apply+allow-system
+   ui controls                only the controls
+   ui tree                    rendered widgets with visible text and bounds
+   ui activate CONTROL        same handler as clicking it; add --apply for changes and
+                              --apply --allow-system for system changes
+   ui fill FIELD TEXT         type into a listed field (search, install.query, ...)
+   ui navigate PAGE           packages, remotes, data, snapshots, install
+   ui open FILE... / ui drop FILE...   review files exactly like Open Files / drag and drop
+   ui wait                    until loading and operations finish
+   ui capture /abs/new.png    the window's own render
+   ui commands                all ui subcommands with descriptions
+
+Typical GUI loop: inspect -> activate a control -> wait -> inspect again and read
+"dialog", "notice", "toast" and "view". A change always opens a confirmation dialog
+first; confirm it with `ui activate dialog.confirm --apply` only when authorized.
+
+Rules
+- Use exact refs and installations returned by inspect or package.list.
+- App data is shared by every installation and branch of an app ID.
+- Data removal goes to the desktop Trash; nothing is deleted permanently.
+- Close an app yourself before snapshotting, restoring or trashing its data.
+- Do not retry a failed mutation blindly: read its report and the new state first.
+
+Inside the Flatpak, prefix commands with:
+  flatpak run --command=warehouse-cosmic-cli dev.nilltadios.WarehouseCosmic
+Full documentation: /app/share/warehouse-cosmic/docs (cli.md, agents.md, ui-cli.md)
+and llms.txt in the same directory.

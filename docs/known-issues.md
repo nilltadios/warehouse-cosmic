@@ -1,8 +1,6 @@
-# Deferred issues
+# Reported issues
 
-Reported on 2026-10-28 against the installed Flatpak commit `78703b236aae2da4de6499047a4c32db3575455e6a3fb064e5f9821a347a9aec`.
-
-These issues are recorded for a future session. The request was explicitly to document them without fixing them. Do not implement, rebuild, install or restart the app for these issues until further instruction.
+Reported on 2026-10-28 against the installed Flatpak commit `78703b236aae2da4de6499047a4c32db3575455e6a3fb064e5f9821a347a9aec`. The reports were first recorded without fixes; all six were fixed later on 2026-10-28 when fixing them was requested. Each section keeps the original report and evidence, followed by a **Resolution** describing the change and how it was verified. [Verification](verification.md) lists the reproducible check.
 
 ## WC-001. Active Data and Leftover Data button sizing
 
@@ -28,6 +26,8 @@ sha256sum docs/assets/user-reports/2026-10-28/data-filter-sizing.png
 
 Existing GUI checks verify filter switching and a visible background change. They do not establish that the button proportions are satisfactory. Future verification should inspect both selected states in dark and light themes and add a meaningful layout check to `verification/check-ui-cli-flatpak.py`.
 
+**Resolution.** The fixed 160-pixel width was removed. Both filters are now compact toggles sized to their labels (`chip` in `src/app.rs`), keeping the accent background and checkmark for the selected one. The same toggle style is used for the new Name/ID/Size sort. `verification/check-gui-parity-flatpak.py` captures both states in dark and light and asserts label-proportional widths (each under 160, Leftover wider than Active) and equal heights.
+
 ## WC-002. Dropping a .flatpak file does not open installation review
 
 Dragging a `.flatpak` file onto Warehouse COSMIC does not show the install UI. The reference Warehouse app opens its install review when a package is dropped, just as when the file is opened with Warehouse. This behavior is reported here and was not independently reproduced in this documentation-only session.
@@ -43,6 +43,8 @@ Expected: present the existing window and show the same compact install review u
 Start with the native file-drop handling and route accepted files through the existing `Message::FilesPicked` / `App::review_install_files` path in `src/app.rs`. Check native file URI/MIME handling and access to the dropped file inside the Flatpak; the cause has not been diagnosed. `App::dbus_activation` and file arguments in `src/main.rs` already provide comparison paths for opening files.
 
 The [feature mapping](parity.md) already lists drag-and-drop installation as unimplemented. Existing desktop file-open and `ui open` tests do not exercise a real native drag-and-drop operation. Future verification must include an actual file-manager drop into the installed Flatpak, review cancellation, and confirmation that no extra window or installation was created. Include a filename containing spaces when checking file URI handling.
+
+**Resolution.** Diagnosis: the window had no drop target at all; only command-line and D-Bus file opening existed. The page content is now a libcosmic `dnd_destination` accepting `text/uri-list` and the document portal's file-transfer key (`src/app.rs::view`). Dropped files take the same route as Open Files (`App::open_files`): `.flatpak`/`.flatpakref` open the install review, one `.flatpakrepo` opens Add Remote, one `.tar.zst` opens Import Snapshot; unsupported, mixed or multiple remote files are refused with Warehouse's explanations. A banner explains drop targets while dragging. Nothing installs before confirmation and no new instance is created. Unit tests cover URI decoding with spaces and every refusal; `ui drop` exercises the same handler in the installed Flatpak. A real file-manager drag was not automated in this session; it remains a manual check (see verification).
 
 ## WC-003. Overlapping dropdown item highlights
 
@@ -74,6 +76,8 @@ The original images and [scope-menu provenance](assets/user-reports/2026-10-28/i
 sha256sum docs/assets/user-reports/2026-10-28/*-menu-overlap.png
 ```
 
+**Resolution.** Diagnosis: libcosmic's dropdown list (`widget/dropdown/menu/mod.rs`, `List::draw`) paints each row's rounded selected/hovered background over the full row height with no gap, so adjacent highlights touch. Every affected dropdown was replaced: the Theme setting is three radio rows, installation and remote choices (Install Packages, Add Remote, Change Source, Install Apps from Snapshots) are radio lists or remote rows, and package filters use checkboxes and compact toggles. The app no longer uses `widget::dropdown`. The packaged check asserts that the three theme rows are separate and at least 24 logical pixels apart.
+
 ## WC-004. Uninstall confirmation should follow Warehouse's clearer design
 
 The supplied reference is clearer than the current generic confirmation. Warehouse names the app, explains removal in plain language, puts the Keep/Trash app-data choice inside the dialog, and labels the final action Uninstall. Warehouse COSMIC instead shows a raw Flatpak command, a separate "Keep app data" summary and a generic Continue button.
@@ -104,6 +108,8 @@ The supplied screenshots are the evidence; no uninstall was attempted in this do
 ```sh
 sha256sum docs/assets/user-reports/2026-10-28/uninstall-*.png
 ```
+
+**Resolution.** Uninstall now opens an app-specific dialog (`Dialog::Uninstall`): "Uninstall NAME?" (or "Uninstall N Packages?" with a list), a plain explanation, an App Settings & Content choice with Keep selected by default and Trash with explanations including the shared-data note, and Cancel plus a destructive Uninstall button. Runtimes get a runtime-specific explanation and no data choice. The raw command moved behind "Show command details" in other confirmations and stays in CLI plans and reports. Trash still uses the desktop Trash. GUI automation exposes `uninstall.keep`, `uninstall.trash` and `dialog.confirm` (which needs `--apply`, and `--allow-system` for system packages).
 
 ## WC-005. Install Packages needs Warehouse's clearer page organization
 
@@ -137,6 +143,8 @@ Both screenshots were supplied as evidence; no page interaction or install was p
 ```sh
 sha256sum docs/assets/user-reports/2026-10-28/install-page-*.png
 ```
+
+**Resolution.** Install Packages now has a bounded layout with a Search in a Remote section (one row per enabled remote with its readable title, installation and a chevron), an Add Packages section with Open Files… and the drop hint, and a Pending Packages pane with an empty-state icon and explanation. Wide windows place the pane beside the sections; narrow windows stack them. Each remote opens its own search page with Back, Installed/Add/Remove per result and a pending summary. Queued items keep their own remote and installation, can be removed singly or all at once, and install in one reviewed `InstallQueue` operation. The repeated page heading was removed.
 
 ## WC-006. Snapshots page and creation dialog need clearer organization
 
@@ -175,6 +183,8 @@ All three screenshots were supplied as evidence. Their [empty-state reference pr
 sha256sum docs/assets/user-reports/2026-10-28/snapshots-*.png
 ```
 
+**Resolution.** An empty library shows a centered icon, title, explanation and New Snapshot button with Import… and Open Snapshot Folder as secondary actions, and no toolbar. A populated library is grouped by app with icons, installed state, Install App and New Snapshot per group. The New Snapshot dialog has a name field, an app search, a scrollable list with icons, names, IDs, sizes and checkmarks, Select All/Deselect All, a selected count and Create, which is enabled only with a name and a selection. Leftover data can still be snapshotted, the close-the-app warning remains, and archive validation and recovery are unchanged.
+
 ## Scope of this record
 
-Only documentation and the supplied screenshots were saved. No application source, package, settings or running window was changed. No build or GUI test was run for these reports. Launch and test the Flatpak in a later session; close only test-created windows and preserve any window in use.
+The original reports were documentation-only. The resolutions above were built into the Flatpak and checked with `verification/check-gui-parity-flatpak.py`, which applies no confirmation, compares host packages/remotes/data/snapshots before and after, and closes only its own window.

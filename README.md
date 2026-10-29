@@ -22,17 +22,17 @@ Rust 1.99.1 is pinned in `rust-toolchain.toml`. The libcosmic revision and all c
 
 The private icon theme bundles COSMIC icons, including the sidebar toggle, so controls remain visible on KDE and inside the Freedesktop runtime. The original red/black app icon has separate header padding. Scrollbars reserve a content gutter, and Remotes/Snapshots toolbars stay outside their scrolling lists.
 
-The Settings gear opens a side panel. Appearance → Theme offers Match desktop, Dark and Light. The choice is saved automatically and loaded on the next launch. Ctrl+, opens Settings; Escape closes the panel.
+The Settings gear opens a side panel. Appearance offers Match desktop, Dark and Light as separate choices. The choice is saved automatically and loaded on the next launch. Ctrl+, opens Settings; Escape closes the panel.
 
 ## Features
 
-- Search installed applications and runtimes; filter by remote, runtime, installation and end-of-life state.
-- Copy package fields, launch applications, check/apply updates from the installed origin, change sources, block updates, pin runtimes, and change versions using remote commit history.
-- Uninstall packages individually or in batches, with an option to move shared app data to Trash.
-- Add remotes from URLs or `.flatpakrepo` files; enable, disable, and remove remotes.
-- Inspect active and leftover user data, open folders, copy IDs, make snapshots, and move data to Trash.
-- Create, import, export, rename, restore, and trash Warehouse-compatible `.tar.zst` snapshots. Batch restores require one snapshot per app.
-- Search an enabled remote, queue packages, and install multiple `.flatpak` or `.flatpakref` files.
+- Search installed applications and runtimes; filter by remotes, runtimes, installation and end-of-life state, with Name/App ID/Remote sorting. Filters, sort orders and the last page are restored on the next launch.
+- Copy package fields, launch applications, check/apply updates from the installed origin, reinstall, change sources, block updates, pin runtimes, and change versions from a list of the remote's commits.
+- Uninstall packages individually or in batches. The confirmation names the app and offers Keep (default) or Trash for its settings and content.
+- Add remotes from URLs, popular presets or `.flatpakrepo` files; enable, disable, remove and search remotes.
+- Inspect active and leftover user data sorted by name, ID or size; open folders, copy IDs, make snapshots, find leftover apps in a remote, and move data to Trash.
+- Create, import, export, rename, restore, and trash Warehouse-compatible `.tar.zst` snapshots, grouped by app. The New Snapshot dialog lists apps with icons, search and Select All.
+- Search a remote, collect pending packages from several remotes and installations, and install them in one reviewed operation. Install `.flatpak` or `.flatpakref` files from Open Files or by dragging them onto the window.
 
 Snapshots created here live under `$XDG_DATA_HOME/warehouse-cosmic/Snapshots` (normally `~/.local/share/warehouse-cosmic/Snapshots`). The official Warehouse snapshot library is also visible; import copies to edit them here. Restores validate and extract the archive before replacing data. The previous data is retained in a sibling `.warehouse-recovery-*` folder under `~/.var/app`; the result names its exact path. Close the affected application yourself before snapshotting, restoring, or removing its data.
 
@@ -41,6 +41,7 @@ Operations are serialized across GUI and CLI invocations with a file lock. Resul
 ## Headless CLI for people and agents
 
 ```sh
+warehouse-cosmic-cli guide
 warehouse-cosmic-cli commands --json
 warehouse-cosmic-cli describe package.uninstall
 warehouse-cosmic-cli run --cmd 'package.list={"kind":"applications"}'
@@ -59,7 +60,7 @@ See [the CLI guide](docs/cli.md), [agent workflow](docs/agents.md), [command cat
 
 The [project brief](docs/project-brief.md) records the intended product and interface requirements. The [testing guide](docs/verification.md) describes reproducible checks and their limits. For live GUI inspection, navigation, file review, theme/window changes, hover/scroll tests and renderer captures, use the [GUI CLI](docs/ui-cli.md).
 
-See [deferred issues](docs/known-issues.md) for reported problems, saved evidence and future reproduction steps. These reports do not authorize implementation until requested.
+See [reported issues](docs/known-issues.md) for the 2026-10-28 reports, their fixes, saved evidence and verification.
 
 ## Install and remove
 

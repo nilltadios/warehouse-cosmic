@@ -26,6 +26,14 @@ pub fn title(remote: &Remote) -> &str {
     }
 }
 
+/// Whether a preset is already configured, by name or repository URL.
+pub fn added(preset: &PopularRemote, configured: &[Remote]) -> bool {
+    let url = |value: &str| value.trim().trim_end_matches('/').to_lowercase();
+    configured
+        .iter()
+        .any(|r| r.name == preset.name || (!r.url.is_empty() && url(&r.url) == url(&preset.url)))
+}
+
 pub fn visible(remote: &Remote, query: &str, show_disabled: bool) -> bool {
     (show_disabled || !remote.disabled())
         && format!(

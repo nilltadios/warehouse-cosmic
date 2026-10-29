@@ -18,10 +18,17 @@ pub struct Args {
 }
 #[derive(Debug, Subcommand)]
 pub enum Command {
+    /// List these GUI commands with descriptions and the request schema.
     Commands,
+    /// Print the JSON Schema of GUI requests.
     Schema,
+    /// List running GUI instances.
     Instances,
+    /// Current page, dialog, page content, text fields and every available control.
     Inspect,
+    /// Only the available controls: id, label and required flags.
+    Controls,
+    /// Inspection plus the rendered widget tree, visible text and bounds.
     Tree,
     /// Obtain a desktop activation token for an explicit launch/activation test.
     ActivationToken,
@@ -34,20 +41,23 @@ pub enum Command {
         #[arg(long, requires = "apply")]
         allow_system: bool,
     },
-    Navigate {
-        page: String,
-    },
+    /// Show a page: packages, remotes, data, snapshots or install.
+    Navigate { page: String },
+    /// Open files as if chosen in Open Files; shows review without installing.
     Open {
         #[arg(required = true)]
         files: Vec<PathBuf>,
     },
-    Fill {
-        target: String,
-        text: String,
+    /// Deliver files to the window's drag-and-drop handler as text/uri-list.
+    Drop {
+        #[arg(required = true)]
+        files: Vec<PathBuf>,
     },
-    Theme {
-        theme: String,
-    },
+    /// Type into a text field listed under `fields` in inspect.
+    Fill { target: String, text: String },
+    /// Theme: system, dark or light.
+    Theme { theme: String },
+    /// Change window mode or logical size.
     Window {
         #[arg(long)]
         mode: Option<String>,
@@ -56,6 +66,7 @@ pub enum Command {
         #[arg(long)]
         height: Option<u32>,
     },
+    /// Save the window's own render to a new PNG.
     Capture {
         path: PathBuf,
         #[arg(long)]
@@ -79,6 +90,7 @@ pub enum Command {
         #[arg(long)]
         capture: Option<PathBuf>,
     },
+    /// Scroll with the real pointer over a widget (KDE/KWin only).
     Scroll {
         #[arg(long, default_value = "content")]
         target: String,
@@ -87,11 +99,69 @@ pub enum Command {
         #[arg(long)]
         capture: Option<PathBuf>,
     },
+    /// Close the selected GUI window (requires --apply).
     Close {
         #[arg(long)]
         apply: bool,
     },
 }
+const COMMANDS: [(&str, &str); 19] = [
+    (
+        "instances",
+        "List running GUI instances; pass one with --instance when several run",
+    ),
+    (
+        "inspect",
+        "State of the visible window: page, dialog, page content (view), text fields and controls with labels and required flags",
+    ),
+    ("controls", "Only the controls that can be activated now"),
+    (
+        "tree",
+        "Inspection plus rendered widgets with visible text and bounds",
+    ),
+    (
+        "activate",
+        "Activate a control id from inspect (alias: click). Changes need --apply; system changes also --allow-system",
+    ),
+    (
+        "navigate",
+        "Show packages, remotes, data, snapshots or install",
+    ),
+    (
+        "open",
+        "Open package, repo or snapshot files for review; nothing is applied",
+    ),
+    (
+        "drop",
+        "Send files through the drag-and-drop handler; nothing is applied",
+    ),
+    ("fill", "Type into a text field listed under fields"),
+    ("theme", "system, dark or light"),
+    (
+        "window",
+        "Set --mode windowed|maximized|fullscreen or --width/--height",
+    ),
+    (
+        "capture",
+        "Save the window's render to a new absolute PNG path",
+    ),
+    ("wait", "Wait until loading, details and operations finish"),
+    (
+        "start",
+        "Present the running GUI, or start an isolated one with --config-dir",
+    ),
+    (
+        "activation-token",
+        "Request a Wayland activation token for launch tests",
+    ),
+    (
+        "hover",
+        "Move the real pointer over a control (KDE/KWin only)",
+    ),
+    ("scroll", "Scroll with the real pointer (KDE/KWin only)"),
+    ("close", "Close the selected window with --apply"),
+    ("schema", "JSON Schema of GUI requests"),
+];
 
 pub fn connection() -> Result<zbus::Connection, String> {
     zbus::block_on(zbus::Connection::session())
@@ -202,7 +272,10 @@ pub fn run(args: Args) -> Result<Value, String> {
     match &args.command {
         Command::Commands => {
             return Ok(protocol::success(
-                json!({"commands":["instances","inspect","tree","activation-token","activate","navigate","open","fill","theme","window","capture","wait","start","hover","scroll","close"], "request_schema":schemars::schema_for!(Envelope)}),
+                json!({"commands":COMMANDS.map(|(name, _)| name),
+                    "descriptions":COMMANDS.iter().map(|(name, description)| json!({"command":name,"description":description})).collect::<Vec<_>>(),
+                    "workflow":["ui instances","ui --instance ID inspect","ui --instance ID activate CONTROL","ui --instance ID wait","ui --instance ID inspect"],
+                    "request_schema":schemars::schema_for!(Envelope)}),
             ));
         }
         Command::Schema => {
@@ -251,6 +324,22 @@ pub fn run(args: Args) -> Result<Value, String> {
                 .map(std::path::absolute)
                 .collect::<Result<_, _>>()
                 .map_err(|e| e.to_string())?,
+        },
+        Command::Controls => {
+            let mut value = call(&connection, &instance, Request::Inspect, false, false)?;
+            let controls = value["data"]["state"]["controls"].take();
+            return Ok(protocol::success(json!({"controls":controls})));
+        }
+        Command::Drop { files } => Request::Drop {
+            uris: files
+                .into_iter()
+                .map(|path| {
+                    let path = std::path::absolute(path).map_err(|e| e.to_string())?;
+                    url::Url::from_file_path(&path)
+                        .map(String::from)
+                        .map_err(|_| format!("Cannot express {} as a file URI", path.display()))
+                })
+                .collect::<Result<_, _>>()?,
         },
         Command::Fill { target, text } => Request::Fill { target, text },
         Command::Theme { theme } => {

@@ -79,7 +79,7 @@ Trash operations use the host's `gio trash` through the same host bridge. This u
 
 The Flatpak's own snapshots and reports normally live in `~/.var/app/dev.nilltadios.WarehouseCosmic/data/warehouse-cosmic/`. A previous native install's library stays at `~/.local/share/warehouse-cosmic/`; import its snapshot archives to use them in the Flatpak. Existing official Warehouse snapshots are also listed read-only.
 
-The Settings gear opens a native side panel. Its Appearance section saves the Theme choice in `~/.var/app/dev.nilltadios.WarehouseCosmic/config/warehouse-cosmic/preferences.json`. Changes are written atomically, and the previous file is retained with a timestamped `.bak-*` suffix. The theme preference is loaded before the window opens. Settings contains application preferences; About contains version and license information.
+The Settings gear opens a native side panel. Its Appearance section saves the Theme choice in `~/.var/app/dev.nilltadios.WarehouseCosmic/config/warehouse-cosmic/preferences.json`. Changes are written atomically, and the previous file is retained with a timestamped `.bak-*` suffix. The theme preference is loaded before the window opens. Settings contains application preferences; About contains version and license information. Filters, sort orders and the last page are saved on a normal close in `view-state.json` beside it; capture instances never write it.
 
 The packaged standalone CLI starts no GUI or server:
 

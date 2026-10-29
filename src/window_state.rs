@@ -82,13 +82,18 @@ pub fn save(state: &WindowState) -> Result<(), String> {
     save_to(&path(), state)
 }
 fn save_to(path: &Path, state: &WindowState) -> Result<(), String> {
-    let data = serde_json::to_vec_pretty(state).map_err(|e| e.to_string())?;
+    write_json(path, state, "window")
+}
+/// Atomically replace a small JSON file. An unchanged file is left alone; a
+/// changed previous file is kept with a timestamped backup.
+pub fn write_json<T: serde::Serialize>(path: &Path, value: &T, prefix: &str) -> Result<(), String> {
+    let data = serde_json::to_vec_pretty(value).map_err(|e| e.to_string())?;
     if fs::read(path).is_ok_and(|old| old == data) {
         return Ok(());
     }
     let parent = path
         .parent()
-        .ok_or("Window state has no parent directory")?;
+        .ok_or("The state file has no parent directory")?;
     let existed = parent.exists();
     fs::create_dir_all(parent).map_err(|e| e.to_string())?;
     if !existed {
@@ -104,7 +109,7 @@ fn save_to(path: &Path, state: &WindowState) -> Result<(), String> {
         fs::copy(path, path.with_extension(format!("json.bak-{stamp}")))
             .map_err(|e| e.to_string())?;
     }
-    let temporary = parent.join(format!(".window-{}-{stamp}.tmp", std::process::id()));
+    let temporary = parent.join(format!(".{prefix}-{}-{stamp}.tmp", std::process::id()));
     let result = (|| -> std::io::Result<()> {
         let mut file = fs::OpenOptions::new()
             .create_new(true)

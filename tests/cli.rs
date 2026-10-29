@@ -74,3 +74,27 @@ fn gui_discovery_is_available_without_a_desktop_or_gui_process() {
         assert!(serde_json::from_slice::<serde_json::Value>(&output.stdout).is_ok());
     }
 }
+#[test]
+fn guide_and_ui_discovery_need_no_window() {
+    let output = cli().arg("guide").output().unwrap();
+    assert!(output.status.success());
+    let guide = String::from_utf8(output.stdout).unwrap();
+    for needle in [
+        "commands --json",
+        "ui inspect",
+        "ui activate",
+        "--allow-system",
+    ] {
+        assert!(guide.contains(needle), "guide lacks {needle}");
+    }
+    let output = cli().args(["ui", "commands"]).output().unwrap();
+    assert!(output.status.success());
+    let value: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+    let described = value["data"]["descriptions"].as_array().unwrap();
+    assert!(described.iter().any(|c| c["command"] == "drop"));
+    assert!(
+        described
+            .iter()
+            .all(|c| c["description"].as_str().is_some_and(|d| !d.is_empty()))
+    );
+}

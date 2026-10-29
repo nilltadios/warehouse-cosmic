@@ -18,7 +18,25 @@ warehouse-cosmic-cli ui start --monitor DP-1
 warehouse-cosmic-cli ui --instance INSTANCE inspect
 ```
 
-If several windows are running, commands require an exact instance. This prevents tests from silently selecting another window. `inspect` returns the current page, modal, theme, window state, pending files, busy/loading flags, available action IDs and the actual widget tree with rendered bounds. `tree` returns the same renderer inspection. `ui wait` waits for inventory/detail reads and owned operations to finish.
+If several windows are running, commands require an exact instance. This prevents tests from silently selecting another window. `ui wait` waits for inventory/detail reads and owned operations to finish.
+
+## See what a person sees
+
+`inspect` returns the window as data:
+
+| Field | Contents |
+|---|---|
+| `page`, `page_id` | Visible page (`packages`, `remotes`, `data`, `snapshots`, `install`) |
+| `view` | The page's content in display order: filtered packages and the selected package with its `flatpak info` details; data folders with sizes; snapshot groups; install remotes, search results (installed/queued) and the pending queue; remote presets |
+| `modal`, `dialog` | Open dialog kind and its content: title, explanation, exact commands, choices and the current selection |
+| `controls` | Every control that can be activated now: `id`, a readable `label` and `requires` (`none`, `apply` or `apply+allow-system`) |
+| `fields` | Text fields that `ui fill` accepts |
+| `notice`, `toast` | The last operation report and the last short confirmation, such as "Copied to clipboard" |
+| `busy`, `operation`, `loading`, `detail_loading` | Work in progress |
+
+`actions` remains as a plain list of control IDs. `ui controls` prints only the controls. `ui tree` adds the rendered widget tree with visible text and logical bounds, for layout checks.
+
+Control IDs are stable and readable, for example `package.uninstall`, `uninstall.trash`, `dialog.confirm`, `filter.remote:user:flathub`, `data:org.example.App:snapshot`, `snapshot:/path/to/file.tar.zst:restore`, `install.remote:user:flathub`, `install.result:app/org.example.App/x86_64/stable`, `install.queue.review`, `snapshot.pick:org.example.App` and `settings.theme:dark`. Always read the current list instead of guessing: a control appears only while it is visible.
 
 `ui start` presents the normal running instance when one exists. `ui start --config-dir PATH` explicitly starts a separate test instance with private preferences. Normal desktop launches and opening files reuse the main window.
 
@@ -30,19 +48,24 @@ warehouse-cosmic-cli ui --instance INSTANCE activate remotes.show-disabled
 warehouse-cosmic-cli ui --instance INSTANCE fill search flathub
 warehouse-cosmic-cli ui --instance INSTANCE capture /absolute/new-output.png
 warehouse-cosmic-cli ui --instance INSTANCE open /absolute/package.flatpak
+warehouse-cosmic-cli ui --instance INSTANCE drop "/absolute/My Package.flatpak"
 warehouse-cosmic-cli ui --instance INSTANCE activate install.scope:user
 warehouse-cosmic-cli ui --instance INSTANCE activate dialog.cancel
 warehouse-cosmic-cli ui --instance INSTANCE theme light
 warehouse-cosmic-cli ui --instance INSTANCE window --mode maximized
 warehouse-cosmic-cli ui --instance INSTANCE window --mode windowed --width 1100 --height 700
-warehouse-cosmic-cli ui --instance INSTANCE navigate data
-warehouse-cosmic-cli ui --instance INSTANCE activate data.leftover
-warehouse-cosmic-cli ui --instance INSTANCE activate data.active
+warehouse-cosmic-cli ui --instance INSTANCE navigate install
+warehouse-cosmic-cli ui --instance INSTANCE activate install.remote:user:flathub
+warehouse-cosmic-cli ui --instance INSTANCE fill install.query flatseal
+warehouse-cosmic-cli ui --instance INSTANCE activate install.search
+warehouse-cosmic-cli ui --instance INSTANCE wait
 ```
 
-`activate`, also spelled `click`, invokes the same message handler as the named visible control. It tests GUI transitions and rendering rather than calling the backend behind the window. It is a semantic action, not a physical pointer click or keyboard typing test. Use the action IDs returned by the current inspection; unavailable controls are refused.
+`activate`, also spelled `click`, invokes the same message handler as the named visible control. It tests GUI transitions and rendering rather than calling the backend behind the window. It is a semantic action, not a physical pointer click or keyboard typing test. Unavailable controls are refused.
 
-Opening files displays review without installing. Confirming installation or another package/data change requires `--apply`. System changes also require `--allow-system`. Closing the selected window requires `ui close --apply`. Capture output must be a new absolute path unless `--overwrite` is explicit.
+Every package, data or snapshot change first opens a confirmation dialog. Opening review dialogs, selecting, filtering, searching and copying need no flag. Confirming (`dialog.confirm`, `install.confirm`, `snapshot.create`) requires `--apply`; system installation changes also require `--allow-system`. Closing the selected window requires `ui close --apply`. Capture output must be a new absolute path unless `--overwrite` is explicit.
+
+`ui open` behaves like Open Files. `ui drop` sends the files as `text/uri-list` data through the window's drag-and-drop handler, including URI decoding, file-type checks and the mixed/unsupported-type dialogs. Neither installs anything. A compositor drag from a file manager uses the same handler, but `ui drop` does not test the compositor's drag session itself.
 
 ## Native hover and scrolling
 

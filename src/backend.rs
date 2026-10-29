@@ -485,6 +485,8 @@ pub enum Operation {
         installation: String,
         paths: Vec<PathBuf>,
     },
+    /// Queued remote packages, grouped by installation and remote.
+    InstallQueue(Vec<InstallGroup>),
     TrashData(Vec<String>),
     Snapshot {
         ids: Vec<String>,
@@ -517,9 +519,10 @@ impl Operation {
             Self::RemoteEnabled(_, false) => "Disable remote",
             Self::RemoteRemove(..) => "Remove remote",
             Self::RemoteAdd { .. } => "Add remote",
-            Self::Install { .. } | Self::InstallFile { .. } | Self::InstallFiles { .. } => {
-                "Install packages"
-            }
+            Self::Install { .. }
+            | Self::InstallFile { .. }
+            | Self::InstallFiles { .. }
+            | Self::InstallQueue(_) => "Install packages",
             Self::TrashData(..) => "Move user data to Trash",
             Self::Snapshot { .. } => "Create snapshots",
             Self::Restore(..) => "Restore snapshot",
@@ -723,6 +726,21 @@ impl Operation {
                     );
                 }
             }
+            Self::InstallQueue(groups) => {
+                if groups.is_empty() {
+                    return Err("Queue at least one package".into());
+                }
+                for group in groups {
+                    result.extend(
+                        Self::Install {
+                            installation: group.installation.clone(),
+                            remote: group.remote.clone(),
+                            refs: group.refs.clone(),
+                        }
+                        .commands()?,
+                    );
+                }
+            }
             Self::TrashData(ids) | Self::Snapshot { ids, .. } => {
                 if ids.is_empty() {
                     return Err("Select at least one application".into());
@@ -758,17 +776,65 @@ impl Operation {
         }
         Ok(result)
     }
+    /// The exact Flatpak commands followed by the plain-language explanation.
     pub fn description(&self) -> String {
-        let mut text = self
-            .commands()
+        let mut text = self.command_lines();
+        text.push_str(&self.explanation());
+        text
+    }
+    pub fn command_lines(&self) -> String {
+        self.commands()
             .map(|c| {
                 c.iter()
                     .map(CommandSpec::display)
                     .collect::<Vec<_>>()
                     .join("\n")
             })
-            .unwrap_or_default();
-        let extra = match self {
+            .unwrap_or_default()
+    }
+    /// The label of the confirming button.
+    pub fn verb(&self) -> &'static str {
+        match self {
+            Self::Update(_) => "Update",
+            Self::Reinstall { .. } => "Reinstall",
+            Self::Uninstall(..) => "Uninstall",
+            Self::Mask(_, true) => "Block Updates",
+            Self::Mask(_, false) => "Allow Updates",
+            Self::Pin(_, true) => "Pin",
+            Self::Pin(_, false) => "Unpin",
+            Self::Version(..) => "Change Version",
+            Self::RemoteEnabled(_, true) => "Enable",
+            Self::RemoteEnabled(_, false) => "Disable",
+            Self::RemoteRemove(..) => "Remove",
+            Self::RemoteAdd { .. } => "Add Remote",
+            Self::Install { .. }
+            | Self::InstallFile { .. }
+            | Self::InstallFiles { .. }
+            | Self::InstallQueue(_) => "Install",
+            Self::TrashData(..) | Self::TrashSnapshot(..) | Self::TrashSnapshots(..) => "Trash",
+            Self::Snapshot { .. } => "Create",
+            Self::Restore(..) | Self::RestoreMany(..) => "Restore",
+            Self::ExportSnapshot(..) => "Export",
+            Self::RenameSnapshot(..) => "Rename",
+            Self::ImportSnapshot { .. } => "Import",
+        }
+    }
+    /// Whether the confirming button should use destructive styling.
+    pub fn destructive(&self) -> bool {
+        matches!(
+            self,
+            Self::Uninstall(..)
+                | Self::RemoteRemove(..)
+                | Self::RemoteEnabled(_, false)
+                | Self::TrashData(..)
+                | Self::TrashSnapshot(..)
+                | Self::TrashSnapshots(..)
+                | Self::Restore(..)
+                | Self::RestoreMany(..)
+        )
+    }
+    pub fn explanation(&self) -> String {
+        match self {
             Self::Update(_) => "\nUpdate from the installed origins, including dependencies required by Flatpak. App data is kept.".into(),
             Self::Reinstall{package:p,remote:r} => format!("\nChange {} from {} to {} in {}. App data is kept.",p.id,p.origin,r.name,p.installation),
             Self::Uninstall(p, true) => format!(
@@ -823,11 +889,23 @@ impl Operation {
             Self::Pin(p, false) if p.pins.iter().any(|s| s.contains('*')) => {
                 "\nRemoving wildcard pin patterns also unpins other matching runtimes.".into()
             }
+            Self::InstallQueue(groups) => format!(
+                "\nInstall {} package(s) and the runtimes they require.",
+                groups.iter().map(|g| g.refs.len()).sum::<usize>()
+            ),
+            Self::Install { refs, .. } => format!(
+                "\nInstall {} package(s) and the runtimes they require.",
+                refs.len()
+            ),
             _ => String::new(),
-        };
-        text.push_str(&extra);
-        text
+        }
     }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct InstallGroup {
+    pub installation: String,
+    pub remote: String,
+    pub refs: Vec<String>,
 }
 fn validate_location(value: &str) -> Result<()> {
     if value.starts_with('-') {
@@ -1195,6 +1273,45 @@ pub fn history(p: &Package) -> Result<String> {
         &p.full_ref(),
     ]))
 }
+/// One entry of `flatpak remote-info --log`. The first entry is the remote's current commit.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Commit {
+    pub commit: String,
+    pub subject: String,
+    pub date: String,
+}
+pub fn parse_history(text: &str) -> Vec<Commit> {
+    let mut commits: Vec<Commit> = Vec::new();
+    for line in text.lines() {
+        let Some((key, value)) = line.trim().split_once(':') else {
+            continue;
+        };
+        let value = value.trim();
+        match key.trim() {
+            "Commit" if value.len() == 64 && value.bytes().all(|b| b.is_ascii_hexdigit()) => {
+                if !commits.iter().any(|c| c.commit == value) {
+                    commits.push(Commit {
+                        commit: value.into(),
+                        subject: String::new(),
+                        date: String::new(),
+                    });
+                }
+            }
+            "Subject" => {
+                if let Some(last) = commits.last_mut().filter(|c| c.subject.is_empty()) {
+                    last.subject = value.into();
+                }
+            }
+            "Date" => {
+                if let Some(last) = commits.last_mut().filter(|c| c.date.is_empty()) {
+                    last.date = value.into();
+                }
+            }
+            _ => (),
+        }
+    }
+    commits
+}
 pub fn remote_packages(r: &Remote, query_text: &str) -> Result<Vec<(String, String)>> {
     let text = query(&args(&[
         "remote-ls",
@@ -1342,5 +1459,39 @@ mod tests {
         std::os::unix::fs::symlink("/", t.path().join("link")).unwrap();
         assert_eq!(dir_size(t.path()).unwrap(), 4);
         assert!(ensure_real_dir(&t.path().join("link")).is_err());
+    }
+    #[test]
+    fn version_history_is_parsed_into_selectable_commits() {
+        let a = "a".repeat(64);
+        let b = "b".repeat(64);
+        let text = format!(
+            "        Ref: app/org.example.App/x86_64/stable\n     Commit: {a}\n    Subject: Update to 2.0\n       Date: 2026-10-01 10:00:00 +0000\n    History:\n\n     Commit: {b}\n    Subject: Initial\n       Date: 2026-09-01 10:00:00 +0000\n     Commit: not-a-commit\n"
+        );
+        let commits = parse_history(&text);
+        assert_eq!(commits.len(), 2);
+        assert_eq!(commits[0].commit, a);
+        assert_eq!(commits[0].subject, "Update to 2.0");
+        assert_eq!(commits[1].date, "2026-09-01 10:00:00 +0000");
+    }
+    #[test]
+    fn queued_installs_keep_each_remote_and_installation() {
+        let op = Operation::InstallQueue(vec![
+            InstallGroup {
+                installation: "user".into(),
+                remote: "flathub".into(),
+                refs: vec!["app/org.example.A/x86_64/stable".into()],
+            },
+            InstallGroup {
+                installation: "system".into(),
+                remote: "fedora".into(),
+                refs: vec!["app/org.example.B/x86_64/stable".into()],
+            },
+        ]);
+        let commands = op.commands().unwrap();
+        assert_eq!(commands.len(), 2);
+        assert!(commands[0].args.contains(&"--user".to_string()) && !commands[0].privileged);
+        assert!(commands[1].args.contains(&"fedora".to_string()) && commands[1].privileged);
+        assert_eq!(op.verb(), "Install");
+        assert!(Operation::InstallQueue(vec![]).commands().is_err());
     }
 }

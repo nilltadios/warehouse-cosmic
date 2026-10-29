@@ -37,6 +37,10 @@ pub enum Request {
     Open {
         files: Vec<PathBuf>,
     },
+    /// Deliver `text/uri-list` entries to the same handler as a compositor drop.
+    Drop {
+        uris: Vec<String>,
+    },
     Theme {
         theme: String,
     },

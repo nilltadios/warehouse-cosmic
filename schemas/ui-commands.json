@@ -5,20 +5,108 @@
     "commands": [
       "instances",
       "inspect",
+      "controls",
       "tree",
-      "activation-token",
       "activate",
       "navigate",
       "open",
+      "drop",
       "fill",
       "theme",
       "window",
       "capture",
       "wait",
       "start",
+      "activation-token",
       "hover",
       "scroll",
-      "close"
+      "close",
+      "schema"
+    ],
+    "descriptions": [
+      {
+        "command": "instances",
+        "description": "List running GUI instances; pass one with --instance when several run"
+      },
+      {
+        "command": "inspect",
+        "description": "State of the visible window: page, dialog, page content (view), text fields and controls with labels and required flags"
+      },
+      {
+        "command": "controls",
+        "description": "Only the controls that can be activated now"
+      },
+      {
+        "command": "tree",
+        "description": "Inspection plus rendered widgets with visible text and bounds"
+      },
+      {
+        "command": "activate",
+        "description": "Activate a control id from inspect (alias: click). Changes need --apply; system changes also --allow-system"
+      },
+      {
+        "command": "navigate",
+        "description": "Show packages, remotes, data, snapshots or install"
+      },
+      {
+        "command": "open",
+        "description": "Open package, repo or snapshot files for review; nothing is applied"
+      },
+      {
+        "command": "drop",
+        "description": "Send files through the drag-and-drop handler; nothing is applied"
+      },
+      {
+        "command": "fill",
+        "description": "Type into a text field listed under fields"
+      },
+      {
+        "command": "theme",
+        "description": "system, dark or light"
+      },
+      {
+        "command": "window",
+        "description": "Set --mode windowed|maximized|fullscreen or --width/--height"
+      },
+      {
+        "command": "capture",
+        "description": "Save the window's render to a new absolute PNG path"
+      },
+      {
+        "command": "wait",
+        "description": "Wait until loading, details and operations finish"
+      },
+      {
+        "command": "start",
+        "description": "Present the running GUI, or start an isolated one with --config-dir"
+      },
+      {
+        "command": "activation-token",
+        "description": "Request a Wayland activation token for launch tests"
+      },
+      {
+        "command": "hover",
+        "description": "Move the real pointer over a control (KDE/KWin only)"
+      },
+      {
+        "command": "scroll",
+        "description": "Scroll with the real pointer (KDE/KWin only)"
+      },
+      {
+        "command": "close",
+        "description": "Close the selected window with --apply"
+      },
+      {
+        "command": "schema",
+        "description": "JSON Schema of GUI requests"
+      }
+    ],
+    "workflow": [
+      "ui instances",
+      "ui --instance ID inspect",
+      "ui --instance ID activate CONTROL",
+      "ui --instance ID wait",
+      "ui --instance ID inspect"
     ],
     "request_schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -142,6 +230,36 @@
                   "additionalProperties": false,
                   "required": [
                     "files"
+                  ]
+                }
+              },
+              "required": [
+                "command",
+                "params"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "description": "Deliver `text/uri-list` entries to the same handler as a compositor drop.",
+              "type": "object",
+              "properties": {
+                "command": {
+                  "type": "string",
+                  "const": "drop"
+                },
+                "params": {
+                  "type": "object",
+                  "properties": {
+                    "uris": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "uris"
                   ]
                 }
               },

@@ -97,11 +97,8 @@ try:
         assert result["data"]["native_input_delivered"] is True
         with Image.open(path) as image: size=image.size
         captures[name] = {"path":str(path),"size":size,"sha256":hashlib.sha256(path.read_bytes()).hexdigest()}
-    packages = state(instance)["visible_packages"]
-    if len(packages) > 1:
-        path = output / "package-hover.png"
-        ui(instance,"package-hover","hover","package:" + packages[1]["key"],"--capture",str(path))
-        captures["package-hover"] = {"path":str(path),"sha256":hashlib.sha256(path.read_bytes()).hexdigest()}
+    # Package rows no longer carry widget IDs (see src/app.rs::packages_view),
+    # so they cannot be hover targets; select them with `ui activate package:KEY`.
     ui(instance,"open-about","activate","header.about")
     assert state(instance)["modal"] == "about"
     about = ui(instance,"about-tree","tree")["data"]["tree"]

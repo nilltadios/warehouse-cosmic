@@ -21,7 +21,7 @@ use std::{
     name = "warehouse-cosmic-cli",
     version,
     about = "Flatpak management and explicit GUI controls. Package mutations require --apply.",
-    long_about = "Warehouse COSMIC CLI uses the same Rust backend as the desktop app. Backend commands run without a window. The ui subcommands inspect and control an actual GUI through desktop D-Bus, including explicit ui start. No MCP server or separate background service is needed.\n\nDiscover backend commands with `commands --json` and GUI controls with `ui commands`. Package mutations require --apply. System mutations also require --allow-system and may show PolicyKit authorization."
+    long_about = "Warehouse COSMIC CLI uses the same Rust backend as the desktop app. Backend commands run without a window. The ui subcommands inspect and control an actual GUI through desktop D-Bus, including explicit ui start. No MCP server or separate background service is needed.\n\nStart with `guide`. Discover backend commands with `commands --json` and the live window's controls with `ui inspect`. Package mutations require --apply. System mutations also require --allow-system and may show PolicyKit authorization."
 )]
 struct Cli {
     #[command(subcommand)]
@@ -29,6 +29,8 @@ struct Cli {
 }
 #[derive(Subcommand)]
 enum Action {
+    /// Start here: how agents discover, plan, apply and verify, for the CLI and the live GUI.
+    Guide,
     /// Inspect and control an actual running GUI through its desktop D-Bus API.
     Ui(crate::ui_client::Args),
     /// List command IDs, descriptions and parameter schemas.
@@ -815,9 +817,11 @@ pub fn run_request(request: &Request, paths: &Paths, policy: &Policy, job: &Job)
         Request::Info(p) => Some(
             json!({"package":package(&inv,&p.installation,&p.reference)?,"details":backend::details(&package(&inv,&p.installation,&p.reference)?).map_err(failure)?}),
         ),
-        Request::History(p) => Some(
-            json!({"history":backend::history(&package(&inv,&p.installation,&p.reference)?).map_err(failure)?}),
-        ),
+        Request::History(p) => {
+            let history = backend::history(&package(&inv, &p.installation, &p.reference)?)
+                .map_err(failure)?;
+            Some(json!({"commits":backend::parse_history(&history),"history":history}))
+        }
         Request::Remotes(_) => Some(json!(inv.remotes)),
         Request::RemotePackages(p) => Some(json!(
             backend::remote_packages(&remote(&inv, &p.installation, &p.name)?, &p.search)
@@ -914,6 +918,13 @@ fn canonical_root(path: Option<PathBuf>) -> Result<Option<PathBuf>> {
 fn run_cli(cli: Cli) -> Result<Value> {
     match cli.action {
         Action::Ui(args) => crate::ui_client::run(args).map_err(failure),
+        Action::Guide => {
+            io::stdout()
+                .lock()
+                .write_all(include_str!("guide.txt").as_bytes())
+                .map_err(|e| failure(e.to_string()))?;
+            Ok(Value::Null)
+        }
         Action::Commands {
             search,
             json: as_json,

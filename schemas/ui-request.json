@@ -130,6 +130,36 @@
           "additionalProperties": false
         },
         {
+          "description": "Deliver `text/uri-list` entries to the same handler as a compositor drop.",
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "const": "drop"
+            },
+            "params": {
+              "type": "object",
+              "properties": {
+                "uris": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "uris"
+              ]
+            }
+          },
+          "required": [
+            "command",
+            "params"
+          ],
+          "additionalProperties": false
+        },
+        {
           "type": "object",
           "properties": {
             "command": {

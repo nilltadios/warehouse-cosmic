@@ -5,6 +5,7 @@
 ## Discover and read
 
 ```sh
+warehouse-cosmic-cli guide
 warehouse-cosmic-cli --help
 warehouse-cosmic-cli commands --search snapshot
 warehouse-cosmic-cli commands --json
@@ -15,7 +16,7 @@ warehouse-cosmic-cli run --cmd 'package.list={"kind":"runtimes","installation":"
 warehouse-cosmic-cli run --cmd 'data.list={"state":"leftover"}'
 ```
 
-`commands` prints a table by default. `--json` includes parameter schemas and examples. `describe ID` prints one catalog entry as JSON. `schema` prints the JSON Schema for a complete command request. Unknown command IDs, fields, enum values, and wrong parameter types are errors. Schemas and examples are generated from the same Rust types that parse requests.
+`guide` prints a short workflow for the headless commands and the live GUI controls. `commands` prints a table by default. `--json` includes parameter schemas and examples. `describe ID` prints one catalog entry as JSON. `schema` prints the JSON Schema for a complete command request. Unknown command IDs, fields, enum values, and wrong parameter types are errors. Schemas and examples are generated from the same Rust types that parse requests.
 
 Use exact references returned by `package.list`. Mutating package commands require an explicit installation (`user`, `system`, or a configured installation name). An application ID is accepted only when it resolves to one installed ref in that installation. If several branches or architectures match, the CLI refuses the ambiguous target and lists the full refs.
 

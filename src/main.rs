@@ -4,6 +4,7 @@ mod preferences;
 mod remotes;
 mod smoke;
 mod ui_bridge;
+mod view_state;
 mod window_state;
 use warehouse_cosmic::{backend, snapshots};
 fn main() -> cosmic::iced::Result {
@@ -14,7 +15,7 @@ fn main() -> cosmic::iced::Result {
         match arg.as_str() {
             "--help" | "-h" => {
                 println!(
-                    "Warehouse COSMIC\n\nwarehouse-cosmic [FILE.flatpak|FILE.flatpakref|FILE.flatpakrepo]\n  --inspect                Print a read-only inventory as JSON\n  --preview PAGE           Open a view for inspection\n  --capture FILE.png       Save the app's own render and exit\n  --smoke ROOT             Run the isolated backend fixture test\n  --help                   Show this help"
+                    "Warehouse COSMIC\n\nwarehouse-cosmic [FILE.flatpak|FILE.flatpakref|FILE.flatpakrepo|FILE.tar.zst]\n  --inspect                Print a read-only inventory as JSON\n  --preview PAGE           Open a view for inspection\n  --capture FILE.png       Save the app's own render and exit\n  --smoke ROOT             Run the isolated backend fixture test\n  --help                   Show this help\n\nAgents and scripts: the warehouse-cosmic-cli command manages Flatpak without a window and\ncontrols this window (ui inspect / ui activate). Start with:\n  warehouse-cosmic-cli guide\n  flatpak run --command=warehouse-cosmic-cli dev.nilltadios.WarehouseCosmic guide"
                 );
                 return Ok(());
             }
@@ -66,11 +67,24 @@ fn main() -> cosmic::iced::Result {
             window_state::WindowState::default()
         })
     };
-    if flags.capture.is_some() && flags.preview.as_deref() == Some("remotes-narrow") {
+    if flags.capture.is_some()
+        && flags
+            .preview
+            .as_deref()
+            .is_some_and(|p| p.ends_with("-narrow"))
+    {
         state.width = 940;
     }
     let size = state.size();
     flags.window_state = state;
+    flags.view_state = if flags.capture.is_some() {
+        view_state::ViewState::default()
+    } else {
+        view_state::load().unwrap_or_else(|error| {
+            eprintln!("{error}");
+            view_state::ViewState::default()
+        })
+    };
     flags.activation_action = (!flags.open_files.is_empty()).then(|| "open-files".into());
     let isolated = flags.capture.is_some()
         || std::env::var("WAREHOUSE_COSMIC_UI_ISOLATED").is_ok_and(|value| value == "1");
