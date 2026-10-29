@@ -17,5 +17,5 @@
   <provides><binary>warehouse-cosmic</binary><binary>warehouse-cosmic-cli</binary></provides>
   <supports><control>pointing</control><control>keyboard</control></supports>
   <content_rating type="oars-1.1"/>
-  <releases><release version="0.1.0" date="2026-10-27"><description><p>Initial native desktop interface and standalone automation CLI.</p></description></release></releases>
+  <releases><release version="0.2.0" date="2026-10-29"><description><p>Feature parity with Warehouse: install queue from remote search, change source or version, keep or trash data on uninstall, and clearer progress and results. Agents can see and use everything through the CLI, which can only act on this app. Tighter sandbox and a new icon.</p></description></release><release version="0.1.0" date="2026-10-27"><description><p>Initial native desktop interface and standalone automation CLI.</p></description></release></releases>
 </component>
