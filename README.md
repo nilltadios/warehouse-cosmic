@@ -4,7 +4,7 @@ Manage your Flatpak apps, remotes and app data from one native COSMIC app. Inspi
 
 ## Install
 
-**One click:** open [the install file](https://nilltadios.github.io/warehouse-cosmic/dev.nilltadios.WarehouseCosmic.flatpakref) in Discover or GNOME Software.
+**One click:** open [the install file](https://nilltadios.github.io/warehouse-cosmic/dev.nilltadios.WarehouseCosmic.flatpakref) in COSMIC Store, Discover or GNOME Software.
 
 **Terminal:**
 
@@ -14,7 +14,7 @@ flatpak remote-add --user --if-not-exists warehouse-cosmic https://nilltadios.gi
 flatpak install --user warehouse-cosmic dev.nilltadios.WarehouseCosmic
 ```
 
-Updates arrive through `flatpak update`, Discover or GNOME Software like any other app.
+Updates arrive through `flatpak update`, COSMIC Store, Discover or GNOME Software like any other app.
 
 **Installed it from a downloaded `.flatpak` file?** That copy never updates. Add the remote (second command above), then switch to it. Your settings and data are kept:
 

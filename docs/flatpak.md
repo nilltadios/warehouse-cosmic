@@ -41,7 +41,7 @@ Local builds are unsigned unless `FLATPAK_SIGNING_KEY` names a key in `GNUPGHOME
 
 ## Signed repository on GitHub Pages
 
-The publishing model follows the Parsec autobuild project: an OSTree repository, a `.flatpakrepo` file, a one-click `.flatpakref`, and `state.json` are deployed together. The workflow builds on pushes to `main` and manual dispatches. It has no scheduled job. Each successful source build creates a new signed repository commit; installed users receive it through `flatpak update`, Discover or GNOME Software.
+The publishing model follows the Parsec autobuild project: an OSTree repository, a `.flatpakrepo` file, a one-click `.flatpakref`, and `state.json` are deployed together. The workflow builds on pushes to `main` and manual dispatches. It has no scheduled job. Each successful source build creates a new signed repository commit; installed users receive it through `flatpak update`, COSMIC Store, Discover or GNOME Software.
 
 Maintainer setup:
 
@@ -62,7 +62,7 @@ Site outputs:
 | `state.json` | Source commit, archive hash, version, runtime, compiler and published commit |
 | `index.html` | Install instructions |
 
-The published site is **https://nilltadios.github.io/warehouse-cosmic/** (repository `nilltadios/warehouse-cosmic`). Open its `.flatpakref` in Discover or GNOME Software; it supplies Flathub as `RuntimeRepo` so missing Freedesktop runtimes can be installed. In a terminal:
+The published site is **https://nilltadios.github.io/warehouse-cosmic/** (repository `nilltadios/warehouse-cosmic`). Open its `.flatpakref` in COSMIC Store, Discover or GNOME Software; it supplies Flathub as `RuntimeRepo` so missing Freedesktop runtimes can be installed. In a terminal:
 
 ```sh
 flatpak remote-add --user --if-not-exists warehouse-cosmic https://nilltadios.github.io/warehouse-cosmic/warehouse-cosmic.flatpakrepo

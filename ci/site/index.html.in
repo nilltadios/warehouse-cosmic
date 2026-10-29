@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#000000">
-<meta name="description" content="Warehouse COSMIC: manage Flatpak apps, remotes and app data in a native COSMIC app. Signed builds that update through Discover, GNOME Software and flatpak update.">
+<meta name="description" content="Warehouse COSMIC: manage Flatpak apps, remotes and app data in a native COSMIC app. Signed builds that update through COSMIC Store, Discover, GNOME Software and flatpak update.">
 <title>Warehouse COSMIC</title>
 <link rel="icon" href="icon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -155,12 +155,12 @@
     <div>
       <div class="tag rise d1"><span class="shelf" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span> Signed Flatpak for COSMIC</div>
       <h1 class="rise d2">Warehouse <span>COSMIC</span></h1>
-      <p class="lede rise d3">Manage your <b>Flatpak apps, remotes and app data</b> in one native app. Updates arrive through Discover, GNOME Software and <code>flatpak update</code>. Current build <span class="version">@VERSION@</span></p>
+      <p class="lede rise d3">Manage your <b>Flatpak apps, remotes and app data</b> in one native app. Updates arrive through COSMIC Store, Discover, GNOME Software and <code>flatpak update</code>. Current build <span class="version">@VERSION@</span></p>
       <div class="actions rise d4">
         <a class="btn primary" href="@APP@.flatpakref">Install Warehouse COSMIC &rarr;</a>
         <a class="btn ghost" href="@REPO_FILE@">Add the repo only</a>
       </div>
-      <p class="hint rise d4"><b>Install</b> downloads a small file. Open it and Discover or GNOME Software takes it from there.</p>
+      <p class="hint rise d4"><b>Install</b> downloads a small file. Open it and COSMIC Store, Discover or GNOME Software takes it from there.</p>
     </div>
     <div class="badge rise d2"><img src="icon.svg" alt="Warehouse COSMIC icon: a red storage rack with blue and red boxes"></div>
   </div>
@@ -215,6 +215,7 @@
       <p>Every change to the source on GitHub builds and signs a new version. You update the usual way:</p>
       <table>
         <tr><th>Terminal</th><td><code>flatpak update</code></td></tr>
+        <tr><th>COSMIC Store</th><td><b>Updates</b> in the sidebar</td></tr>
         <tr><th>KDE Discover</th><td><b>Updates</b>. Click <b>Refresh</b> if nothing is listed yet</td></tr>
         <tr><th>GNOME Software</th><td>The <b>Updates</b> tab. Refresh if needed</td></tr>
         <tr><th>Automatic updates</th><td>The store's auto-update setting covers this app too</td></tr>
