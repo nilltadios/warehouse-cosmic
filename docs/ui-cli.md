@@ -31,8 +31,10 @@ If several windows are running, commands require an exact instance. This prevent
 | `modal`, `dialog` | Open dialog kind and its content: title, explanation, exact commands, choices and the current selection |
 | `controls` | Every control that can be activated now: `id`, a readable `label` and `requires` (`none`, `apply` or `apply+allow-system`) |
 | `fields` | Text fields that `ui fill` accepts |
-| `notice`, `toast` | The last operation report and the last short confirmation, such as "Copied to clipboard" |
-| `busy`, `operation`, `loading`, `detail_loading` | Work in progress |
+| `operation` | While a change runs: its plain title ("Uninstalling Parsec…"), the current status line and a percentage when Flatpak reports one |
+| `last_operation` | The finished change: title ("Parsec uninstalled" or "Couldn't uninstall Parsec"), `ok`, `cancelled`, steps, errors and the report path. `result.details` opens its details dialog |
+| `notice`, `toast` | Other messages, and the last short confirmation such as "Copied to clipboard" |
+| `busy`, `loading`, `detail_loading` | Work in progress |
 
 `actions` remains as a plain list of control IDs. `ui controls` prints only the controls. `ui tree` adds the rendered widget tree with visible text and logical bounds, for layout checks.
 

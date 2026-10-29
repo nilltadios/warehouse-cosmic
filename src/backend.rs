@@ -948,7 +948,7 @@ impl Job {
         }
     }
 }
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Report {
     pub title: String,
     pub started: u64,
@@ -961,7 +961,8 @@ pub struct Report {
 }
 pub fn run_command(spec: &CommandSpec, job: &Job) -> Result<String> {
     job.check()?;
-    job.line(spec.display());
+    // "$ " marks the command itself, so progress views can tell it from output.
+    job.line(format!("$ {}", spec.display()));
     let mut cmd = if spec.privileged {
         let mut c = crate::host::command("pkexec", true);
         c.arg("/usr/bin/flatpak");

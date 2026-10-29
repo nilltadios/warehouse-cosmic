@@ -65,11 +65,18 @@ const FIELDS: [(&str, &str); 8] = [
 impl App {
     pub(super) fn ui_controls(&self) -> Vec<Control> {
         if self.job.is_some() {
-            return vec![control(
-                "operation.cancel",
-                "Cancel Operation",
-                Message::Cancel,
-            )];
+            return vec![
+                control("operation.cancel", "Cancel", Message::Cancel),
+                control(
+                    "operation.details",
+                    if self.show_output {
+                        "Hide details"
+                    } else {
+                        "Show details"
+                    },
+                    Message::ShowOutput(!self.show_output),
+                ),
+            ];
         }
         if let Some(dialog) = &self.dialog {
             return self.dialog_controls(dialog);
@@ -95,6 +102,18 @@ impl App {
                 "notice.dismiss",
                 "Dismiss report",
                 Message::ClearNotice,
+            ));
+        }
+        if self.outcome.is_some() {
+            list.push(control(
+                "result.details",
+                "Details of the last operation",
+                Message::ShowReport,
+            ));
+            list.push(control(
+                "result.dismiss",
+                "Dismiss the last result",
+                Message::ClearOutcome,
             ));
         }
         if self.core.window.show_context {
@@ -353,6 +372,18 @@ impl App {
                         }),
                     ));
                 }
+            }
+            Dialog::Report => {
+                list.push(control(
+                    "dialog.details",
+                    "Show or hide technical details",
+                    Message::ShowCommands(!self.show_commands),
+                ));
+                list.push(control(
+                    "report.open-folder",
+                    "Open Report Folder",
+                    Message::OpenReportFolder,
+                ));
             }
             Dialog::Rename(s) => list.push(control(
                 "dialog.review",
@@ -964,6 +995,7 @@ impl App {
             Dialog::ImportSnapshot => {
                 json!({"kind":"import-snapshot","id":self.import_id,"name":self.snapshot_name,"path":self.import_path})
             }
+            Dialog::Report => json!({"kind":"report","show_technical_details":self.show_commands}),
             Dialog::Rename(s) => {
                 json!({"kind":"rename-snapshot","snapshot":s.path,"name":self.snapshot_name})
             }
@@ -1020,6 +1052,7 @@ impl App {
             Dialog::NewSnapshot => "new-snapshot",
             Dialog::ImportSnapshot => "import-snapshot",
             Dialog::Rename(_) => "rename-snapshot",
+            Dialog::Report => "report",
         });
         let files = match &self.dialog {
             Some(Dialog::InstallFiles(files)) => files.clone(),
@@ -1034,7 +1067,14 @@ impl App {
         let controls = self.ui_controls();
         json!({"instance":self.ui_instance, "process_id":std::process::id(), "flatpak_instance":flatpak_instance,
             "page":self.page.name(), "page_id":self.page.slug(), "theme":self.preferences.theme, "rendered_theme_dark":cosmic::theme::active().theme_type.is_dark(), "settings_open":self.core.window.show_context,
-            "modal":modal, "dialog":self.ui_dialog_state(), "loading":self.loading, "detail_loading":self.detail_loading, "busy":self.job.is_some(), "operation":self.job.as_ref().map(|_| &self.job_title), "sidebar_visible":self.core.nav_bar_active(),
+            "modal":modal, "dialog":self.ui_dialog_state(), "loading":self.loading, "detail_loading":self.detail_loading, "busy":self.job.is_some(), "operation":self.job.as_ref().map(|job| {
+                let lines = job.progress.lock().map(|p| p.lines.clone()).unwrap_or_default();
+                let (status, percent) = super::progress_status(&lines, |id| self.package_name(id));
+                json!({"title":self.job_view.working,"status":status,"percent":percent.map(|p| (p * 100.).round())})
+            }),
+            "last_operation":self.outcome.as_ref().map(|(view, o)| json!({
+                "title":if o.ok { &view.done } else if o.cancelled { &view.cancelled } else { &view.failed },
+                "ok":o.ok,"cancelled":o.cancelled,"steps":o.steps,"errors":o.errors,"report":o.report})), "sidebar_visible":self.core.nav_bar_active(),
             "window":self.window_state, "pointer":self.ui_pointer, "pointer_serial":self.ui_pointer_serial, "search":self.query, "notice":self.notice, "toast":self.last_toast, "drag_over":self.drag_over,
             "show_disabled_remotes":self.show_disabled_remotes, "remote_menu":self.remote_menu,
             "data_filter":if self.leftovers { "leftover" } else { "active" },

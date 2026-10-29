@@ -144,7 +144,11 @@ pub enum Message {
     Confirm,
     ShowCommands(bool),
     CloseDialog,
-    Finished(Result<String, String>),
+    Finished(Box<Outcome>),
+    ShowOutput(bool),
+    ShowReport,
+    OpenReportFolder,
+    ClearOutcome,
     Cancel,
     ClearNotice,
     Uninstall(Vec<Package>),
@@ -239,7 +243,97 @@ enum Dialog {
     Rename(Snapshot),
     Version(Package),
     Message(String, String),
+    Report,
     About,
+}
+/// The result of one backend operation, kept for the result panel, the
+/// details dialog and GUI automation.
+#[derive(Debug, Clone)]
+pub struct Outcome {
+    pub ok: bool,
+    pub cancelled: bool,
+    pub steps: Vec<String>,
+    pub errors: Vec<String>,
+    pub output: Vec<String>,
+    pub report: Option<PathBuf>,
+}
+impl Outcome {
+    fn failed(error: String) -> Self {
+        Self {
+            ok: false,
+            cancelled: false,
+            steps: vec![],
+            errors: vec![error],
+            output: vec![],
+            report: None,
+        }
+    }
+    fn from_report(report: backend::Report) -> Self {
+        Self {
+            ok: report.errors.is_empty() && !report.cancelled,
+            cancelled: report.cancelled,
+            steps: report.steps,
+            errors: report.errors,
+            output: report.output,
+            report: Some(report.log),
+        }
+    }
+}
+/// Plain-language wording for an operation while it runs and when it ends.
+#[derive(Debug, Clone, Default)]
+pub struct JobView {
+    pub working: String,
+    pub done: String,
+    pub failed: String,
+    pub cancelled: String,
+    pub icon: Option<String>,
+}
+/// Flatpak progress output reduced to one readable line and a percentage.
+pub fn progress_status(
+    lines: &[String],
+    name: impl Fn(&str) -> String,
+) -> (Option<String>, Option<f32>) {
+    for line in lines.iter().rev() {
+        let line = line.rsplit('\r').next().unwrap_or(line);
+        // Commands and Flatpak's side notes stay in the details view.
+        if line.starts_with("$ ") || line.starts_with("F: ") || line.starts_with("Warning:") {
+            continue;
+        }
+        let cleaned: String = line
+            .chars()
+            .filter(|c| !('\u{2580}'..='\u{259f}').contains(c))
+            .collect();
+        let words: Vec<String> = cleaned
+            .split_whitespace()
+            .map(|word| {
+                let mut parts = word.split('/');
+                match (parts.next(), parts.next()) {
+                    (Some("app" | "runtime"), Some(id)) if word.matches('/').count() >= 2 => {
+                        name(id)
+                    }
+                    _ => word.to_string(),
+                }
+            })
+            .collect();
+        if words.is_empty() {
+            continue;
+        }
+        let percent = words.iter().rev().find_map(|w| {
+            w.strip_suffix('%')
+                .and_then(|n| n.parse::<f32>().ok())
+                .filter(|n| (0.0..=100.0).contains(n))
+        });
+        let text = words
+            .into_iter()
+            .filter(|w| !w.ends_with('%'))
+            .collect::<Vec<_>>()
+            .join(" ");
+        return (
+            (!text.is_empty()).then_some(text),
+            percent.map(|p| p / 100.0),
+        );
+    }
+    (None, None)
 }
 pub struct App {
     flags: Flags,
@@ -268,7 +362,10 @@ pub struct App {
     show_commands: bool,
     notice: Option<String>,
     job: Option<Job>,
-    job_title: String,
+    job_view: JobView,
+    show_output: bool,
+    job_started: Option<std::time::Instant>,
+    outcome: Option<(JobView, Outcome)>,
     uninstall_data: bool,
     remote_name: String,
     remote_url: String,
@@ -309,7 +406,9 @@ fn background<T: Send + 'static>(
     cosmic::task::future(async move {
         match tokio::task::spawn_blocking(f).await {
             Ok(value) => map(value),
-            Err(e) => Message::Finished(Err(format!("Worker failed: {e}"))),
+            Err(e) => Message::Finished(Box::new(Outcome::failed(format!(
+                "The background worker stopped unexpectedly: {e}"
+            )))),
         }
     })
 }
@@ -462,6 +561,39 @@ pub fn dropped_paths(data: &[u8]) -> Vec<PathBuf> {
         .filter_map(|line| url::Url::parse(line).ok())
         .filter_map(|url| url.to_file_path().ok())
         .collect()
+}
+/// The most useful line for a person: Flatpak's own "error:" message when
+/// there is one, otherwise the backend error without the command line.
+fn elapsed_text(seconds: u64) -> String {
+    match seconds {
+        0 => "Just started".into(),
+        s if s < 60 => format!("{s} s"),
+        s => format!("{} min {} s", s / 60, s % 60),
+    }
+}
+fn plain_error(error: &str, output: &[String]) -> String {
+    if let Some(line) = output.iter().rev().find_map(|l| {
+        l.trim()
+            .strip_prefix("error:")
+            .or_else(|| l.trim().strip_prefix("Error:"))
+    }) {
+        let line = line.trim();
+        // Capitalize prose, not app IDs such as "org.example.App".
+        let first = line.split_whitespace().next().unwrap_or_default();
+        let mut text = if first.contains('.') {
+            line.to_string()
+        } else {
+            line[..1].to_uppercase() + &line[1..]
+        };
+        if !text.ends_with('.') {
+            text.push('.');
+        }
+        return text;
+    }
+    if error.contains(" exited with ") {
+        return "Flatpak reported a problem. Open Details for its output.".into();
+    }
+    error.to_string()
 }
 impl App {
     fn refresh(&mut self) -> Task<Message> {
@@ -651,50 +783,234 @@ impl App {
             self.notice = Some(e);
         }
     }
+    fn package_name(&self, id: &str) -> String {
+        self.inventory
+            .packages
+            .iter()
+            .find(|p| p.id == id)
+            .map(|p| p.name.clone())
+            .unwrap_or_else(|| id.to_string())
+    }
+    /// Plain-language titles for an operation, naming the apps it touches.
+    fn job_view(&self, op: &Operation) -> JobView {
+        let names = |packages: &[Package]| match packages {
+            [p] => p.name.clone(),
+            list => format!("{} packages", list.len()),
+        };
+        let apps = |ids: &[String]| match ids {
+            [id] => self.app_name(id),
+            list => format!("{} apps", list.len()),
+        };
+        let file = |path: &Path| {
+            path.file_name()
+                .unwrap_or_default()
+                .to_string_lossy()
+                .trim_end_matches(".flatpakref")
+                .trim_end_matches(".flatpak")
+                .to_string()
+        };
+        let refs = |refs: &[String]| match refs {
+            [r] => self.package_name(r.split('/').nth(1).unwrap_or(r)),
+            list => format!("{} packages", list.len()),
+        };
+        let first_id = |packages: &[Package]| packages.first().map(|p| p.id.clone());
+        let (working, done, failed, icon) = match op {
+            Operation::Update(p) => (
+                format!("Updating {}", names(p)),
+                format!("{} updated", names(p)),
+                format!("Couldn't update {}", names(p)),
+                first_id(p),
+            ),
+            Operation::Reinstall { package, remote } if package.origin == remote.name => (
+                format!("Reinstalling {}", package.name),
+                format!("{} reinstalled", package.name),
+                format!("Couldn't reinstall {}", package.name),
+                Some(package.id.clone()),
+            ),
+            Operation::Reinstall { package, remote } => (
+                format!("Switching {} to {}", package.name, remotes::title(remote)),
+                format!("{} now comes from {}", package.name, remotes::title(remote)),
+                format!(
+                    "Couldn't switch {} to {}",
+                    package.name,
+                    remotes::title(remote)
+                ),
+                Some(package.id.clone()),
+            ),
+            Operation::Uninstall(p, _) => (
+                format!("Uninstalling {}", names(p)),
+                format!("{} uninstalled", names(p)),
+                format!("Couldn't uninstall {}", names(p)),
+                first_id(p),
+            ),
+            Operation::Mask(p, true) => (
+                format!("Blocking updates for {}", p.name),
+                format!("Updates blocked for {}", p.name),
+                format!("Couldn't block updates for {}", p.name),
+                Some(p.id.clone()),
+            ),
+            Operation::Mask(p, false) => (
+                format!("Allowing updates for {}", p.name),
+                format!("Updates allowed for {}", p.name),
+                format!("Couldn't allow updates for {}", p.name),
+                Some(p.id.clone()),
+            ),
+            Operation::Pin(p, on) => (
+                format!("{} {}", if *on { "Pinning" } else { "Unpinning" }, p.name),
+                format!("{} {}", p.name, if *on { "pinned" } else { "unpinned" }),
+                format!("Couldn't {} {}", if *on { "pin" } else { "unpin" }, p.name),
+                Some(p.id.clone()),
+            ),
+            Operation::Version(p, ..) => (
+                format!("Changing the version of {}", p.name),
+                format!("{} changed to the selected version", p.name),
+                format!("Couldn't change the version of {}", p.name),
+                Some(p.id.clone()),
+            ),
+            Operation::RemoteEnabled(r, on) => (
+                format!(
+                    "{} {}",
+                    if *on { "Enabling" } else { "Disabling" },
+                    remotes::title(r)
+                ),
+                format!(
+                    "{} {}",
+                    remotes::title(r),
+                    if *on { "enabled" } else { "disabled" }
+                ),
+                format!(
+                    "Couldn't {} {}",
+                    if *on { "enable" } else { "disable" },
+                    remotes::title(r)
+                ),
+                None,
+            ),
+            Operation::RemoteRemove(r) => (
+                format!("Removing {}", remotes::title(r)),
+                format!("{} removed", remotes::title(r)),
+                format!("Couldn't remove {}", remotes::title(r)),
+                None,
+            ),
+            Operation::RemoteAdd { name, .. } => (
+                format!("Adding {name}"),
+                format!("{name} added"),
+                format!("Couldn't add {name}"),
+                None,
+            ),
+            Operation::Install { refs: r, .. } => (
+                format!("Installing {}", refs(r)),
+                format!("{} installed", refs(r)),
+                format!("Couldn't install {}", refs(r)),
+                None,
+            ),
+            Operation::InstallQueue(groups) => {
+                let all: Vec<String> = groups.iter().flat_map(|g| g.refs.clone()).collect();
+                (
+                    format!("Installing {}", refs(&all)),
+                    format!("{} installed", refs(&all)),
+                    format!("Couldn't install {}", refs(&all)),
+                    None,
+                )
+            }
+            Operation::InstallFile { path, .. } => (
+                format!("Installing {}", file(path)),
+                format!("{} installed", file(path)),
+                format!("Couldn't install {}", file(path)),
+                None,
+            ),
+            Operation::InstallFiles { paths, .. } => {
+                let what = match paths.as_slice() {
+                    [path] => file(path),
+                    list => format!("{} packages", list.len()),
+                };
+                (
+                    format!("Installing {what}"),
+                    format!("{what} installed"),
+                    format!("Couldn't install {what}"),
+                    None,
+                )
+            }
+            Operation::TrashData(ids) => (
+                format!("Moving data of {} to Trash", apps(ids)),
+                format!("Data of {} moved to Trash", apps(ids)),
+                format!("Couldn't move data of {} to Trash", apps(ids)),
+                ids.first().cloned(),
+            ),
+            Operation::Snapshot { ids, .. } => (
+                format!("Backing up {}", apps(ids)),
+                format!("Snapshot of {} created", apps(ids)),
+                format!("Couldn't back up {}", apps(ids)),
+                ids.first().cloned(),
+            ),
+            Operation::Restore(s) => (
+                format!("Restoring {}", self.app_name(&s.id)),
+                format!("{} restored from “{}”", self.app_name(&s.id), s.name),
+                format!("Couldn't restore {}", self.app_name(&s.id)),
+                Some(s.id.clone()),
+            ),
+            Operation::RestoreMany(list) => (
+                format!("Restoring {} snapshots", list.len()),
+                format!("{} snapshots restored", list.len()),
+                "Couldn't restore the snapshots".to_string(),
+                None,
+            ),
+            Operation::TrashSnapshot(s) => (
+                format!("Moving “{}” to Trash", s.name),
+                format!("“{}” moved to Trash", s.name),
+                format!("Couldn't move “{}” to Trash", s.name),
+                Some(s.id.clone()),
+            ),
+            Operation::TrashSnapshots(list) => (
+                format!("Moving {} snapshots to Trash", list.len()),
+                format!("{} snapshots moved to Trash", list.len()),
+                "Couldn't move the snapshots to Trash".to_string(),
+                None,
+            ),
+            Operation::ExportSnapshot(s, _) => (
+                format!("Exporting “{}”", s.name),
+                format!("“{}” exported", s.name),
+                format!("Couldn't export “{}”", s.name),
+                Some(s.id.clone()),
+            ),
+            Operation::RenameSnapshot(s, name) => (
+                format!("Renaming “{}”", s.name),
+                format!("Renamed to “{name}”"),
+                format!("Couldn't rename “{}”", s.name),
+                Some(s.id.clone()),
+            ),
+            Operation::ImportSnapshot { id, .. } => (
+                format!("Importing a snapshot of {}", self.app_name(id)),
+                format!("Snapshot of {} imported", self.app_name(id)),
+                format!("Couldn't import the snapshot of {}", self.app_name(id)),
+                Some(id.clone()),
+            ),
+        };
+        JobView {
+            cancelled: format!("{working} was cancelled"),
+            working: format!("{working}…"),
+            done,
+            failed,
+            icon,
+        }
+    }
     fn run(&mut self, op: Operation) -> Task<Message> {
         if self.job.is_some() {
             return Task::none();
         }
-        self.job_title = op.title().into();
+        self.job_view = self.job_view(&op);
+        self.show_output = false;
+        self.outcome = None;
         let job = Job::default();
         let work = job.clone();
         self.job = Some(job);
+        self.job_started = Some(std::time::Instant::now());
         let paths = self.paths.clone();
         background(
-            move || {
-                backend::execute(op, &paths, &work).and_then(|r| {
-                    let body = format!(
-                        "{}\n{}{}\nReport: {}",
-                        r.title,
-                        r.steps.join("\n"),
-                        if r.errors.is_empty() {
-                            String::new()
-                        } else {
-                            format!(
-                                "\nErrors:\n{}\n{}",
-                                r.errors.join("\n"),
-                                r.output
-                                    .iter()
-                                    .rev()
-                                    .take(12)
-                                    .cloned()
-                                    .collect::<Vec<_>>()
-                                    .into_iter()
-                                    .rev()
-                                    .collect::<Vec<_>>()
-                                    .join("\n")
-                            )
-                        },
-                        r.log.display()
-                    );
-                    if r.errors.is_empty() && !r.cancelled {
-                        Ok(body)
-                    } else {
-                        Err(body)
-                    }
-                })
+            move || match backend::execute(op, &paths, &work) {
+                Ok(report) => Outcome::from_report(report),
+                Err(error) => Outcome::failed(error),
             },
-            Message::Finished,
+            |outcome| Message::Finished(Box::new(outcome)),
         )
     }
     fn copy_packages(&self, field: fn(&Package) -> String) -> String {
@@ -2465,6 +2781,181 @@ impl App {
         }
         Some(tools.into())
     }
+    fn progress_view(&self, job: &Job) -> Element<'_, Message> {
+        let (completed, total, lines) = job
+            .progress
+            .lock()
+            .map(|p| (p.completed, p.total, p.lines.clone()))
+            .unwrap_or_default();
+        let (status, percent) = progress_status(&lines, |id| self.package_name(id));
+        let cancelling = job.cancel.load(Ordering::Relaxed);
+        let icon: Element<'_, Message> = match &self.job_view.icon {
+            Some(id) => package_icon(id, 72).into(),
+            None => ic("folder-download-symbolic", 72).into(),
+        };
+        // A step without a reported percentage animates instead of sitting at
+        // an empty bar until it suddenly finishes.
+        let bar: Element<'_, Message> = match (percent, total) {
+            (Some(p), t) => {
+                widget::progress_bar::determinate_linear((completed as f32 + p) / t.max(1) as f32)
+                    .width(Length::Fill)
+                    .girth(8)
+                    .into()
+            }
+            (None, t) if t > 1 && completed > 0 => {
+                widget::progress_bar::determinate_linear(completed as f32 / t as f32)
+                    .width(Length::Fill)
+                    .girth(8)
+                    .into()
+            }
+            _ => widget::progress_bar::indeterminate_linear()
+                .width(Length::Fill)
+                .girth(8)
+                .into(),
+        };
+        let elapsed = self.job_started.map(|t| t.elapsed().as_secs()).unwrap_or(0);
+        let title = self.job_view.working.trim_end_matches('…');
+        let status = status.filter(|s| s != title);
+        let mut col = widget::column::with_capacity(8)
+            .spacing(16)
+            .align_x(Alignment::Center)
+            .max_width(560)
+            .push(icon)
+            .push(widget::text::title2(self.job_view.working.clone()))
+            .push(
+                widget::text(if cancelling {
+                    "Cancelling… Steps already finished stay done.".to_string()
+                } else {
+                    status.unwrap_or_else(|| {
+                        if lines.iter().all(|l| l.starts_with("$ ")) {
+                            "Starting…".into()
+                        } else {
+                            "Working…".into()
+                        }
+                    })
+                })
+                .align_x(iced::advanced::text::Alignment::Center),
+            )
+            .push(widget::container(bar).width(Length::Fill).padding([4, 0]))
+            .push(widget::text::caption(match total {
+                t if t > 1 => format!(
+                    "Step {} of {t} · {}",
+                    (completed + 1).min(t),
+                    elapsed_text(elapsed)
+                ),
+                _ => elapsed_text(elapsed),
+            }));
+        col = col
+            .push(widget::text::caption(
+                "You can keep using your computer. Changes appear here when this finishes.",
+            ))
+            .push(
+                widget::row::with_capacity(2)
+                    .spacing(8)
+                    .push(
+                        widget::button::text(if self.show_output {
+                            "Hide details"
+                        } else {
+                            "Show details"
+                        })
+                        .trailing_icon(icon::from_name(if self.show_output {
+                            "go-up-symbolic"
+                        } else {
+                            "go-down-symbolic"
+                        }))
+                        .id(widget::Id::new("operation.details"))
+                        .on_press(Message::ShowOutput(!self.show_output)),
+                    )
+                    .push(
+                        widget::button::standard("Cancel")
+                            .id(widget::Id::new("operation.cancel"))
+                            .on_press_maybe((!cancelling).then_some(Message::Cancel)),
+                    ),
+            );
+        if self.show_output {
+            let tail = lines
+                .iter()
+                .rev()
+                .take(60)
+                .rev()
+                .cloned()
+                .collect::<Vec<_>>()
+                .join("\n");
+            col = col.push(
+                widget::container(
+                    widget::scrollable(
+                        widget::container(widget::text::monotext(tail).size(12))
+                            .padding(12)
+                            .width(Length::Fill),
+                    )
+                    .anchor_bottom()
+                    .height(Length::Fixed(220.)),
+                )
+                .class(cosmic::theme::Container::Card)
+                .width(Length::Fill),
+            );
+        }
+        widget::container(col)
+            .center(Length::Fill)
+            .padding(24)
+            .into()
+    }
+    fn outcome_panel<'a>(&self, view: &'a JobView, outcome: &'a Outcome) -> Element<'a, Message> {
+        let title = if outcome.cancelled {
+            view.cancelled.clone()
+        } else {
+            view.failed.clone()
+        };
+        let reason = outcome
+            .errors
+            .iter()
+            .find(|e| !e.contains(" exited with "))
+            .or(outcome.errors.first())
+            .map(|e| plain_error(e, &outcome.output))
+            .unwrap_or_default();
+        let summary = if outcome.cancelled {
+            format!(
+                "{} of the steps finished before cancelling and stay done.",
+                outcome.steps.len()
+            )
+        } else {
+            reason
+        };
+        panel(
+            widget::row::with_capacity(4)
+                .spacing(12)
+                .align_y(Alignment::Center)
+                .push(ic(
+                    if outcome.cancelled {
+                        "dialog-information-symbolic"
+                    } else {
+                        "dialog-warning-symbolic"
+                    },
+                    24,
+                ))
+                .push(
+                    widget::column::with_capacity(2)
+                        .spacing(2)
+                        .push(widget::text::heading(title))
+                        .push(
+                            widget::text(summary)
+                                .wrapping(iced::advanced::text::Wrapping::WordOrGlyph),
+                        )
+                        .width(Length::Fill),
+                )
+                .push(
+                    widget::button::standard("Details")
+                        .id(widget::Id::new("result.details"))
+                        .on_press(Message::ShowReport),
+                )
+                .push(
+                    widget::button::icon(icon::from_name("window-close-symbolic"))
+                        .id(widget::Id::new("result.dismiss"))
+                        .tooltip("Dismiss")
+                        .on_press(Message::ClearOutcome),
+                ),
+        )
+    }
     fn drop_banner(&self) -> Element<'_, Message> {
         widget::container(
             widget::row::with_capacity(2)
@@ -2547,7 +3038,10 @@ impl cosmic::Application for App {
             show_commands: false,
             notice: preferences_error,
             job: None,
-            job_title: String::new(),
+            job_view: JobView::default(),
+            show_output: false,
+            job_started: None,
+            outcome: None,
             uninstall_data: false,
             remote_name: String::new(),
             remote_url: String::new(),
@@ -2813,46 +3307,12 @@ impl cosmic::Application for App {
     fn view(&self) -> Element<'_, Message> {
         let mut col = widget::column::with_capacity(6).spacing(16);
         if let Some(job) = &self.job {
-            let (completed, total, lines) = job
-                .progress
-                .lock()
-                .map(|p| {
-                    (
-                        p.completed,
-                        p.total,
-                        p.lines
-                            .iter()
-                            .rev()
-                            .take(9)
-                            .cloned()
-                            .collect::<Vec<_>>()
-                            .into_iter()
-                            .rev()
-                            .collect::<Vec<_>>()
-                            .join("\n"),
-                    )
-                })
-                .unwrap_or_default();
-            return widget::container(
-                widget::column::with_capacity(6)
-                    .spacing(20)
-                    .push(widget::text::title2(&self.job_title))
-                    .push(widget::text(
-                        "Working… Completed changes will appear after the operation finishes.",
-                    ))
-                    .push(widget::progress_bar::determinate_linear(
-                        completed as f32 / total.max(1) as f32,
-                    ))
-                    .push(widget::scrollable(widget::text(lines)).height(Length::Fill))
-                    .push(
-                        widget::button::standard("Cancel Operation")
-                            .id(widget::Id::new("operation.cancel"))
-                            .on_press(Message::Cancel),
-                    ),
-            )
-            .padding(24)
-            .height(Length::Fill)
-            .into();
+            return self.progress_view(job);
+        }
+        if let Some((view, outcome)) = &self.outcome
+            && !outcome.ok
+        {
+            col = col.push(self.outcome_panel(view, outcome));
         }
         if self.drag_over {
             col = col.push(self.drop_banner());
@@ -3052,6 +3512,13 @@ impl cosmic::Application for App {
                             .collect::<Vec<_>>()
                             .join("\n")
                     ),
+                };
+                let body = if packages.iter().any(|p| p.id == Self::APP_ID) {
+                    format!(
+                        "{body}\n\nThis includes Warehouse COSMIC itself. This window keeps working until you close it, but the app won't open again until you reinstall it."
+                    )
+                } else {
+                    body
                 };
                 let mut d = base
                     .title(title)
@@ -3470,6 +3937,86 @@ impl cosmic::Application for App {
                         .on_press(Message::CloseDialog),
                 )
                 .into(),
+            Dialog::Report => {
+                let Some((view, outcome)) = &self.outcome else {
+                    return None;
+                };
+                let title = if outcome.ok {
+                    view.done.clone()
+                } else if outcome.cancelled {
+                    view.cancelled.clone()
+                } else {
+                    view.failed.clone()
+                };
+                let mut body = match (outcome.ok, outcome.steps.len()) {
+                    (true, _) => "Everything finished as planned.".to_string(),
+                    (false, 0) => "Nothing was changed.".to_string(),
+                    (false, 1) => "1 step finished before this and stays done.".to_string(),
+                    (false, n) => format!("{n} steps finished before this and stay done."),
+                };
+                if let Some(error) = outcome.errors.first() {
+                    body = format!("{}\n{body}", plain_error(error, &outcome.output));
+                }
+                let mut d = widget::dialog()
+                    .title(title)
+                    .body(body)
+                    .width(Length::Fixed(560.))
+                    .control(
+                        widget::button::text(if self.show_commands {
+                            "Hide technical details"
+                        } else {
+                            "Show technical details"
+                        })
+                        .trailing_icon(icon::from_name(if self.show_commands {
+                            "go-up-symbolic"
+                        } else {
+                            "go-down-symbolic"
+                        }))
+                        .id(widget::Id::new("dialog.details"))
+                        .on_press(Message::ShowCommands(!self.show_commands)),
+                    );
+                if self.show_commands {
+                    let mut parts = Vec::new();
+                    if !outcome.steps.is_empty() {
+                        parts.push(format!("Finished:\n{}", outcome.steps.join("\n")));
+                    }
+                    if !outcome.errors.is_empty() {
+                        parts.push(format!("Errors:\n{}", outcome.errors.join("\n")));
+                    }
+                    if !outcome.output.is_empty() {
+                        parts.push(format!("Output:\n{}", outcome.output.join("\n")));
+                    }
+                    if let Some(report) = &outcome.report {
+                        parts.push(format!("Report: {}", report.display()));
+                    }
+                    let text = parts.join("\n\n");
+                    d = d.control(
+                        widget::container(
+                            widget::scrollable(
+                                widget::container(widget::text::monotext(text).size(12))
+                                    .padding(12)
+                                    .width(Length::Fill),
+                            )
+                            .height(Length::Shrink),
+                        )
+                        .class(cosmic::theme::Container::Card)
+                        .max_height(260),
+                    );
+                }
+                d.secondary_action(
+                    widget::button::standard("Open Report Folder")
+                        .id(widget::Id::new("report.open-folder"))
+                        .on_press_maybe(
+                            outcome.report.is_some().then_some(Message::OpenReportFolder),
+                        ),
+                )
+                .primary_action(
+                    widget::button::suggested("Close")
+                        .id(widget::Id::new("dialog.cancel"))
+                        .on_press(Message::CloseDialog),
+                )
+                .into()
+            }
             Dialog::About => widget::dialog()
                 .title("Warehouse COSMIC")
                 .body("Manage Flatpak apps with a native graphical interface and CLI. Inspired by flattool/Warehouse and built with Rust and libcosmic.\n\nGPL-3.0-or-later · Version 0.1.0")
@@ -3940,17 +4487,44 @@ impl cosmic::Application for App {
                 other => self.dialog = other,
             },
             Message::CloseDialog => self.dialog = None,
-            Message::Finished(result) => {
+            Message::Finished(outcome) => {
                 self.job = None;
                 self.dialog = None;
-                let toast = self.toast(if result.is_ok() {
-                    format!("{} finished", self.job_title)
+                self.show_output = false;
+                let view = self.job_view.clone();
+                let toast = if outcome.ok {
+                    self.last_toast = Some(view.done.clone());
+                    self.toasts
+                        .push(
+                            widget::Toast::new(view.done.clone())
+                                .action("Details".into(), |_| Message::ShowReport),
+                        )
+                        .map(cosmic::Action::App)
                 } else {
-                    format!("{} needs attention", self.job_title)
-                });
-                self.notice = Some(result.unwrap_or_else(|e| e));
+                    Task::none()
+                };
+                self.outcome = Some((view, *outcome));
                 return Task::batch([self.refresh(), toast]);
             }
+            Message::ShowOutput(show) => self.show_output = show,
+            Message::ShowReport => {
+                if self.outcome.is_some() {
+                    self.show_commands = false;
+                    self.dialog = Some(Dialog::Report);
+                }
+            }
+            Message::OpenReportFolder => {
+                if let Some(dir) = self
+                    .outcome
+                    .as_ref()
+                    .and_then(|(_, o)| o.report.as_ref())
+                    .and_then(|path| path.parent())
+                {
+                    let result = backend::open(dir);
+                    self.set_notice(result);
+                }
+            }
+            Message::ClearOutcome => self.outcome = None,
             Message::Cancel => {
                 if let Some(job) = &self.job {
                     job.cancel.store(true, Ordering::Relaxed);
@@ -4374,6 +4948,43 @@ impl App {
                 return Task::batch([task, self.update(Message::CheckUpdates(p))]);
             }
         }
+        // Display-only samples of the operation screens; no backend work runs.
+        if matches!(
+            preview.as_str(),
+            "progress" | "result-failed" | "result-report"
+        ) && let Some(p) = self.package().cloned()
+        {
+            let op = Operation::Uninstall(vec![p.clone()], false);
+            self.job_view = self.job_view(&op);
+            let command = format!("$ {}", op.command_lines());
+            if preview == "progress" {
+                let job = Job::default();
+                job.line(command);
+                job.line(format!("Uninstalling {}", p.full_ref()));
+                self.show_output = true;
+                self.job = Some(job);
+            } else {
+                self.outcome = Some((
+                    self.job_view.clone(),
+                    Outcome {
+                        ok: false,
+                        cancelled: false,
+                        steps: vec![],
+                        errors: vec![format!("{} exited with exit status: 1", op.command_lines())],
+                        output: vec![
+                            command,
+                            format!("error: {} is needed by another installed app", p.id),
+                        ],
+                        report: Some(self.paths.data.join("operations/sample.json")),
+                    },
+                ));
+                if preview == "result-report" {
+                    self.show_commands = true;
+                    self.dialog = Some(Dialog::Report);
+                }
+            }
+            return task;
+        }
         if preview == "uninstall"
             && let Some(p) = self.package().cloned()
         {
@@ -4740,5 +5351,86 @@ mod ui_tests {
             app.snapshot_pick.iter().collect::<Vec<_>>(),
             ["org.other.C"]
         );
+    }
+    #[test]
+    fn progress_shows_app_names_and_percentages_instead_of_commands() {
+        let name = |id: &str| {
+            if id == "com.example.Game" {
+                "Game".to_string()
+            } else {
+                id.to_string()
+            }
+        };
+        let lines = vec![
+            "$ flatpak \"uninstall\" \"--user\" \"app/com.example.Game/x86_64/stable\"".to_string(),
+            "Uninstalling app/com.example.Game/x86_64/stable".to_string(),
+        ];
+        assert_eq!(
+            progress_status(&lines, name),
+            (Some("Uninstalling Game".into()), None)
+        );
+        let lines = vec![
+            "Installing 1/2… \u{2588}\u{2588} 10%\rInstalling 1/2… \u{2588}\u{2588}\u{2588} 45%"
+                .to_string(),
+        ];
+        let (status, percent) = progress_status(&lines, name);
+        assert_eq!(status.as_deref(), Some("Installing 1/2…"));
+        assert!((percent.unwrap() - 0.45).abs() < 1e-6);
+        assert_eq!(
+            progress_status(&["$ flatpak \"update\"".to_string()], name),
+            (None, None)
+        );
+        // Output captured from a real non-interactive install of a fixture.
+        let lines = [
+            "$ flatpak \"install\" \"--user\" \"--noninteractive\" \"-y\" \"--from\" \"/tmp/test.flatpakref\"",
+            "F: Flatpakref file does not contain a RuntimeRepo",
+            "Installing runtime/org.example.WarehousePlatform/x86_64/stable",
+        ]
+        .map(String::from);
+        assert_eq!(
+            progress_status(&lines, name),
+            (
+                Some("Installing org.example.WarehousePlatform".into()),
+                None
+            )
+        );
+    }
+    #[test]
+    fn finished_operations_report_in_plain_words() {
+        let mut app = app();
+        let p = package("com.example.Game", "user");
+        app.inventory.packages = vec![p.clone()];
+        let view = app.job_view(&Operation::Uninstall(vec![p], false));
+        assert_eq!(view.working, "Uninstalling Game…");
+        assert_eq!(view.done, "Game uninstalled");
+        app.job_view = view;
+        let _ = app.update(Message::Finished(Box::new(Outcome {
+            ok: true,
+            cancelled: false,
+            steps: vec!["flatpak uninstall".into()],
+            errors: vec![],
+            output: vec![],
+            report: Some("/tmp/report.json".into()),
+        })));
+        assert_eq!(app.last_toast.as_deref(), Some("Game uninstalled"));
+        assert!(app.notice.is_none());
+        let _ = app.update(Message::Finished(Box::new(Outcome::failed(
+            "flatpak \"uninstall\" exited with exit status: 1".into(),
+        ))));
+        let failed = &app.outcome.as_ref().unwrap().1;
+        assert!(!failed.ok);
+        assert_eq!(
+            plain_error(
+                &failed.errors[0],
+                &["error: Game is needed by Other".to_string()]
+            ),
+            "Game is needed by Other."
+        );
+        assert!(app.ui_controls().iter().any(|c| c.id == "result.details"));
+        let _ = app.update(Message::ShowReport);
+        assert!(matches!(app.dialog, Some(Dialog::Report)));
+        let _ = app.update(Message::CloseDialog);
+        let _ = app.update(Message::ClearOutcome);
+        assert!(app.outcome.is_none());
     }
 }
