@@ -33,3 +33,7 @@ Read `docs/known-issues.md` for deferred reports and evidence before continuing 
 Run tests and Clippy for Rust changes. `verification/backend-smoke.sh` and `verification/verify-cli.sh` apply changes only to isolated fixtures. `verification/test-publisher.py` checks signing and publication files. `verification/verify-flatpak.py` installs into a private directory, shares existing runtimes read-only, and checks the actual packaged CLI, host access, disposable desktop Trash operations, and short-lived GUI captures.
 
 Keep reproducible commands, logs, inputs and reports in `verification/`. Publishing files locally does not deploy a public repository. GitHub Pages deployment needs the chosen repository, its signing secret, and Pages configuration. Do not publish private keys or verification fixtures.
+
+## Releases
+
+Every push to `main` publishes a signed build. Before pushing a change that ships in the app, bump the version: `version` in `Cargo.toml` and a new `<release version="…" date="…">` with a short description in `resources/dev.nilltadios.WarehouseCosmic.metainfo.xml`. The site and `state.json` read the version from those. The next bump is 0.2.0, covering everything published after 0.1.0 (Warehouse parity, the WC-001 to WC-006 fixes, the agent CLI and the new UI). Commits that don't change the shipped app may use `[skip ci]`. Commits carry no AI attribution or co-author trailers.
