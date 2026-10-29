@@ -17,3 +17,4 @@
 /flatpak/out/
 /flatpak/out-*/
 /.flatpak-builder/
+/flatpak/cache/

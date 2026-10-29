@@ -39,6 +39,14 @@ tempfile = "3"
 lto = "thin"
 strip = true
 
+# Local Flatpak iteration (`flatpak/build.sh --dev`): release optimizations
+# without LTO, so a change to this crate relinks in about a minute.
+[profile.flatpak-dev]
+inherits = "release"
+lto = false
+codegen-units = 256
+incremental = true
+
 [[bin]]
 name = "warehouse-cosmic"
 path = "src/main.rs"
