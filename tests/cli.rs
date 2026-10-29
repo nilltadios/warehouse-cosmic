@@ -98,3 +98,34 @@ fn guide_and_ui_discovery_need_no_window() {
             .all(|c| c["description"].as_str().is_some_and(|d| !d.is_empty()))
     );
 }
+#[test]
+fn leftover_data_reports_a_summary_even_when_empty() {
+    let root = tempfile::tempdir().unwrap();
+    let home = root.path().join("home");
+    fs::create_dir_all(home.join(".var/app/org.example.Leftover/config")).unwrap();
+    fs::write(
+        home.join(".var/app/org.example.Leftover/config/settings"),
+        "12345",
+    )
+    .unwrap();
+    let output = cli()
+        .env("HOME", &home)
+        .env("XDG_DATA_HOME", root.path().join("data"))
+        .env("XDG_CONFIG_HOME", root.path().join("config"))
+        .args(["run", "--cmd", "data.list={\"state\":\"leftover\"}"])
+        .output()
+        .unwrap();
+    let value: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+    let result = &value["results"][0];
+    // The isolated HOME has no installed apps, so its only folder is leftover.
+    assert_eq!(result["data"][0]["id"], "org.example.Leftover");
+    assert_eq!(result["summary"]["folders"], 1);
+    assert_eq!(result["summary"]["scanned_folders"], 1);
+    assert_eq!(result["summary"]["bytes"], result["data"][0]["bytes"]);
+    assert!(
+        result["summary"]["root"]
+            .as_str()
+            .unwrap()
+            .ends_with(".var/app")
+    );
+}

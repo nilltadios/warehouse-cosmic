@@ -9,6 +9,7 @@ use schemars::{JsonSchema, schema_for};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::{
+    collections::BTreeSet,
     fs,
     io::{self, Write},
     path::{Path, PathBuf},
@@ -77,18 +78,21 @@ pub struct Empty {}
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct Target {
+    /// Installation that holds the target: "user", "system" or a configured installation name. Use the `installation` value returned by package.list or remote.list.
     pub installation: String,
     pub reference: String,
 }
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct PackageRefs {
+    /// Installation that holds the target: "user", "system" or a configured installation name. Use the `installation` value returned by package.list or remote.list.
     pub installation: String,
     pub references: Vec<String>,
 }
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct Reinstall {
+    /// Installation that holds the target: "user", "system" or a configured installation name. Use the `installation` value returned by package.list or remote.list.
     pub installation: String,
     pub reference: String,
     pub remote: String,
@@ -96,6 +100,7 @@ pub struct Reinstall {
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct Toggle {
+    /// Installation that holds the target: "user", "system" or a configured installation name. Use the `installation` value returned by package.list or remote.list.
     pub installation: String,
     pub reference: String,
     pub enabled: bool,
@@ -103,6 +108,7 @@ pub struct Toggle {
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct Uninstall {
+    /// Installation that holds the target: "user", "system" or a configured installation name. Use the `installation` value returned by package.list or remote.list.
     pub installation: String,
     pub references: Vec<String>,
     #[serde(default)]
@@ -111,6 +117,7 @@ pub struct Uninstall {
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct Version {
+    /// Installation that holds the target: "user", "system" or a configured installation name. Use the `installation` value returned by package.list or remote.list.
     pub installation: String,
     pub reference: String,
     pub commit: String,
@@ -120,12 +127,14 @@ pub struct Version {
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct RemoteTarget {
+    /// Installation that holds the target: "user", "system" or a configured installation name. Use the `installation` value returned by package.list or remote.list.
     pub installation: String,
     pub name: String,
 }
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct RemoteAdd {
+    /// Installation that holds the target: "user", "system" or a configured installation name. Use the `installation` value returned by package.list or remote.list.
     pub installation: String,
     pub name: String,
     pub location: String,
@@ -133,6 +142,7 @@ pub struct RemoteAdd {
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct RemoteToggle {
+    /// Installation that holds the target: "user", "system" or a configured installation name. Use the `installation` value returned by package.list or remote.list.
     pub installation: String,
     pub name: String,
     pub enabled: bool,
@@ -140,6 +150,7 @@ pub struct RemoteToggle {
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct Install {
+    /// Installation that holds the target: "user", "system" or a configured installation name. Use the `installation` value returned by package.list or remote.list.
     pub installation: String,
     pub remote: String,
     pub refs: Vec<String>,
@@ -147,6 +158,7 @@ pub struct Install {
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct InstallFiles {
+    /// Installation that holds the target: "user", "system" or a configured installation name. Use the `installation` value returned by package.list or remote.list.
     pub installation: String,
     pub files: Vec<PathBuf>,
 }
@@ -222,6 +234,7 @@ pub struct DataList {
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct RemoteSearch {
+    /// Installation that holds the target: "user", "system" or a configured installation name. Use the `installation` value returned by package.list or remote.list.
     pub installation: String,
     pub name: String,
     #[serde(default)]
@@ -447,7 +460,7 @@ pub fn catalog() -> Vec<Value> {
         ),
         entry::<DataList>(
             "data.list",
-            "List active or leftover app data and sizes without following directory symlinks.",
+            "List app data folders in ~/.var/app with sizes. state: leftover finds data from uninstalled apps (nothing is changed). The result's summary gives folders matched, total bytes and folders scanned.",
             false,
             json!({"state":"leftover"}),
         ),
@@ -592,7 +605,9 @@ impl Policy {
         Ok(resolved)
     }
 }
-fn package(inv: &Inventory, installation: &str, reference: &str) -> Result<Package> {
+fn package(inv: &Inventory, installation_name: &str, reference: &str) -> Result<Package> {
+    installation(inv, installation_name)?;
+    let installation = installation_name;
     let matches: Vec<_> = inv
         .packages
         .iter()
@@ -603,11 +618,28 @@ fn package(inv: &Inventory, installation: &str, reference: &str) -> Result<Packa
         .collect();
     match matches.as_slice() {
         [p] => Ok((*p).clone()),
-        [] => Err(error(
-            "not_found",
-            3,
-            format!("No installed package {reference} in {installation}"),
-        )),
+        [] => {
+            let elsewhere: BTreeSet<_> = inv
+                .packages
+                .iter()
+                .filter(|p| {
+                    p.full_ref() == reference || p.reference == reference || p.id == reference
+                })
+                .map(|p| p.installation.as_str())
+                .collect();
+            Err(error(
+                "not_found",
+                3,
+                if elsewhere.is_empty() {
+                    format!("No installed package {reference} in {installation}")
+                } else {
+                    format!(
+                        "No installed package {reference} in {installation}; it is installed in: {}",
+                        elsewhere.into_iter().collect::<Vec<_>>().join(", ")
+                    )
+                },
+            ))
+        }
         _ => Err(error(
             "ambiguous_target",
             3,
@@ -622,7 +654,9 @@ fn package(inv: &Inventory, installation: &str, reference: &str) -> Result<Packa
         )),
     }
 }
-fn remote(inv: &Inventory, installation: &str, name: &str) -> Result<Remote> {
+fn remote(inv: &Inventory, installation_name: &str, name: &str) -> Result<Remote> {
+    installation(inv, installation_name)?;
+    let installation = installation_name;
     inv.remotes
         .iter()
         .find(|r| r.installation == installation && r.name == name)
@@ -631,7 +665,15 @@ fn remote(inv: &Inventory, installation: &str, name: &str) -> Result<Remote> {
             error(
                 "not_found",
                 3,
-                format!("No remote {name} in {installation}"),
+                format!(
+                    "No remote {name} in {installation}; remotes there: {}",
+                    inv.remotes
+                        .iter()
+                        .filter(|r| r.installation == installation)
+                        .map(|r| r.name.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                ),
             )
         })
 }
@@ -647,7 +689,10 @@ fn installation(inv: &Inventory, name: &str) -> Result<()> {
     if inv.installations.iter().any(|s| s == name) {
         Ok(())
     } else {
-        Err(invalid(format!("Unknown installation {name}")))
+        Err(invalid(format!(
+            "Unknown installation {name}; available: {}",
+            inv.installations.join(", ")
+        )))
     }
 }
 fn prepare(
@@ -841,9 +886,22 @@ pub fn run_request(request: &Request, paths: &Paths, policy: &Policy, job: &Job)
         _ => None,
     };
     if let Some(data) = read {
-        return Ok(
-            json!({"command":request.name(),"mode":"read","data":data,"warnings":inv.warnings}),
-        );
+        let mut result =
+            json!({"command":request.name(),"mode":"read","data":data,"warnings":inv.warnings});
+        if let Request::Data(_) = request {
+            // An empty list must be distinguishable from a scan that saw nothing.
+            let matched = result["data"]
+                .as_array()
+                .map(Vec::as_slice)
+                .unwrap_or_default();
+            result["summary"] = json!({
+                "folders": matched.len(),
+                "bytes": matched.iter().filter_map(|d| d["bytes"].as_u64()).sum::<u64>(),
+                "scanned_folders": inv.data.len(),
+                "root": paths.home.join(".var/app"),
+            });
+        }
+        return Ok(result);
     }
     let op = prepare(request, &inv, paths, policy)?;
     let commands = op.commands().map_err(invalid)?;

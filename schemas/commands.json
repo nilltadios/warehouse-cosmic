@@ -11,6 +11,7 @@
         "type": "object",
         "properties": {
           "installation": {
+            "description": "Installation that holds the target: \"user\", \"system\" or a configured installation name. Use the `installation` value returned by package.list or remote.list.",
             "type": "string"
           },
           "reference": {
@@ -39,6 +40,7 @@
         "type": "object",
         "properties": {
           "installation": {
+            "description": "Installation that holds the target: \"user\", \"system\" or a configured installation name. Use the `installation` value returned by package.list or remote.list.",
             "type": "string"
           },
           "references": {
@@ -72,6 +74,7 @@
         "type": "object",
         "properties": {
           "installation": {
+            "description": "Installation that holds the target: \"user\", \"system\" or a configured installation name. Use the `installation` value returned by package.list or remote.list.",
             "type": "string"
           },
           "reference": {
@@ -160,6 +163,7 @@
         "type": "object",
         "properties": {
           "installation": {
+            "description": "Installation that holds the target: \"user\", \"system\" or a configured installation name. Use the `installation` value returned by package.list or remote.list.",
             "type": "string"
           },
           "reference": {
@@ -188,6 +192,7 @@
         "type": "object",
         "properties": {
           "installation": {
+            "description": "Installation that holds the target: \"user\", \"system\" or a configured installation name. Use the `installation` value returned by package.list or remote.list.",
             "type": "string"
           },
           "reference": {
@@ -216,6 +221,7 @@
         "type": "object",
         "properties": {
           "installation": {
+            "description": "Installation that holds the target: \"user\", \"system\" or a configured installation name. Use the `installation` value returned by package.list or remote.list.",
             "type": "string"
           },
           "references": {
@@ -254,6 +260,7 @@
         "type": "object",
         "properties": {
           "installation": {
+            "description": "Installation that holds the target: \"user\", \"system\" or a configured installation name. Use the `installation` value returned by package.list or remote.list.",
             "type": "string"
           },
           "reference": {
@@ -287,6 +294,7 @@
         "type": "object",
         "properties": {
           "installation": {
+            "description": "Installation that holds the target: \"user\", \"system\" or a configured installation name. Use the `installation` value returned by package.list or remote.list.",
             "type": "string"
           },
           "reference": {
@@ -320,6 +328,7 @@
         "type": "object",
         "properties": {
           "installation": {
+            "description": "Installation that holds the target: \"user\", \"system\" or a configured installation name. Use the `installation` value returned by package.list or remote.list.",
             "type": "string"
           },
           "reference": {
@@ -358,6 +367,7 @@
         "type": "object",
         "properties": {
           "installation": {
+            "description": "Installation that holds the target: \"user\", \"system\" or a configured installation name. Use the `installation` value returned by package.list or remote.list.",
             "type": "string"
           },
           "remote": {
@@ -396,6 +406,7 @@
         "type": "object",
         "properties": {
           "installation": {
+            "description": "Installation that holds the target: \"user\", \"system\" or a configured installation name. Use the `installation` value returned by package.list or remote.list.",
             "type": "string"
           },
           "files": {
@@ -442,6 +453,7 @@
         "type": "object",
         "properties": {
           "installation": {
+            "description": "Installation that holds the target: \"user\", \"system\" or a configured installation name. Use the `installation` value returned by package.list or remote.list.",
             "type": "string"
           },
           "name": {
@@ -475,6 +487,7 @@
         "type": "object",
         "properties": {
           "installation": {
+            "description": "Installation that holds the target: \"user\", \"system\" or a configured installation name. Use the `installation` value returned by package.list or remote.list.",
             "type": "string"
           },
           "name": {
@@ -508,6 +521,7 @@
         "type": "object",
         "properties": {
           "installation": {
+            "description": "Installation that holds the target: \"user\", \"system\" or a configured installation name. Use the `installation` value returned by package.list or remote.list.",
             "type": "string"
           },
           "name": {
@@ -541,6 +555,7 @@
         "type": "object",
         "properties": {
           "installation": {
+            "description": "Installation that holds the target: \"user\", \"system\" or a configured installation name. Use the `installation` value returned by package.list or remote.list.",
             "type": "string"
           },
           "name": {
@@ -561,7 +576,7 @@
     },
     {
       "command": "data.list",
-      "description": "List active or leftover app data and sizes without following directory symlinks.",
+      "description": "List app data folders in ~/.var/app with sizes. state: leftover finds data from uninstalled apps (nothing is changed). The result's summary gives folders matched, total bytes and folders scanned.",
       "mutates": false,
       "params_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",

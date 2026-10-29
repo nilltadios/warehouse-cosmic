@@ -29,6 +29,15 @@ Two layers, one CLI. Neither needs MCP, a daemon or a server.
    ui capture /abs/new.png    the window's own render
    ui commands                all ui subcommands with descriptions
 
+Common tasks (read-only unless noted)
+   Leftover data of uninstalled apps:  run --cmd 'data.list={"state":"leftover"}'
+                                       (result "summary": folders, bytes, scanned_folders)
+   Installed apps and their scope:     run --cmd 'package.list={"kind":"applications"}'
+   Is an update available:             run --cmd 'package.update-check={"installation":"user","reference":"APP_ID"}'
+   Move leftover data to Trash:        run --cmd 'data.trash={"ids":["APP_ID"]}'   (plan; add --apply)
+   "installation" is the value package.list reports: user, system or a named installation.
+   describe COMMAND shows each parameter with a description.
+
 Typical GUI loop: inspect -> activate a control -> wait -> inspect again and read
 "dialog", "notice", "toast" and "view". A change always opens a confirmation dialog
 first; confirm it with `ui activate dialog.confirm --apply` only when authorized.

@@ -467,6 +467,7 @@
       "type": "object",
       "properties": {
         "installation": {
+          "description": "Installation that holds the target: \"user\", \"system\" or a configured installation name. Use the `installation` value returned by package.list or remote.list.",
           "type": "string"
         },
         "reference": {
@@ -483,6 +484,7 @@
       "type": "object",
       "properties": {
         "installation": {
+          "description": "Installation that holds the target: \"user\", \"system\" or a configured installation name. Use the `installation` value returned by package.list or remote.list.",
           "type": "string"
         },
         "references": {
@@ -502,6 +504,7 @@
       "type": "object",
       "properties": {
         "installation": {
+          "description": "Installation that holds the target: \"user\", \"system\" or a configured installation name. Use the `installation` value returned by package.list or remote.list.",
           "type": "string"
         },
         "reference": {
@@ -555,6 +558,7 @@
       "type": "object",
       "properties": {
         "installation": {
+          "description": "Installation that holds the target: \"user\", \"system\" or a configured installation name. Use the `installation` value returned by package.list or remote.list.",
           "type": "string"
         },
         "references": {
@@ -578,6 +582,7 @@
       "type": "object",
       "properties": {
         "installation": {
+          "description": "Installation that holds the target: \"user\", \"system\" or a configured installation name. Use the `installation` value returned by package.list or remote.list.",
           "type": "string"
         },
         "reference": {
@@ -598,6 +603,7 @@
       "type": "object",
       "properties": {
         "installation": {
+          "description": "Installation that holds the target: \"user\", \"system\" or a configured installation name. Use the `installation` value returned by package.list or remote.list.",
           "type": "string"
         },
         "reference": {
@@ -622,6 +628,7 @@
       "type": "object",
       "properties": {
         "installation": {
+          "description": "Installation that holds the target: \"user\", \"system\" or a configured installation name. Use the `installation` value returned by package.list or remote.list.",
           "type": "string"
         },
         "remote": {
@@ -645,6 +652,7 @@
       "type": "object",
       "properties": {
         "installation": {
+          "description": "Installation that holds the target: \"user\", \"system\" or a configured installation name. Use the `installation` value returned by package.list or remote.list.",
           "type": "string"
         },
         "files": {
@@ -664,6 +672,7 @@
       "type": "object",
       "properties": {
         "installation": {
+          "description": "Installation that holds the target: \"user\", \"system\" or a configured installation name. Use the `installation` value returned by package.list or remote.list.",
           "type": "string"
         },
         "name": {
@@ -684,6 +693,7 @@
       "type": "object",
       "properties": {
         "installation": {
+          "description": "Installation that holds the target: \"user\", \"system\" or a configured installation name. Use the `installation` value returned by package.list or remote.list.",
           "type": "string"
         },
         "name": {
@@ -704,6 +714,7 @@
       "type": "object",
       "properties": {
         "installation": {
+          "description": "Installation that holds the target: \"user\", \"system\" or a configured installation name. Use the `installation` value returned by package.list or remote.list.",
           "type": "string"
         },
         "name": {
@@ -724,6 +735,7 @@
       "type": "object",
       "properties": {
         "installation": {
+          "description": "Installation that holds the target: \"user\", \"system\" or a configured installation name. Use the `installation` value returned by package.list or remote.list.",
           "type": "string"
         },
         "name": {

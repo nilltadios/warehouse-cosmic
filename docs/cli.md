@@ -72,7 +72,7 @@ Execution stops on the first failure. Earlier successful mutations remain applie
 }
 ```
 
-Each successful result has a command ID and `mode` (`read`, `dry_run`, or `applied`). Applied results contain the backend report, including step results, errors, timestamps, recent output, and the durable log path. Failed runs retain earlier successful results and include an error code and message. A failed backend operation's report path identifies any partially applied steps. Diagnostics also go to stderr. Help and version output are plain text.
+Each successful result has a command ID and `mode` (`read`, `dry_run`, or `applied`). `data.list` also returns a `summary` with the folders matched, their total `bytes`, the number of folders scanned and the scanned root, so an empty list is distinguishable from a scan that found nothing. Target errors name the valid choices: an unknown installation lists the available ones, and a package missing from the requested installation says where it is installed. Applied results contain the backend report, including step results, errors, timestamps, recent output, and the durable log path. Failed runs retain earlier successful results and include an error code and message. A failed backend operation's report path identifies any partially applied steps. Diagnostics also go to stderr. Help and version output are plain text.
 
 The schema identifier changes if meanings change; new optional fields may be added within version 1. Consumers should ignore unrecognized output fields. Input fields are strict.
 

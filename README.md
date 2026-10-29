@@ -1,80 +1,71 @@
 # Warehouse COSMIC
 
-A native Rust/libcosmic Flatpak toolbox inspired by [flattool/Warehouse](https://github.com/flattool/warehouse). It has the same five main work areas: Packages, Remotes, User Data, Snapshots, and Install Packages. The red-and-black warehouse icon is original SVG artwork in `resources/`.
+Manage your Flatpak apps, remotes and app data from one native COSMIC app. Inspired by [Warehouse](https://github.com/flattool/warehouse), rewritten in Rust with libcosmic, and usable by scripts and AI agents through a command-line tool.
 
-The application code is Rust. There is no Python, GTK, web view, or JavaScript application runtime. Flatpak handles package transactions; libcosmic and the Linux graphics stack provide the desktop integration. Compression uses the Rust zstd wrapper and its native zstd dependency.
+## Install
 
-## Run
+**One click:** open [the install file](https://nilltadios.github.io/warehouse-cosmic/dev.nilltadios.WarehouseCosmic.flatpakref) in Discover or GNOME Software.
 
-The distribution package uses **Freedesktop Platform 26.08**, built with **Freedesktop SDK 26.08** and a checksummed Rust 1.99.1 build toolchain. The build toolchain is removed from the shipped app. Both the GUI and the standalone CLI are included.
+**Terminal:**
 
-Build a Flatpak locally with `flatpak/build.sh`. It creates `flatpak/out/dev.nilltadios.WarehouseCosmic.flatpak` without installing it. See [Flatpak distribution](docs/flatpak.md) for installation, signed GitHub Pages publishing, updates, permissions, and packaged CLI commands. The repository publishing workflow is prepared locally; this does not mean a public repository has been deployed.
+```sh
+flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+flatpak remote-add --user --if-not-exists warehouse-cosmic https://nilltadios.github.io/warehouse-cosmic/warehouse-cosmic.flatpakrepo
+flatpak install --user warehouse-cosmic dev.nilltadios.WarehouseCosmic
+```
 
-For native development:
+Updates arrive through `flatpak update`, Discover or GNOME Software like any other app.
+
+**Installed it from a downloaded `.flatpak` file?** That copy never updates. Add the remote (second command above), then switch to it. Your settings and data are kept:
+
+```sh
+flatpak install --user --reinstall warehouse-cosmic dev.nilltadios.WarehouseCosmic
+```
+
+Use `--system` instead of `--user` in every command if you installed it system-wide.
+
+**Signing key fingerprint:** `E3CD 796A EED6 8D6D 4747  362A 4174 B10F A66F C268`. To compare it with the key the site serves:
+
+```sh
+curl -s https://nilltadios.github.io/warehouse-cosmic/warehouse-cosmic.flatpakrepo | sed -n 's/^GPGKey=//p' | base64 -d | gpg --show-keys
+```
+
+A Flatpak manager needs broad access to your Flatpak installations and app data; [here's what each permission is for](docs/flatpak.md#host-access-and-app-data).
+
+## What it does
+
+- **Packages:** search and filter installed apps and runtimes, see their details, open, update, reinstall, change source or version, block updates, pin runtimes, and uninstall one or many at once. Uninstalling asks whether to keep or trash the app's data.
+- **Remotes:** add remotes from popular presets, URLs or `.flatpakrepo` files; enable, disable, remove, and browse what's installed from each.
+- **User data:** see how much space each app's data uses, find data left behind by apps you uninstalled, and move it to the Trash.
+- **Snapshots:** back up an app's settings and content, and restore, export or import them. Warehouse snapshots work here too.
+- **Install:** search a remote, collect packages from several remotes into one pending list, and install them together. You can also open or drag `.flatpak`, `.flatpakref` and `.flatpakrepo` files onto the window.
+
+Nothing is deleted permanently: removed data goes to your desktop Trash, and restoring a snapshot keeps your previous data in a recovery folder.
+
+## Command line and AI agents
+
+The app ships with `warehouse-cosmic-cli`, which can do everything without opening a window, and can also inspect and click through a running window.
+
+```sh
+flatpak run --command=warehouse-cosmic-cli dev.nilltadios.WarehouseCosmic guide
+```
+
+`guide` is the starting point. Changes are shown as a plan first and only happen with `--apply`. See the [CLI guide](docs/cli.md), the [agent workflow](docs/agents.md) and the [live GUI controls](docs/ui-cli.md).
+
+## Build from source
 
 ```sh
 cargo run --locked --bin warehouse-cosmic
 ```
 
-The default build enables native Wayland and wgpu. X11 support is excluded from the libcosmic feature selection. wgpu tries the available graphics adapters; iced includes its software renderer as a fallback. A software-only GUI build is available with `cargo build --locked --no-default-features --features gui --bin warehouse-cosmic`.
+To build the Flatpak, use `flatpak/build.sh`, or `flatpak/build.sh --dev` for faster local builds. See [development](docs/development.md) for prerequisites and tests, and [Flatpak distribution](docs/flatpak.md) for packaging and publishing.
 
-Rust 1.99.1 is pinned in `rust-toolchain.toml`. The libcosmic revision and all crate versions are recorded in `Cargo.lock`. Native prerequisites are a C compiler, pkg-config, fontconfig/freetype, xkbcommon, Wayland, Flatpak, and a working Vulkan or OpenGL driver for GPU rendering. KDE/COSMIC provides file chooser portals. System package changes use PolicyKit through `pkexec`.
+## More
 
-The private icon theme bundles COSMIC icons, including the sidebar toggle, so controls remain visible on KDE and inside the Freedesktop runtime. The original red/black app icon has separate header padding. Scrollbars reserve a content gutter, and Remotes/Snapshots toolbars stay outside their scrolling lists.
+- [Feature comparison with Warehouse](docs/parity.md)
+- [Custom remotes, including auto-built repositories](docs/custom-remotes.md)
+- [Reported issues and their fixes](docs/known-issues.md)
 
-The Settings gear opens a side panel. Appearance offers Match desktop, Dark and Light as separate choices. The choice is saved automatically and loaded on the next launch. Ctrl+, opens Settings; Escape closes the panel.
+## License
 
-## Features
-
-- Search installed applications and runtimes; filter by remotes, runtimes, installation and end-of-life state, with Name/App ID/Remote sorting. Filters, sort orders and the last page are restored on the next launch.
-- Copy package fields, launch applications, check/apply updates from the installed origin, reinstall, change sources, block updates, pin runtimes, and change versions from a list of the remote's commits.
-- Uninstall packages individually or in batches. The confirmation names the app and offers Keep (default) or Trash for its settings and content.
-- Add remotes from URLs, popular presets or `.flatpakrepo` files; enable, disable, remove and search remotes.
-- Inspect active and leftover user data sorted by name, ID or size; open folders, copy IDs, make snapshots, find leftover apps in a remote, and move data to Trash.
-- Create, import, export, rename, restore, and trash Warehouse-compatible `.tar.zst` snapshots, grouped by app. The New Snapshot dialog lists apps with icons, search and Select All.
-- Search a remote, collect pending packages from several remotes and installations, and install them in one reviewed operation. Install `.flatpak` or `.flatpakref` files from Open Files or by dragging them onto the window.
-
-Snapshots created here live under `$XDG_DATA_HOME/warehouse-cosmic/Snapshots` (normally `~/.local/share/warehouse-cosmic/Snapshots`). The official Warehouse snapshot library is also visible; import copies to edit them here. Restores validate and extract the archive before replacing data. The previous data is retained in a sibling `.warehouse-recovery-*` folder under `~/.var/app`; the result names its exact path. Close the affected application yourself before snapshotting, restoring, or removing its data.
-
-Operations are serialized across GUI and CLI invocations with a file lock. Results, commands, errors and recent output are saved under `$XDG_DATA_HOME/warehouse-cosmic/operations`. Cancellation preserves completed steps and reports partial results. Flatpak operations are not a multi-command transaction.
-
-## Headless CLI for people and agents
-
-```sh
-warehouse-cosmic-cli guide
-warehouse-cosmic-cli commands --json
-warehouse-cosmic-cli describe package.uninstall
-warehouse-cosmic-cli run --cmd 'package.list={"kind":"applications"}'
-warehouse-cosmic-cli run --script examples/audit.json
-```
-
-Backend commands start no GUI, MCP server, daemon, or listening socket. Mutations produce plans by default. Add `--apply` to perform them. System mutations also require `--allow-system`; this can show a PolicyKit authorization dialog. For a CLI build without libcosmic or a graphics renderer:
-
-```sh
-cargo build --locked --no-default-features --bin warehouse-cosmic-cli
-```
-
-Custom channels, including the Parsec autobuild distribution, are covered in [custom remotes](docs/custom-remotes.md).
-
-See [the CLI guide](docs/cli.md), [agent workflow](docs/agents.md), [command catalog](schemas/commands.json), and [request schema](schemas/request.json). The discovery and scripting conventions were informed by Craft's [GridCraft CLI](https://github.com/storytold/gridcraft/blob/11bb67386c9bb19b0717e21e98adc608162ae2e5/docs/cli.md) and [DeckCraft command documentation](https://github.com/storytold/deckcraft/blob/55e5ee56b4b2c64973b78fda4182a78f9766fa62/apps/deckcraft-cli/src/help.rs).
-
-The [project brief](docs/project-brief.md) records the intended product and interface requirements. The [testing guide](docs/verification.md) describes reproducible checks and their limits. For live GUI inspection, navigation, file review, theme/window changes, hover/scroll tests and renderer captures, use the [GUI CLI](docs/ui-cli.md).
-
-See [reported issues](docs/known-issues.md) for the 2026-10-28 reports, their fixes, saved evidence and verification.
-
-## Install and remove
-
-`install.sh` builds and installs both binaries, the desktop entry, and the icon for the current user. `install.sh --dry-run` lists destinations. Replaced files are backed up next to themselves with a timestamp. `uninstall.sh` removes only this application's installed files after showing the plan; `uninstall.sh --apply` performs it. User data, snapshots, and operation reports remain.
-
-## Verify
-
-```sh
-cargo test --locked
-cargo clippy --all-targets --locked -- -D warnings
-./verification/backend-smoke.sh
-./verification/verify-cli.sh
-```
-
-The backend smoke test generates a signed local Flatpak repository and isolates HOME and every XDG folder before installing anything. It never installs fixtures into the real user installation. Desktop captures come from the application's own renderer with `--preview PAGE --capture /absolute/output.png`; that process exits after saving the image. See [verification](docs/verification.md) for results and limitations and [feature mapping](docs/parity.md) for UI differences.
-
-GPL-3.0-or-later. This is an independent application and is not maintained by the Warehouse developers.
+GPL-3.0-or-later. This is an independent project and isn't maintained by the Warehouse developers.
