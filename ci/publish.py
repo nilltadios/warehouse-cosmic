@@ -10,6 +10,7 @@ import html
 import json
 import os
 import pathlib
+import re
 import shutil
 import subprocess
 import sys
@@ -46,32 +47,31 @@ shutil.copytree(repo, site / "repo")
 gpg = base64.b64encode(pub).decode()
 fingerprint = subprocess.check_output(["gpg", "--batch", "--with-colons", "--fingerprint", key], text=True).split("fpr:::::::::", 1)[1].split(":", 1)[0]
 fingerprint = " ".join(fingerprint[i:i + 4] for i in range(0, len(fingerprint), 4))
-common = f"Url={base}repo/\nHomepage={base}\nIcon={base}icon.svg\nGPGKey={gpg}\n"
-(site / "warehouse-cosmic.flatpakrepo").write_text("[Flatpak Repo]\nTitle=Warehouse COSMIC\nComment=Native Wayland Flatpak toolbox\nDescription=Signed Warehouse COSMIC releases\n" + common)
+common = f"Url={base}repo/\nHomepage={base}\nIcon={base}icon.png\nGPGKey={gpg}\n"
+remote_file = "warehouse-cosmic.flatpakrepo"
+(site / remote_file).write_text("[Flatpak Repo]\nTitle=Warehouse COSMIC\nComment=Manage Flatpak apps, remotes and app data\nDescription=Signed Warehouse COSMIC releases\n" + common)
 (site / f"{app}.flatpakref").write_text(f"[Flatpak Ref]\nTitle=Warehouse COSMIC\nName={app}\nBranch=stable\nSuggestRemoteName=warehouse-cosmic\nIsRuntime=false\nRuntimeRepo=https://dl.flathub.org/repo/flathub.flatpakrepo\n" + common)
 shutil.copy2(root / "resources" / f"{app}.svg", site / "icon.svg")
+# Software stores render PNG icons more reliably than SVG.
+shutil.copy2(root / "resources" / f"{app}.png", site / "icon.png")
 (site / ".nojekyll").touch()
+published = datetime.datetime.now(datetime.timezone.utc)
 state = {**inputs, "source_commit": commit, "ostree_commit": ostree_commit,
-         "published_at": datetime.datetime.now(datetime.timezone.utc).isoformat(), "base_url": base}
+         "published_at": published.isoformat(), "base_url": base, "signing_key": fingerprint.replace(" ", "")}
 (site / "state.json").write_text(json.dumps(state, indent=2) + "\n")
-title = "Warehouse COSMIC"
-(site / "index.html").write_text(f'''<!doctype html>
-<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width">
-<title>{title}</title><style>
-body{{background:#151517;color:#eee;font:18px/1.6 system-ui;max-width:780px;margin:60px auto;padding:24px}}
-a{{color:#ff5361}}img{{width:96px}}code,pre{{background:#252529;padding:8px;border-radius:8px}}pre{{overflow:auto}}
-.install{{display:inline-block;background:#e51d38;color:white;padding:12px 20px;border-radius:12px;text-decoration:none}}
-</style><main><img src="icon.svg" alt=""><h1>{title}</h1>
-<p>A Rust and libcosmic Flatpak toolbox with native Wayland and GPU rendering.</p>
-<p><a class="install" href="{app}.flatpakref">Install Warehouse COSMIC</a></p>
-<p>Open the downloaded install file in Discover or GNOME Software. It adds the signed <code>warehouse-cosmic</code> remote. Updates arrive through your normal Flatpak updater.</p>
-<p>Version {html.escape(str(inputs['version']))}. Freedesktop Platform {html.escape(inputs['runtime_version'])}. x86_64. Built from commit <code>{html.escape(commit[:12])}</code>.</p>
-<h2>Terminal install</h2><pre>flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-flatpak remote-add --user --if-not-exists warehouse-cosmic {html.escape(base)}warehouse-cosmic.flatpakrepo
-flatpak install --user warehouse-cosmic {app}</pre>
-<h2>Installed from a downloaded file?</h2><p>Add the remote above, then switch the installed app to it. Settings and data are kept.</p><pre>flatpak install --user --reinstall warehouse-cosmic {app}</pre>
-<h2>Signing key</h2><p>Fingerprint <code>{html.escape(fingerprint)}</code>. Compare it with the key in <a href="warehouse-cosmic.flatpakrepo">warehouse-cosmic.flatpakrepo</a> and in the project README.</p>
-<h2>Standalone CLI</h2><pre>flatpak run --command=warehouse-cosmic-cli {app} commands --json</pre>
-<p>Host command and home-directory access are required to manage packages and app data.</p>
-<p><a href="state.json">Published build information</a> · GPL-3.0-or-later</p></main></html>''')
+repo_name = os.environ.get("GITHUB_REPOSITORY", "nilltadios/warehouse-cosmic")
+values = {
+    "APP": app, "REMOTE": "warehouse-cosmic", "REPO_FILE": remote_file, "BASE": base,
+    "VERSION": str(inputs["version"]), "RUNTIME": inputs["runtime_version"],
+    "PUBLISHED": published.date().isoformat(), "COMMIT": commit, "COMMIT_SHORT": commit[:12],
+    "OSTREE_SHORT": ostree_commit[:12], "FINGERPRINT": fingerprint,
+    "REPO_URL": f"https://github.com/{repo_name}", "REPO_NAME": repo_name,
+}
+page = (root / "ci/site/index.html.in").read_text()
+for name, value in values.items():
+    page = page.replace(f"@{name}@", html.escape(value))
+unfilled = sorted(set(re.findall(r"@[A-Z_]+@", page)))
+if unfilled:
+    raise SystemExit("Unfilled placeholders in index.html: " + ", ".join(unfilled))
+(site / "index.html").write_text(page)
 print(site)
