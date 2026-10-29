@@ -14,6 +14,9 @@ gpu = ["gui", "libcosmic/wgpu"]
 # Repo-only KDE Plasma test helpers (real pointer input through KWin). Never
 # enabled for the Flatpak; see docs/ui-cli.md.
 kde-tools = ["dep:reis"]
+# Repo-only COSMIC test helpers: window activation and placement through COSMIC's
+# toplevel protocols, real pointer input through the RemoteDesktop portal.
+cosmic-tools = ["dep:cosmic-protocols", "dep:wayland-client", "dep:wayland-protocols", "dep:futures-util"]
 
 [dependencies]
 # Use the same Git source as cosmic-settings-daemon. Cargo.lock pins the commit;
@@ -34,6 +37,10 @@ image = { version = "0.25", optional = true, default-features = false, features 
 zbus = { version = "6", default-features = false, features = ["tokio-multithread", "proxy", "service"] }
 rustix = { version = "1", features = ["time"] }
 reis = { version = "0.7", optional = true }
+cosmic-protocols = { git = "https://github.com/pop-os/cosmic-protocols", rev = "c0cff4d", default-features = false, features = ["client"], optional = true }
+wayland-client = { version = "0.31", optional = true }
+wayland-protocols = { version = "0.32", features = ["client", "staging", "unstable"], optional = true }
+futures-util = { version = "0.3", default-features = false, optional = true }
 
 [dev-dependencies]
 tempfile = "3"
@@ -63,3 +70,8 @@ path = "src/cli_main.rs"
 name = "warehouse-cosmic-kde"
 path = "src/kde_main.rs"
 required-features = ["kde-tools"]
+
+[[bin]]
+name = "warehouse-cosmic-cosmic"
+path = "src/cosmic_main.rs"
+required-features = ["cosmic-tools"]

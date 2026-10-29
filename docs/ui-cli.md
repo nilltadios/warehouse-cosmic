@@ -73,6 +73,23 @@ Every package, data or snapshot change first opens a confirmation dialog. Openin
 
 `ui` never moves your mouse, presses keys or uses the desktop's screenshot tools; it works the same on every Wayland desktop. Physical pointer and keyboard input, the native file chooser and a compositor drag from a file manager are outside it and need a person to check.
 
+## If you're on COSMIC
+
+The repository also has optional COSMIC helpers with the same commands. They are not part of the app or the Flatpak; build them from a source checkout:
+
+```sh
+cargo build --features cosmic-tools --bin warehouse-cosmic-cosmic
+target/debug/warehouse-cosmic-cosmic --instance INSTANCE hover header.settings --capture /absolute/settings-hover.png
+target/debug/warehouse-cosmic-cosmic --instance INSTANCE scroll --target content --pixels 400 --capture /absolute/scrolled.png
+target/debug/warehouse-cosmic-cosmic place DP-1
+target/debug/warehouse-cosmic-cosmic present
+target/debug/warehouse-cosmic-cosmic windows
+```
+
+`present` and `place` use COSMIC's toplevel-management and workspace protocols. `windows` lists the windows and monitors COSMIC reports. `hover` and `scroll` send real pointer input through the standard RemoteDesktop portal: the first run shows COSMIC's "allow remote control" dialog, and the approval is remembered in `~/.local/state/warehouse-cosmic/remote-desktop-token` until revoked. Like the KDE helpers, they confirm from the window's own `pointer` report that the input reached the requested control, fail rather than pretend, and leave the pointer where the test put it.
+
+COSMIC does not report which process owns a window, so these helpers act only when exactly one Warehouse COSMIC window is open. Set `WAREHOUSE_COSMIC_DEBUG=1` to print the portal's monitor streams and the target coordinates. On other desktops every helper exits with an error saying it needs COSMIC.
+
 ## If you're on KDE Plasma
 
 The repository also has optional KDE Plasma helpers that use real pointer input and window placement through KWin. They are not part of the app or the Flatpak; build them from a source checkout:

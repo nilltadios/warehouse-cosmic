@@ -5655,8 +5655,10 @@ name = "warehouse-cosmic"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "cosmic-protocols",
  "ctrlc",
  "env_logger",
+ "futures-util",
  "image",
  "libcosmic",
  "reis",
@@ -5669,6 +5671,8 @@ dependencies = [
  "tokio",
  "trash",
  "url",
+ "wayland-client",
+ "wayland-protocols",
  "zbus 6.1.0",
  "zstd",
 ]

@@ -22,7 +22,7 @@ When opening the app for someone to use, leave that window open. Screenshot/test
 
 ## Universal app code
 
-The app and its CLI must behave the same on every Wayland desktop. Use standard protocols and portals (xdg-activation, file chooser, document portal, D-Bus interfaces the app owns), not compositor- or desktop-specific APIs. Desktop-specific tooling (for example KWin pointer input) belongs in repo-only helpers behind a Cargo feature that the Flatpak never enables, such as `kde-tools` (`warehouse-cosmic-kde`), and docs present it as "if you're on KDE Plasma, you can also run …". Do not add desktop-specific Flatpak permissions.
+The app and its CLI must behave the same on every Wayland desktop. Use standard protocols and portals (xdg-activation, file chooser, document portal, D-Bus interfaces the app owns), not compositor- or desktop-specific APIs. Desktop-specific tooling (for example KWin pointer input) belongs in repo-only helpers behind a Cargo feature that the Flatpak never enables, such as `cosmic-tools` (`warehouse-cosmic-cosmic`) and `kde-tools` (`warehouse-cosmic-kde`), and docs present it as "if you're on COSMIC / KDE Plasma, you can also run …". Do not add desktop-specific Flatpak permissions.
 
 ## Agent CLI
 

@@ -6,7 +6,7 @@ Dragging files onto the window's page area does the same as opening them. While 
 
 Normal launches share one application instance. Opening another package file forwards it to the existing window and presents its install review. Additional files join an open review without resetting the chosen installation. Files opened during a package operation wait until that operation finishes. Desktop activation tokens are forwarded to the running application so the compositor can present it.
 
-Explicit file opens and `ui start` request standard Wayland activation (xdg-activation) for the window, the same on every desktop. Whether a minimized window comes forward is the compositor's decision. If you're on KDE Plasma and need to force it in a test, `warehouse-cosmic-kde present` can (see [GUI CLI](ui-cli.md#if-youre-on-kde-plasma)).
+Explicit file opens and `ui start` request standard Wayland activation (xdg-activation) for the window, the same on every desktop. Whether a minimized window comes forward is the compositor's decision. If you need to force it in a test, the repo-only helpers can: `warehouse-cosmic-cosmic present` on COSMIC and `warehouse-cosmic-kde present` on KDE Plasma (see [GUI CLI](ui-cli.md#if-youre-on-cosmic)).
 
 `ui start` reuses that normal instance. Tests can explicitly start a separate instance with `ui start --config-dir PATH`; the config must include the shared COSMIC theme directory. Renderer captures are also isolated.
 
