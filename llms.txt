@@ -5,6 +5,7 @@ Native Rust/libcosmic Flatpak toolbox and standalone headless CLI.
 - CLI executable: warehouse-cosmic-cli
 - Flatpak CLI: flatpak run --command=warehouse-cosmic-cli dev.nilltadios.WarehouseCosmic
 - Start here: warehouse-cosmic-cli guide
+- Full docs from the CLI: warehouse-cosmic-cli docs [llms|cli|agents|ui-cli|flatpak|parity|development]
 - Discover: warehouse-cosmic-cli commands --json
 - Describe: warehouse-cosmic-cli describe COMMAND
 - Request schema: warehouse-cosmic-cli schema
@@ -12,7 +13,7 @@ Native Rust/libcosmic Flatpak toolbox and standalone headless CLI.
 - Scripts: warehouse-cosmic-cli run --script job.json
 - Mutations are plans unless --apply is supplied.
 - System mutation also needs --allow-system and can show PolicyKit.
-- Backend commands require no MCP, background server, listening socket, or running GUI.
+- Backend commands work with the GUI closed.
 - ui commands: inspect/control a live GUI through its own desktop D-Bus interface; no separate server.
 - ui commands and ui schema discover the GUI API; select an exact instance when several are running.
 - ui inspect: page content, dialog content, text fields and every visible control with label and required flags.

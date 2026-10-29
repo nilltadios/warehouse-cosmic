@@ -22,7 +22,7 @@ use std::{
     name = "warehouse-cosmic-cli",
     version,
     about = "Flatpak management and explicit GUI controls. Package mutations require --apply.",
-    long_about = "Warehouse COSMIC CLI uses the same Rust backend as the desktop app. Backend commands run without a window. The ui subcommands inspect and control an actual GUI through desktop D-Bus, including explicit ui start. No MCP server or separate background service is needed.\n\nStart with `guide`. Discover backend commands with `commands --json` and the live window's controls with `ui inspect`. Package mutations require --apply. System mutations also require --allow-system and may show PolicyKit authorization."
+    long_about = "Warehouse COSMIC CLI uses the same Rust backend as the desktop app. Backend commands run without a window. The ui subcommands inspect and operate the open window.\n\nStart with `guide`; `docs` prints the full documentation. Discover backend commands with `commands --json` and the live window's controls with `ui inspect`. Package mutations require --apply. System mutations also require --allow-system and may show PolicyKit authorization."
 )]
 struct Cli {
     #[command(subcommand)]
@@ -32,6 +32,8 @@ struct Cli {
 enum Action {
     /// Start here: how agents discover, plan, apply and verify, for the CLI and the live GUI.
     Guide,
+    /// Print bundled documentation. Without a topic, list the topics.
+    Docs { topic: Option<String> },
     /// Inspect and control an actual running GUI through its desktop D-Bus API.
     Ui(crate::ui_client::Args),
     /// List command IDs, descriptions and parameter schemas.
@@ -973,6 +975,45 @@ fn canonical_root(path: Option<PathBuf>) -> Result<Option<PathBuf>> {
     })
     .transpose()
 }
+/// Documentation compiled into the CLI, so it reads the same on the host and
+/// inside the Flatpak sandbox, whose /app paths the host cannot see.
+const DOCS: [(&str, &str, &str); 7] = [
+    (
+        "llms",
+        "Short index for agents",
+        include_str!("../llms.txt"),
+    ),
+    (
+        "cli",
+        "Command contract, scripts, exit codes, file roots, recovery",
+        include_str!("../docs/cli.md"),
+    ),
+    (
+        "agents",
+        "Plan, apply and verify workflow",
+        include_str!("../docs/agents.md"),
+    ),
+    (
+        "ui-cli",
+        "Operating and testing the live window",
+        include_str!("../docs/ui-cli.md"),
+    ),
+    (
+        "flatpak",
+        "Install, update, permissions and publishing",
+        include_str!("../docs/flatpak.md"),
+    ),
+    (
+        "parity",
+        "Feature comparison with Warehouse",
+        include_str!("../docs/parity.md"),
+    ),
+    (
+        "development",
+        "Building from source and tests",
+        include_str!("../docs/development.md"),
+    ),
+];
 fn run_cli(cli: Cli) -> Result<Value> {
     match cli.action {
         Action::Ui(args) => crate::ui_client::run(args).map_err(failure),
@@ -980,6 +1021,35 @@ fn run_cli(cli: Cli) -> Result<Value> {
             io::stdout()
                 .lock()
                 .write_all(include_str!("guide.txt").as_bytes())
+                .map_err(|e| failure(e.to_string()))?;
+            Ok(Value::Null)
+        }
+        Action::Docs { topic } => {
+            let mut out = io::stdout().lock();
+            let text = match topic.as_deref() {
+                None => {
+                    let mut list =
+                        String::from("Documentation topics (warehouse-cosmic-cli docs TOPIC):\n");
+                    for (name, summary, _) in DOCS {
+                        list.push_str(&format!("  {name:<12} {summary}\n"));
+                    }
+                    list.push_str(
+                        "Online: https://github.com/nilltadios/warehouse-cosmic/tree/main/docs\n",
+                    );
+                    list
+                }
+                Some(name) => DOCS
+                    .iter()
+                    .find(|(topic, ..)| *topic == name.trim_end_matches(".md"))
+                    .map(|(.., text)| text.to_string())
+                    .ok_or_else(|| {
+                        invalid(format!(
+                            "Unknown topic {name}; available: {}",
+                            DOCS.iter().map(|(t, ..)| *t).collect::<Vec<_>>().join(", ")
+                        ))
+                    })?,
+            };
+            out.write_all(text.as_bytes())
                 .map_err(|e| failure(e.to_string()))?;
             Ok(Value::Null)
         }

@@ -1,6 +1,6 @@
 # Standalone CLI
 
-`warehouse-cosmic-cli` does one invocation's work and exits. It requires no MCP client, server, open app, or display session for user-level operations. Its command parser and schemas are Rust, and it calls the same backend as the graphical app.
+`warehouse-cosmic-cli` does one invocation's work and exits. User-level operations work without the app open or a display session. Its command parser and schemas are Rust, and it calls the same backend as the graphical app.
 
 ## Discover and read
 

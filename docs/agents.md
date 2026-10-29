@@ -1,6 +1,6 @@
 # Agent workflow
 
-Use the standalone `warehouse-cosmic-cli`. No server or protocol setup is needed, and the GUI can remain closed. Run `warehouse-cosmic-cli guide` first: it prints the discovery commands for both layers below.
+Use `warehouse-cosmic-cli`. It works with the GUI closed. Run `warehouse-cosmic-cli guide` first: it prints the discovery commands for both layers below.
 
 To work in the open window instead, use the `ui` command group described in [GUI CLI](ui-cli.md). `ui inspect` shows the page content, the open dialog and every control a person could click, each with a label and the flags it needs, so an agent can see and do what the person sees and does. Activate controls by ID, `ui wait`, then inspect again. Capture the renderer and the widget tree for layout reports. Native hover/scroll checks must report compositor failures rather than manufacture a passing hover state. Use an isolated test instance for preference changes and close only that instance afterward. The [project brief](project-brief.md) records the intended behavior.
 

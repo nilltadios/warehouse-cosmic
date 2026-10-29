@@ -129,3 +129,18 @@ fn leftover_data_reports_a_summary_even_when_empty() {
             .ends_with(".var/app")
     );
 }
+#[test]
+fn docs_are_printed_from_the_binary() {
+    let output = cli().arg("docs").output().unwrap();
+    assert!(output.status.success());
+    let list = String::from_utf8(output.stdout).unwrap();
+    assert!(list.contains("cli") && list.contains("ui-cli"));
+    let output = cli().args(["docs", "cli"]).output().unwrap();
+    assert!(
+        String::from_utf8(output.stdout)
+            .unwrap()
+            .starts_with("# Standalone CLI")
+    );
+    let output = cli().args(["docs", "nope"]).output().unwrap();
+    assert_eq!(output.status.code(), Some(2));
+}

@@ -1,6 +1,6 @@
 # Controlling and testing the GUI
 
-The `ui` commands control an actual running Warehouse COSMIC window. The GUI owns a desktop D-Bus interface for its lifetime. There is no MCP server, extra daemon or persistent test service. Backend package commands remain usable with the GUI closed.
+The `ui` commands control an actual running Warehouse COSMIC window. The window provides a desktop D-Bus interface while it is open. Backend package commands remain usable with the GUI closed.
 
 For the installed Flatpak, prefix these commands with:
 

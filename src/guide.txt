@@ -1,8 +1,10 @@
 Warehouse COSMIC: agent guide
 
-Two layers, one CLI. Neither needs MCP, a daemon or a server.
+warehouse-cosmic-cli manages Flatpak apps, remotes, app data and snapshots.
+It works in two ways: directly, without a window (1), or by operating the
+open Warehouse COSMIC window like a person would (2).
 
-1. Headless backend (no window needed). Same backend as the GUI.
+1. Direct commands (no window needed). Same backend as the GUI.
    commands --json            every command id, effects and parameter schema
    describe COMMAND           one command, with an example
    inspect                    full inventory: packages, remotes, data, snapshots, installations
@@ -39,7 +41,7 @@ Common tasks (read-only unless noted)
    describe COMMAND shows each parameter with a description.
 
 Typical GUI loop: inspect -> activate a control -> wait -> inspect again and read
-"dialog", "notice", "toast" and "view". A change always opens a confirmation dialog
+"dialog", "view", "operation" while a change runs, and "last_operation" afterwards. A change always opens a confirmation dialog
 first; confirm it with `ui activate dialog.confirm --apply` only when authorized.
 
 Rules
@@ -49,7 +51,12 @@ Rules
 - Close an app yourself before snapshotting, restoring or trashing its data.
 - Do not retry a failed mutation blindly: read its report and the new state first.
 
-Inside the Flatpak, prefix commands with:
+For the installed Flatpak, prefix every command with:
   flatpak run --command=warehouse-cosmic-cli dev.nilltadios.WarehouseCosmic
-Full documentation: /app/share/warehouse-cosmic/docs (cli.md, agents.md, ui-cli.md)
-and llms.txt in the same directory.
+
+Full documentation, printed by this CLI:
+  docs                       list topics
+  docs cli                   command contract, scripts, exit codes, file roots, recovery
+  docs agents                plan / apply / verify workflow
+  docs ui-cli                operating and testing the live window
+Online: https://github.com/nilltadios/warehouse-cosmic/tree/main/docs

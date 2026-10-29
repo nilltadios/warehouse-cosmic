@@ -45,7 +45,7 @@
       },
       "build-commands": [
         "rustc --version && cargo --version",
-        "touch Cargo.toml Cargo.lock && find src resources -type f -exec touch {} +",
+        "touch Cargo.toml Cargo.lock llms.txt && find src resources docs -type f -exec touch {} +",
         "cargo build --offline --frozen --release --bins -j ${FLATPAK_BUILDER_N_JOBS:-4}",
         "install -Dm755 /run/ccache/warehouse-target/release/warehouse-cosmic /app/bin/warehouse-cosmic",
         "install -Dm755 /run/ccache/warehouse-target/release/warehouse-cosmic-cli /app/bin/warehouse-cosmic-cli",

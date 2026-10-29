@@ -77,7 +77,7 @@ pub enum Command {
         #[arg(long, default_value_t = 15)]
         timeout: u64,
     },
-    /// Start a separate normal Flatpak GUI instance. No daemon is started.
+    /// Present the running window, or start one; --config-dir starts an isolated test instance.
     Start {
         #[arg(long)]
         config_dir: Option<PathBuf>,
