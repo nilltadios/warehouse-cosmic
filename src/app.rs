@@ -2059,32 +2059,8 @@ impl App {
                 Some(iced::window::UserAttention::Informational),
             ),
         });
-        if !std::env::var("XDG_CURRENT_DESKTOP")
-            .unwrap_or_default()
-            .split(':')
-            .any(|name| name.eq_ignore_ascii_case("KDE"))
-        {
-            return native;
-        }
-        let instance = self.ui_instance.clone();
-        let kde = Task::perform(
-            async move {
-                tokio::task::spawn_blocking(move || {
-                    let connection = warehouse_cosmic::ui_client::connection()?;
-                    warehouse_cosmic::ui_pointer::present(&connection, &instance)
-                })
-                .await
-            },
-            |result| {
-                match result {
-                    Ok(Ok(())) => (),
-                    Ok(Err(error)) => eprintln!("Cannot present the KDE window: {error}"),
-                    Err(error) => eprintln!("Window activation task failed: {error}"),
-                }
-                cosmic::Action::None
-            },
-        );
-        Task::batch([native, kde])
+        // Standard Wayland activation only: app behavior is the same on every desktop.
+        native
     }
     fn data_view(&self) -> Element<'_, Message> {
         let data = self.visible_data();
@@ -3234,6 +3210,7 @@ impl cosmic::Application for App {
     fn subscription(&self) -> Subscription<Message> {
         Subscription::batch([
             crate::ui_bridge::subscription(&self.ui_instance),
+            // The last cursor position the window saw, on any desktop.
             iced::event::listen_with(|event, _, _| match event {
                 iced::Event::Mouse(iced::mouse::Event::CursorMoved { position }) => {
                     Some(Message::UiPointer(position))

@@ -5,5 +5,4 @@ pub mod backend;
 pub mod host;
 pub mod snapshots;
 pub mod ui_client;
-pub mod ui_pointer;
 pub mod ui_protocol;

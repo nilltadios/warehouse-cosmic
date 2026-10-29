@@ -92,7 +92,6 @@ The app needs access to `org.freedesktop.Flatpak` and the home directory, includ
 | `--filesystem=host-etc` | Read `/etc/flatpak/installations.d` to discover configured named installations |
 | `xdg-config/cosmic:ro`, `com.system76.CosmicSettingsDaemon` | Follow the COSMIC theme without writing desktop settings |
 | `--own-name=dev.nilltadios.WarehouseCosmic.UI.*` | The live GUI control API used by `warehouse-cosmic-cli ui` |
-| `--talk-name=org.kde.KWin` | Optional on KDE: raise the window when files are opened, place test windows on a monitor and deliver test pointer input (`ui hover`/`ui scroll`). Unused elsewhere |
 | `--socket=wayland`, `--device=dri`, `--share=ipc` | Native Wayland window with GPU rendering |
 
 Shared COSMIC themes at `~/.config/cosmic` are explicitly read-only through `--filesystem=xdg-config/cosmic:ro`. This narrower grant overrides the broad home permission for that directory and also exposes it under the app's sandbox config path. Warehouse's own preferences remain in a separate writable directory. Theme choices affect this app rather than rewriting desktop theme files.

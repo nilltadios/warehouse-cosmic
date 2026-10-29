@@ -81,23 +81,6 @@ pub enum Command {
     Start {
         #[arg(long)]
         config_dir: Option<PathBuf>,
-        #[arg(long)]
-        monitor: Option<String>,
-    },
-    /// Move the real pointer over a widget; optional capture restores it afterward.
-    Hover {
-        target: String,
-        #[arg(long)]
-        capture: Option<PathBuf>,
-    },
-    /// Scroll with the real pointer over a widget (KDE/KWin only).
-    Scroll {
-        #[arg(long, default_value = "content")]
-        target: String,
-        #[arg(long)]
-        pixels: f64,
-        #[arg(long)]
-        capture: Option<PathBuf>,
     },
     /// Close the selected GUI window (requires --apply).
     Close {
@@ -105,7 +88,7 @@ pub enum Command {
         apply: bool,
     },
 }
-const COMMANDS: [(&str, &str); 19] = [
+const COMMANDS: [(&str, &str); 17] = [
     (
         "instances",
         "List running GUI instances; pass one with --instance when several run",
@@ -154,11 +137,6 @@ const COMMANDS: [(&str, &str); 19] = [
         "activation-token",
         "Request a Wayland activation token for launch tests",
     ),
-    (
-        "hover",
-        "Move the real pointer over a control (KDE/KWin only)",
-    ),
-    ("scroll", "Scroll with the real pointer (KDE/KWin only)"),
     ("close", "Close the selected window with --apply"),
     ("schema", "JSON Schema of GUI requests"),
 ];
@@ -233,7 +211,10 @@ pub fn new_instance() -> String {
             .as_nanos()
     )
 }
-fn selected(connection: &zbus::Connection, requested: Option<String>) -> Result<String, String> {
+pub fn selected(
+    connection: &zbus::Connection,
+    requested: Option<String>,
+) -> Result<String, String> {
     let available = instances(connection)?;
     if let Some(instance) = requested {
         if available.contains(&instance) {
@@ -290,12 +271,8 @@ pub fn run(args: Args) -> Result<Value, String> {
             json!({"instances":instances(&connection)?}),
         ));
     }
-    if let Command::Start {
-        config_dir,
-        monitor,
-    } = args.command
-    {
-        return start(&connection, config_dir, monitor);
+    if let Command::Start { config_dir } = args.command {
+        return start(&connection, config_dir);
     }
     let instance = selected(&connection, args.instance)?;
     let request = match args.command {
@@ -424,31 +401,11 @@ pub fn run(args: Args) -> Result<Value, String> {
             }
             return call(&connection, &instance, Request::Inspect, false, false);
         }
-        Command::Hover { target, capture } => {
-            return crate::ui_pointer::interact(&connection, &instance, &target, None, capture);
-        }
-        Command::Scroll {
-            target,
-            pixels,
-            capture,
-        } => {
-            return crate::ui_pointer::interact(
-                &connection,
-                &instance,
-                &target,
-                Some(pixels),
-                capture,
-            );
-        }
         _ => return Err("Unsupported UI command".into()),
     };
     call(&connection, &instance, request, false, false)
 }
-fn start(
-    connection: &zbus::Connection,
-    config_dir: Option<PathBuf>,
-    monitor: Option<String>,
-) -> Result<Value, String> {
+fn start(connection: &zbus::Connection, config_dir: Option<PathBuf>) -> Result<Value, String> {
     let isolated = config_dir.is_some();
     if !isolated && let Some(instance) = primary_instance(connection)? {
         call(connection, &instance, Request::Present, false, false)?;
@@ -540,9 +497,6 @@ fn start(
             return Err(format!("GUI did not start; see {}", log_path.display()));
         }
         std::thread::sleep(Duration::from_millis(80));
-    }
-    if let Some(monitor) = monitor {
-        crate::ui_pointer::place(connection, &instance, &monitor)?;
     }
     Ok(protocol::success(
         json!({"instance":instance, "log":log_path}),

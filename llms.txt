@@ -28,4 +28,4 @@ Native Rust/libcosmic Flatpak toolbox and standalone headless CLI.
 - docs/verification.md: reproducible tests and known limits
 - docs/flatpak.md: runtime, build, signed publishing, permissions and updates
 - docs/project-brief.md: product goals and UI requirements
-- docs/ui-cli.md: live GUI actions, native pointer checks, captures and limits
+- docs/ui-cli.md: live GUI actions, captures and limits

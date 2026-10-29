@@ -34,7 +34,7 @@ Run the normal-install check as well. A custom runtime installation can expose p
 
 `capture-ui.sh` always launches the installed Flatpak. Capture outputs go under the home task bundle so the sandbox can write them. Each preview exits after saving its own renderer output. Existing user windows are preserved. Inspect the images; file existence alone does not establish layout quality. A capture does not prove native file chooser, clipboard or pointer interactions.
 
-The older KDE scripts (`verify-flatpak.py`, `capture-ui.sh` and the `check-*-flatpak.py` scripts other than the parity check) expect an `on-screen.sh` helper on `PATH` that launches a command on a named monitor through KWin, and write evidence under `~/Documents/warehouse-cosmic-tests/`.
+If you're testing on KDE Plasma, you can also run the older KWin-based scripts (`verify-flatpak.py`, `capture-ui.sh` and the `check-*-flatpak.py` scripts other than the parity check). They only work there: they expect an `on-screen.sh` helper on `PATH` that launches a command on a named monitor through KWin, and write evidence under `~/Documents/warehouse-cosmic-tests/`.
 
 `check-gui-parity-flatpak.py` is the portable check for the Warehouse parity work and the WC-001…WC-006 fixes. It needs only a Wayland session and the installed Flatpak: it starts one isolated GUI with private preferences, drives it through `ui` controls, saves renders and widget bounds under `verification/checks-gui-*/`, refuses every confirmation without `--apply`, compares host packages/remotes/data/snapshots before and after, and closes only its own window. It asserts compact data filters in both themes, separate theme rows, the uninstall Keep/Trash dialog, version history, the Install Packages sections, a per-remote search and pending queue (contacts Flathub), drop handling with a filename containing spaces, unsupported/mixed drops, the snapshot creation dialog and narrow layouts. A compositor drag from a file manager and pointer hover are not part of it; check those by hand.
 
@@ -70,7 +70,7 @@ Reports identify the installed commit and source archive. Check those identities
 | Opening files in the existing window | `check-single-instance-flatpak.py`, `single-instance-results.json`, installed desktop launcher, unchanged window and GUI identities |
 | Theme persistence and Light/Dark rendering | Preference tests, `check-settings-flatpak.py`, `settings-results.json` and brightness comparison |
 | Warehouse parity and reported issues | `check-gui-parity-flatpak.py`, `verification/checks-gui-*/results.json` and renders |
-| Live GUI automation | `ui commands`, `ui schema`, exact-instance inspection, actual widget bounds, native pointer-delivery readback and renderer captures; see `docs/ui-cli.md` |
+| Live GUI automation | `ui commands`, `ui schema`, exact-instance inspection, actual widget bounds and renderer captures; see `docs/ui-cli.md` |
 
 A result is complete only when its script succeeds and any required visual review is performed. Failures remain in the saved logs. A blocked compositor input request, an unreadable file, a leftover test window or a host-state mismatch must be reported as a failure rather than skipped silently.
 

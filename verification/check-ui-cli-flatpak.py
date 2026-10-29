@@ -1,7 +1,7 @@
 #!/usr/bin/env -S uv run --python 3.15
 """Drive the installed GUI through its CLI and save all requests and renders.
 
-No package/data confirmation is applied. Real hover input must be delivered.
+No package/data confirmation is applied.
 Only instances returned by this script's explicit starts are closed.
 """
 import hashlib
@@ -90,15 +90,6 @@ try:
     assert state(instance)["sidebar_visible"] is not sidebar
     ui(instance,"restore-sidebar","activate","header.sidebar")
     assert state(instance)["sidebar_visible"] is sidebar
-    for target in ("header.logo","header.sidebar","header.refresh","header.settings","header.about"):
-        name = target.replace('.','-') + "-hover"
-        path = output / (name + ".png")
-        result = ui(instance,name,"hover",target,"--capture",str(path))
-        assert result["data"]["native_input_delivered"] is True
-        with Image.open(path) as image: size=image.size
-        captures[name] = {"path":str(path),"size":size,"sha256":hashlib.sha256(path.read_bytes()).hexdigest()}
-    # Package rows no longer carry widget IDs (see src/app.rs::packages_view),
-    # so they cannot be hover targets; select them with `ui activate package:KEY`.
     ui(instance,"open-about","activate","header.about")
     assert state(instance)["modal"] == "about"
     about = ui(instance,"about-tree","tree")["data"]["tree"]
@@ -169,9 +160,6 @@ try:
     assert state(instance)["modal"] == "add-remote"
     capture(instance,"remote-preset")
     ui(instance,"dismiss-preset","activate","dialog.cancel")
-    path = output / "remotes-scrolled.png"
-    ui(instance,"scroll-remotes","scroll","--pixels","450","--capture",str(path))
-    captures["remotes-scrolled"]={"path":str(path),"sha256":hashlib.sha256(path.read_bytes()).hexdigest()}
     ui(instance,"open-bundle-review","open",str(bundle))
     review = state(instance)
     assert review["modal"] == "install-files" and review["installation"] == "user" and review["busy"] is False
@@ -199,7 +187,7 @@ try:
     assert not set(final) & set(owned), "A test GUI remains open"
     commit = subprocess.check_output(["flatpak","info","--user","--show-commit",app],text=True).strip()
     report = {"passed":True,"installed_commit":commit,"output":str(output),"captures":captures,"commands":records,"host_state_unchanged":True,"all_test_windows_closed":True,
-              "scope":"Live GUI semantic handlers, real native pointer hover/scroll, renderer captures, install safeguards and private window/theme persistence. Native chooser, physical keyboard and physical click hit testing were not automated."}
+              "scope":"Live GUI semantic handlers, renderer captures, install safeguards and private window/theme persistence. Native chooser, physical keyboard and physical click hit testing were not automated."}
     report["client"] = client
     report_name = "ui-cli-native-probe-results.json" if client_path else "ui-cli-results.json"
     (area / report_name).write_text(json.dumps(report,indent=2)+"\n")

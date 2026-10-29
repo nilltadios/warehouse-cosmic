@@ -22,6 +22,8 @@ A CLI-only build without libcosmic or a renderer:
 cargo build --locked --no-default-features --bin warehouse-cosmic-cli
 ```
 
+On KDE Plasma, optional test helpers for real pointer input are available with `cargo build --features kde-tools --bin warehouse-cosmic-kde` (see [GUI CLI](ui-cli.md#if-youre-on-kde-plasma)); they are never part of the app.
+
 For the Flatpak, see [Flatpak distribution](flatpak.md): `flatpak/build.sh --dev` for quick local builds, `flatpak/build.sh` for a release bundle.
 
 ## Native install

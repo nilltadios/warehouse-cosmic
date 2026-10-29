@@ -1,11 +1,100 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-//! Explicit KDE/Wayland GUI-test input. No input device or service is created at startup.
-use crate::{
+//! Repo-only KDE Plasma test helpers. They drive KWin directly (real pointer
+//! input through EIS, window placement and activation), so they are kept out
+//! of the app and its CLI, which behave the same on every desktop. Build with
+//! `cargo build --features kde-tools --bin warehouse-cosmic-kde`.
+use clap::{Parser, Subcommand};
+use serde_json::{Value, json};
+use std::{collections::BTreeMap, path::PathBuf, process::ExitCode, time::Duration};
+use warehouse_cosmic::{
     host, ui_client,
     ui_protocol::{self as protocol, Request},
 };
-use serde_json::{Value, json};
-use std::{collections::BTreeMap, path::PathBuf, time::Duration};
+
+#[derive(Parser)]
+#[command(
+    name = "warehouse-cosmic-kde",
+    about = "KDE Plasma test helpers for a running Warehouse COSMIC window: real pointer input, monitor placement and activation through KWin."
+)]
+struct Cli {
+    /// Exact instance from `warehouse-cosmic-cli ui instances`.
+    #[arg(long, global = true)]
+    instance: Option<String>,
+    #[command(subcommand)]
+    command: Command,
+}
+#[derive(Subcommand)]
+enum Command {
+    /// Move the real pointer over a control and confirm the window received it.
+    Hover {
+        target: String,
+        /// Save the hovered render to a new absolute PNG path.
+        #[arg(long)]
+        capture: Option<PathBuf>,
+    },
+    /// Scroll with the real pointer over a widget.
+    Scroll {
+        #[arg(long, default_value = "content")]
+        target: String,
+        #[arg(long)]
+        pixels: f64,
+        #[arg(long)]
+        capture: Option<PathBuf>,
+    },
+    /// Move the window to a named monitor, for example DP-1.
+    Place { monitor: String },
+    /// Raise and restore the window through KWin's window runner.
+    Present,
+}
+fn main() -> ExitCode {
+    let cli = Cli::parse();
+    let result = (|| -> Result<Value, String> {
+        let desktop = std::env::var("XDG_CURRENT_DESKTOP").unwrap_or_default();
+        if !desktop
+            .split(':')
+            .any(|name| name.eq_ignore_ascii_case("KDE"))
+        {
+            return Err(format!(
+                "These helpers need KDE Plasma (KWin); the current desktop is {}.",
+                if desktop.is_empty() {
+                    "unknown"
+                } else {
+                    &desktop
+                }
+            ));
+        }
+        let connection = ui_client::connection()?;
+        let instance = ui_client::selected(&connection, cli.instance)?;
+        match cli.command {
+            Command::Hover { target, capture } => {
+                interact(&connection, &instance, &target, None, capture)
+            }
+            Command::Scroll {
+                target,
+                pixels,
+                capture,
+            } => interact(&connection, &instance, &target, Some(pixels), capture),
+            Command::Place { monitor } => place(&connection, &instance, &monitor)
+                .map(|()| protocol::success(json!({"instance":instance,"monitor":monitor}))),
+            Command::Present => present(&connection, &instance)
+                .map(|()| protocol::success(json!({"instance":instance}))),
+        }
+    })();
+    match result {
+        Ok(value) => {
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&value).unwrap_or_default()
+            );
+            ExitCode::SUCCESS
+        }
+        Err(error) => {
+            println!("{}", protocol::error(&error));
+            eprintln!("{error}");
+            ExitCode::FAILURE
+        }
+    }
+}
 fn input(x: f64, y: f64, scroll: Option<f64>) -> Result<(), String> {
     if !x.is_finite() || !y.is_finite() || scroll.is_some_and(|value| !value.is_finite()) {
         return Err("Input coordinates must be finite".into());
@@ -240,7 +329,7 @@ fn script(body: &str) -> Result<(), String> {
     );
     result.map(|_| ())
 }
-pub fn place(connection: &zbus::Connection, instance: &str, monitor: &str) -> Result<(), String> {
+fn place(connection: &zbus::Connection, instance: &str, monitor: &str) -> Result<(), String> {
     let (identity, _) = window(connection, instance)?;
     let monitor = serde_json::to_string(monitor).map_err(|e| e.to_string())?;
     script(&format!(
@@ -249,7 +338,7 @@ pub fn place(connection: &zbus::Connection, instance: &str, monitor: &str) -> Re
 }
 /// Present only the window belonging to this exact GUI process on KDE.
 /// KWin's default window-runner action also restores a minimized window.
-pub fn present(connection: &zbus::Connection, instance: &str) -> Result<(), String> {
+fn present(connection: &zbus::Connection, instance: &str) -> Result<(), String> {
     let (identity, _) = window(connection, instance)?;
     let proxy = ui_client::desktop_proxy(
         connection,
@@ -259,7 +348,7 @@ pub fn present(connection: &zbus::Connection, instance: &str) -> Result<(), Stri
     )?;
     zbus::block_on(proxy.call("Run", &(format!("0_{identity}"), ""))).map_err(|e| e.to_string())
 }
-pub fn interact(
+fn interact(
     connection: &zbus::Connection,
     instance: &str,
     target: &str,
@@ -308,38 +397,18 @@ pub fn interact(
         .ok_or("KWin did not provide window coordinates")?
         + numbers[1]
         + numbers[3] / 2.;
-    let token = ui_client::new_instance();
+    // Bring the window forward so the pointer lands on it.
     script(&format!(
-        "const p = workspace.cursorPos; callDBus({instance:?}, {path:?}, {interface:?}, 'ReportPointer', {token:?}, JSON.stringify([p.x, p.y])); for (const w of workspace.windowList()) {{ if (String(w.internalId) === {identity:?}) workspace.raiseWindow(w); }}",
-        path = protocol::PATH,
-        interface = protocol::INTERFACE
+        "for (const w of workspace.windowList()) {{ if (String(w.internalId) === {identity:?}) workspace.raiseWindow(w); }}"
     ))?;
-    let proxy =
-        crate::ui_client::desktop_proxy(connection, instance, protocol::PATH, protocol::INTERFACE)
-            .map_err(|e| e.to_string())?;
-    let mut previous: Vec<f64> = vec![];
-    for _ in 0..40 {
-        previous = zbus::block_on(proxy.call("PointerPosition", &(token.as_str(),)))
-            .map_err(|e| e.to_string())?;
-        if previous.len() == 2 {
-            break;
-        }
-        std::thread::sleep(Duration::from_millis(25));
-    }
-    if previous.len() != 2 {
-        return Err("KWin did not return the pointer position; no input was sent".into());
-    }
     let before_serial = inspect(connection, instance)?["pointer_serial"]
         .as_u64()
         .unwrap_or(0);
     // A small in-widget move makes repeated hovers observable too.
     input(x + (numbers[2] / 4.).min(2.), y, None)?;
     std::thread::sleep(Duration::from_millis(30));
-    if let Err(error) = input(x, y, scroll) {
-        let _ = input(previous[0], previous[1], None);
-        return Err(error);
-    }
-    let result = (|| {
+    input(x, y, scroll)?;
+    (|| {
         let mut state = Value::Null;
         for _ in 0..30 {
             state = inspect(connection, instance)?;
@@ -390,11 +459,7 @@ pub fn interact(
             })
             .transpose()?;
         Ok(protocol::success(
-            json!({"instance":instance, "target":target, "native_input_delivered":true, "pointer":point, "ui":ui["data"], "capture":image, "restored_pointer":capture.is_some()}),
+            json!({"instance":instance, "target":target, "native_input_delivered":true, "pointer":point, "ui":ui["data"], "capture":image}),
         ))
-    })();
-    if capture.is_some() || result.is_err() {
-        let _ = input(previous[0], previous[1], None);
-    }
-    result
+    })()
 }

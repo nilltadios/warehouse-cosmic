@@ -10,7 +10,6 @@
     "--device=dri",
     "--talk-name=org.freedesktop.Flatpak",
     "--talk-name=com.system76.CosmicSettingsDaemon",
-    "--talk-name=org.kde.KWin",
     "--own-name=dev.nilltadios.WarehouseCosmic.UI.*",
     "--filesystem=home",
     "--filesystem=~/.var/app",
@@ -53,8 +52,7 @@
         "install -Dm644 resources/dev.nilltadios.WarehouseCosmic.svg /app/share/icons/hicolor/scalable/apps/dev.nilltadios.WarehouseCosmic.svg",
         "cp -r resources/icons/WarehouseCosmic /app/share/icons/",
         "install -Dm644 resources/dev.nilltadios.WarehouseCosmic.metainfo.xml /app/share/metainfo/dev.nilltadios.WarehouseCosmic.metainfo.xml",
-        "install -d /app/share/warehouse-cosmic && cp -r docs examples schemas llms.txt LICENSE NOTICE /app/share/warehouse-cosmic/",
-        "cp -r resources/licenses /app/share/warehouse-cosmic/"
+        "install -d /app/share/warehouse-cosmic && cp -r docs examples schemas llms.txt LICENSE NOTICE /app/share/warehouse-cosmic/"
       ],
       "sources": [{"type": "archive", "path": "warehouse-cosmic-source.tar.gz", "strip-components": 0}]
     }

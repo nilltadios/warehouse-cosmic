@@ -4,7 +4,6 @@ use crate::app::Message;
 use cosmic::iced::{self, futures::SinkExt};
 use serde_json::Value;
 use std::{
-    collections::HashMap,
     sync::{Arc, Mutex},
     time::Duration,
 };
@@ -27,7 +26,6 @@ impl Pending {
 }
 struct Bridge {
     requests: mpsc::Sender<Pending>,
-    pointers: Mutex<HashMap<String, Vec<f64>>>,
 }
 #[zbus::interface(name = "dev.nilltadios.WarehouseCosmic.UI")]
 impl Bridge {
@@ -49,29 +47,6 @@ impl Bridge {
             _ => ui_protocol::error("GUI command timed out or the window closed").to_string(),
         }
     }
-    fn report_pointer(&self, token: &str, point: &str) {
-        let coordinates = serde_json::from_str::<Vec<f64>>(point).unwrap_or_default();
-        if token.len() > 128
-            || point.len() > 256
-            || coordinates.len() != 2
-            || coordinates.iter().any(|value| !value.is_finite())
-        {
-            return;
-        }
-        if let Ok(mut pointers) = self.pointers.lock() {
-            if pointers.len() >= 32 {
-                pointers.clear();
-            }
-            pointers.insert(token.into(), coordinates);
-        }
-    }
-    fn pointer_position(&self, token: &str) -> Vec<f64> {
-        self.pointers
-            .lock()
-            .ok()
-            .and_then(|mut pointers| pointers.remove(token))
-            .unwrap_or_default()
-    }
 }
 
 pub fn subscription(instance: &str) -> iced::Subscription<Message> {
@@ -84,13 +59,7 @@ fn stream(instance: &Arc<str>) -> impl iced::futures::Stream<Item = Message> + u
         let connection = async {
             zbus::connection::Builder::session()
                 .name(instance)
-                .serve_at(
-                    ui_protocol::PATH,
-                    Bridge {
-                        requests: sender,
-                        pointers: Mutex::new(HashMap::new()),
-                    },
-                )
+                .serve_at(ui_protocol::PATH, Bridge { requests: sender })
                 .build()
                 .await
         }

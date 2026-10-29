@@ -11,6 +11,9 @@ default-run = "warehouse-cosmic"
 default = ["gui", "gpu"]
 gui = ["dep:libcosmic", "dep:tokio", "dep:image", "dep:env_logger"]
 gpu = ["gui", "libcosmic/wgpu"]
+# Repo-only KDE Plasma test helpers (real pointer input through KWin). Never
+# enabled for the Flatpak; see docs/ui-cli.md.
+kde-tools = ["dep:reis"]
 
 [dependencies]
 # Use the same Git source as cosmic-settings-daemon. Cargo.lock pins the commit;
@@ -29,8 +32,8 @@ schemars = "1"
 ctrlc = "3"
 image = { version = "0.25", optional = true, default-features = false, features = ["png"] }
 zbus = { version = "6", default-features = false, features = ["tokio-multithread", "proxy", "service"] }
-reis = "0.7"
 rustix = { version = "1", features = ["time"] }
+reis = { version = "0.7", optional = true }
 
 [dev-dependencies]
 tempfile = "3"
@@ -55,3 +58,8 @@ required-features = ["gui"]
 [[bin]]
 name = "warehouse-cosmic-cli"
 path = "src/cli_main.rs"
+
+[[bin]]
+name = "warehouse-cosmic-kde"
+path = "src/kde_main.rs"
+required-features = ["kde-tools"]

@@ -18,8 +18,6 @@
       "wait",
       "start",
       "activation-token",
-      "hover",
-      "scroll",
       "close",
       "schema"
     ],
@@ -83,14 +81,6 @@
       {
         "command": "activation-token",
         "description": "Request a Wayland activation token for launch tests"
-      },
-      {
-        "command": "hover",
-        "description": "Move the real pointer over a control (KDE/KWin only)"
-      },
-      {
-        "command": "scroll",
-        "description": "Scroll with the real pointer (KDE/KWin only)"
       },
       {
         "command": "close",

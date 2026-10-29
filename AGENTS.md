@@ -20,6 +20,10 @@ Iterate quickly, verify in the package:
 
 When opening the app for someone to use, leave that window open. Screenshot/test instances should use `--preview PAGE --capture /absolute/output.png`, which exits after rendering. Close only instances created for that test. Never interrupt an existing window or package transaction without authorization. Use the desktop-testing workflow and the requested monitor on machines that provide it.
 
+## Universal app code
+
+The app and its CLI must behave the same on every Wayland desktop. Use standard protocols and portals (xdg-activation, file chooser, document portal, D-Bus interfaces the app owns), not compositor- or desktop-specific APIs. Desktop-specific tooling (for example KWin pointer input) belongs in repo-only helpers behind a Cargo feature that the Flatpak never enables, such as `kde-tools` (`warehouse-cosmic-kde`), and docs present it as "if you're on KDE Plasma, you can also run …". Do not add desktop-specific Flatpak permissions.
+
 ## Agent CLI
 
 Read `llms.txt`, `docs/cli.md` and `docs/agents.md`. Discover commands and parameter schemas before invoking mutations. Requests are typed JSON; mutations are dry-run plans unless `--apply` is passed. System mutations also require `--allow-system` and PolicyKit. No MCP server or application daemon is needed.

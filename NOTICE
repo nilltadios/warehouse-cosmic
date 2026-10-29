@@ -7,13 +7,13 @@ The application-private fallback theme contains Cosmic Icons by System76,
 https://github.com/pop-os/cosmic-icons, licensed under CC-BY-SA-4.0.
 Its source revision, modifications and license are included beside the icons.
 
+The optional, repo-only KDE Plasma test helper (warehouse-cosmic-kde, built
+with the kde-tools feature and never shipped in the app) uses the pure Rust
+reis library, licensed under MIT; its notice is in
+resources/licenses/reis-MIT.txt. https://github.com/ids1024/reis
+
 The standalone CLI's command discovery, descriptions, script format and JSON
 schema conventions were informed by storytold's Craft applications:
 https://github.com/storytold/gridcraft/blob/11bb67386c9bb19b0717e21e98adc608162ae2e5/docs/cli.md
 https://github.com/storytold/deckcraft/blob/55e5ee56b4b2c64973b78fda4182a78f9766fa62/apps/deckcraft-cli/src/help.rs
 No Craft source code is included in the application.
-
-Explicit KDE GUI-test input uses the pure Rust reis library and KWin's EIS
-interface. reis is licensed under MIT; its notice is included in
-resources/licenses/reis-MIT.txt. No input session is created during normal app
-startup or backend CLI operations. https://github.com/ids1024/reis
