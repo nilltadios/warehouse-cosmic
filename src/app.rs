@@ -1397,7 +1397,7 @@ impl App {
             );
         }
         actions = actions.push(
-            widget::button::destructive("Uninstall…")
+            widget::button::standard("Uninstall")
                 .id(widget::Id::new("package.uninstall"))
                 .on_press(Message::Uninstall(vec![p.clone()])),
         );
@@ -1473,7 +1473,7 @@ impl App {
             ))
             .push(
                 widget::flex_row(vec![
-                    widget::button::standard("Change Version…")
+                    widget::button::standard("Change Version")
                         .id(widget::Id::new("package.change-version"))
                         .on_press(Message::History)
                         .into(),
@@ -1481,7 +1481,7 @@ impl App {
                         .id(widget::Id::new("package.check-updates"))
                         .on_press(Message::CheckUpdates(p.clone()))
                         .into(),
-                    widget::button::standard("Change Source…")
+                    widget::button::standard("Change Source")
                         .id(widget::Id::new("package.change-source"))
                         .on_press(Message::ChooseSource(p.clone()))
                         .into(),
@@ -1562,7 +1562,7 @@ impl App {
         let mut more = Vec::new();
         if !p.is_runtime() {
             more.push(
-                widget::button::standard("New Snapshot…")
+                widget::button::standard("New Snapshot")
                     .id(widget::Id::new("package.snapshot"))
                     .on_press(Message::SnapshotFor(p.id.clone()))
                     .into(),
@@ -1585,7 +1585,7 @@ impl App {
             );
         }
         more.push(
-            widget::button::standard("Reinstall…")
+            widget::button::standard("Reinstall")
                 .id(widget::Id::new("package.reinstall"))
                 .on_press_maybe(self.origin_remote(p).map(|remote| {
                     Message::Ask(Operation::Reinstall {
@@ -1620,10 +1620,10 @@ impl App {
                             widget::button::standard("Restore")
                                 .on_press_maybe((count > 0).then_some(Message::BatchRestore))
                                 .into(),
-                            widget::button::standard("Install Apps…")
+                            widget::button::standard("Install Apps")
                                 .on_press_maybe((count > 0).then_some(Message::BatchInstall))
                                 .into(),
-                            widget::button::destructive("Trash")
+                            widget::button::standard("Trash")
                                 .on_press_maybe((count > 0).then_some(Message::BatchSnapshotTrash))
                                 .into(),
                         ])
@@ -1666,7 +1666,7 @@ impl App {
             if self.page == Page::Packages {
                 actions.push(button("Update Selected", Message::BatchUpdate));
             }
-            actions.push(button("Create Snapshot…", Message::BatchSnapshot));
+            actions.push(button("Create Snapshot", Message::BatchSnapshot));
             if self.page == Page::Data && self.leftovers {
                 actions.push(button(
                     "Find in a Remote",
@@ -1674,13 +1674,13 @@ impl App {
                 ));
             }
             actions.push(
-                widget::button::destructive("Trash Data")
+                widget::button::standard("Trash Data")
                     .on_press(Message::BatchTrash)
                     .into(),
             );
             if self.page == Page::Packages {
                 actions.push(
-                    widget::button::destructive("Uninstall…")
+                    widget::button::standard("Uninstall")
                         .on_press(Message::BatchUninstall)
                         .into(),
                 );
@@ -1807,7 +1807,7 @@ impl App {
                             ))),
                     )
                     .push(
-                        widget::button::text("Remove remote…")
+                        widget::button::text("Remove remote")
                             .width(Length::Fill)
                             .on_press(Message::Ask(Operation::RemoteRemove(r.clone()))),
                     );
@@ -2271,7 +2271,7 @@ impl App {
     }
     fn snapshot_secondary_actions(&self) -> Vec<Element<'_, Message>> {
         vec![
-            widget::button::text("Import…")
+            widget::button::text("Import")
                 .leading_icon(icon::from_name("document-open-symbolic"))
                 .id(widget::Id::new("snapshots.import"))
                 .on_press(Message::ImportSnapshot)
@@ -2299,7 +2299,7 @@ impl App {
                         .align_x(iced::advanced::text::Alignment::Center),
                     )
                     .push(
-                        widget::button::suggested("New Snapshot…")
+                        widget::button::suggested("New Snapshot")
                             .leading_icon(icon::from_name("list-add-symbolic"))
                             .id(widget::Id::new("snapshots.new"))
                             .on_press(Message::NewSnapshot),
@@ -2387,10 +2387,10 @@ impl App {
                         .width(Length::Fill),
                 );
                 let mut actions = vec![
-                    widget::button::standard("Restore…")
+                    widget::button::standard("Restore")
                         .on_press(Message::Ask(Operation::Restore(s.clone())))
                         .into(),
-                    widget::button::standard("Export…")
+                    widget::button::standard("Export")
                         .on_press(Message::ChooseFile(FilePurpose::Export(s.clone())))
                         .into(),
                 ];
@@ -2405,9 +2405,9 @@ impl App {
                             .into(),
                     );
                 } else {
-                    actions.push(button("Rename…", Message::RenameSnapshot(s.clone())));
+                    actions.push(button("Rename", Message::RenameSnapshot(s.clone())));
                     actions.push(
-                        widget::button::destructive("Trash…")
+                        widget::button::standard("Trash")
                             .on_press(Message::Ask(Operation::TrashSnapshot(s.clone())))
                             .into(),
                     );
@@ -2472,7 +2472,7 @@ impl App {
             .push(section(
                 "Add Packages",
                 "Install .flatpak bundles or .flatpakref files from your computer. You can also drop them onto this window.",
-                widget::button::suggested("Open Files…")
+                widget::button::suggested("Open Files")
                     .leading_icon(icon::from_name("document-open-symbolic"))
                     .id(widget::Id::new("install.choose-file"))
                     .on_press(Message::ChooseFile(FilePurpose::Install)),
@@ -2583,7 +2583,7 @@ impl App {
                 )
                 .push(widget::Space::new().width(Length::Fill))
                 .push(
-                    widget::button::suggested(format!("Install {}…", self.queue.len()))
+                    widget::button::suggested(format!("Install {}", self.queue.len()))
                         .id(widget::Id::new("install.queue.review"))
                         .on_press(Message::InstallQueue),
                 ),
@@ -2714,7 +2714,7 @@ impl App {
                     )
                     .push(button("Review Pending", Message::InstallBrowse(None)))
                     .push(
-                        widget::button::suggested(format!("Install {}…", self.queue.len()))
+                        widget::button::suggested(format!("Install {}", self.queue.len()))
                             .on_press(Message::InstallQueue),
                     ),
             ));
@@ -2774,7 +2774,7 @@ impl App {
                 tools = tools.push(action);
             }
             tools = tools.push(
-                widget::button::suggested("New Snapshot…")
+                widget::button::suggested("New Snapshot")
                     .id(widget::Id::new("snapshots.new"))
                     .on_press(Message::NewSnapshot),
             );
@@ -3675,7 +3675,7 @@ impl cosmic::Application for App {
                     )
                     .on_input(|v| Message::Field(Field::RemoteUrl, v)),
                 )
-                .control(button("Choose File…", Message::ChooseFile(FilePurpose::Remote)))
+                .control(button("Choose File", Message::ChooseFile(FilePurpose::Remote)))
                 .control(widget::text::heading("Installation"))
                 .control(self.installation_choices())
                 .primary_action(
@@ -3825,7 +3825,7 @@ impl cosmic::Application for App {
                         .spacing(8)
                         .align_y(Alignment::Center)
                         .push(button(
-                            "Choose File…",
+                            "Choose File",
                             Message::ChooseFile(FilePurpose::Snapshot),
                         ))
                         .push(

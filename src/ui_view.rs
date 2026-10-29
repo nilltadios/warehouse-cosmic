@@ -491,12 +491,12 @@ impl App {
         }
         list.push(control(
             "package.uninstall",
-            "Uninstall…",
+            "Uninstall",
             Message::Uninstall(vec![p.clone()]),
         ));
         list.push(control(
             "package.change-version",
-            "Change Version…",
+            "Change Version",
             Message::History,
         ));
         list.push(control(
@@ -506,7 +506,7 @@ impl App {
         ));
         list.push(control(
             "package.change-source",
-            "Change Source…",
+            "Change Source",
             Message::ChooseSource(p.clone()),
         ));
         if let Some(runtime) = self.runtime_package(&p.runtime, &p.installation) {
@@ -544,13 +544,13 @@ impl App {
                 ));
                 list.push(control(
                     "package.data.trash",
-                    "Move data to Trash…",
+                    "Move data to Trash",
                     Message::Ask(Operation::TrashData(vec![p.id.clone()])),
                 ));
             }
             list.push(control(
                 "package.snapshot",
-                "New Snapshot…",
+                "New Snapshot",
                 Message::SnapshotFor(p.id.clone()),
             ));
             list.push(control(
@@ -571,7 +571,7 @@ impl App {
         if let Some(remote) = self.origin_remote(p) {
             list.push(control(
                 "package.reinstall",
-                "Reinstall…",
+                "Reinstall",
                 Message::Ask(Operation::Reinstall {
                     package: p.clone(),
                     remote: remote.clone(),
@@ -612,7 +612,7 @@ impl App {
                 ));
                 list.push(control(
                     "batch.uninstall",
-                    "Uninstall…",
+                    "Uninstall",
                     Message::BatchUninstall,
                 ));
             }
@@ -625,7 +625,7 @@ impl App {
                 list.push(control("batch.restore", "Restore", Message::BatchRestore));
                 list.push(control(
                     "batch.install",
-                    "Install Apps…",
+                    "Install Apps",
                     Message::BatchInstall,
                 ));
                 list.push(control("batch.trash", "Trash", Message::BatchSnapshotTrash));
@@ -648,7 +648,7 @@ impl App {
         }
         list.push(control(
             "batch.snapshot",
-            "Create Snapshot…",
+            "Create Snapshot",
             Message::BatchSnapshot,
         ));
         list.push(control(
@@ -744,7 +744,7 @@ impl App {
         ));
         list.push(control(
             "remote.menu.remove",
-            "Remove remote…",
+            "Remove remote",
             Message::Ask(Operation::RemoteRemove(r.clone())),
         ));
     }
@@ -808,7 +808,7 @@ impl App {
             ));
             list.push(control(
                 format!("{prefix}:trash"),
-                format!("Move data of {name} to Trash…"),
+                format!("Move data of {name} to Trash"),
                 Message::Ask(Operation::TrashData(vec![d.id.clone()])),
             ));
             if !d.installed {
@@ -826,12 +826,12 @@ impl App {
     fn snapshot_controls(&self, list: &mut Vec<Control>) {
         list.push(control(
             "snapshots.new",
-            "New Snapshot…",
+            "New Snapshot",
             Message::NewSnapshot,
         ));
         list.push(control(
             "snapshots.import",
-            "Import…",
+            "Import",
             Message::ImportSnapshot,
         ));
         list.push(control(
@@ -861,12 +861,12 @@ impl App {
                 }
                 list.push(control(
                     format!("{prefix}:restore"),
-                    format!("Restore {}…", s.name),
+                    format!("Restore {}", s.name),
                     Message::Ask(Operation::Restore(s.clone())),
                 ));
                 list.push(control(
                     format!("{prefix}:export"),
-                    format!("Export {}…", s.name),
+                    format!("Export {}", s.name),
                     Message::ChooseFile(FilePurpose::Export(s.clone())),
                 ));
                 if s.official {
@@ -882,12 +882,12 @@ impl App {
                 } else {
                     list.push(control(
                         format!("{prefix}:rename"),
-                        format!("Rename {}…", s.name),
+                        format!("Rename {}", s.name),
                         Message::RenameSnapshot(s.clone()),
                     ));
                     list.push(control(
                         format!("{prefix}:trash"),
-                        format!("Trash {}…", s.name),
+                        format!("Trash {}", s.name),
                         Message::Ask(Operation::TrashSnapshot(s.clone())),
                     ));
                 }
@@ -922,7 +922,7 @@ impl App {
         } else {
             list.push(control(
                 "install.choose-file",
-                "Open Files…",
+                "Open Files",
                 Message::ChooseFile(FilePurpose::Install),
             ));
             for r in self.enabled_remotes() {
@@ -950,7 +950,7 @@ impl App {
         if !self.queue.is_empty() {
             list.push(control(
                 "install.queue.review",
-                format!("Install {} pending…", self.queue.len()),
+                format!("Install {} pending", self.queue.len()),
                 Message::InstallQueue,
             ));
         }
