@@ -577,7 +577,21 @@ impl Policy {
                     )
             }
         } else {
-            fs::canonicalize(path).map_err(|e| invalid(e.to_string()))?
+            match fs::canonicalize(path) {
+                Ok(resolved) => resolved,
+                // Inside the Flatpak some host paths (the host's /tmp) are not
+                // mounted. Without file roots, accept a file the host's Flatpak
+                // can read; with roots, paths must resolve locally to be checked.
+                Err(_)
+                    if self.read_root.is_none()
+                        && self.write_root.is_none()
+                        && path.is_absolute()
+                        && crate::host::is_file(path) =>
+                {
+                    path.to_path_buf()
+                }
+                Err(e) => return Err(invalid(e.to_string())),
+            }
         };
         if self.read_root.is_some() || self.write_root.is_some() {
             let root = if write {

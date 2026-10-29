@@ -29,6 +29,34 @@ fn command_for(program: &str, sandbox: bool, watch: bool) -> Command {
     }
 }
 
+/// Size of a regular file that the host's Flatpak can read. Some host paths,
+/// such as the host's /tmp, are not visible inside the sandbox, so the host is
+/// asked when the sandbox cannot see the file.
+pub fn file_size(path: &Path) -> Option<u64> {
+    if let Ok(meta) = std::fs::metadata(path) {
+        return meta.is_file().then_some(meta.len());
+    }
+    if !sandboxed() {
+        return None;
+    }
+    let output = command("stat", false)
+        .args(["--format=%F %s", "--"])
+        .arg(path)
+        .output()
+        .ok()?;
+    if !output.status.success() {
+        return None;
+    }
+    let text = String::from_utf8_lossy(&output.stdout);
+    let (kind, size) = text.trim().rsplit_once(' ')?;
+    kind.starts_with("regular")
+        .then(|| size.parse().ok())
+        .flatten()
+}
+pub fn is_file(path: &Path) -> bool {
+    file_size(path).is_some()
+}
+
 pub fn installations_dir() -> &'static Path {
     Path::new(if sandboxed() {
         "/run/host/etc/flatpak/installations.d"
@@ -61,6 +89,11 @@ mod tests {
                 "name; touch /tmp/no"
             ]
         );
+        let temp = std::env::temp_dir().join(format!("warehouse-size-{}", std::process::id()));
+        std::fs::write(&temp, b"12345").unwrap();
+        assert_eq!(file_size(&temp), Some(5));
+        assert_eq!(file_size(temp.parent().unwrap()), None);
+        std::fs::remove_file(&temp).unwrap();
         let launched = command_for("flatpak", true, false);
         assert!(!launched.get_args().any(|arg| arg == "--watch-bus"));
         assert_eq!(command_for("flatpak", false, true).get_program(), "flatpak");

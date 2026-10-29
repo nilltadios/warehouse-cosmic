@@ -89,7 +89,7 @@ The app needs access to `org.freedesktop.Flatpak` and the home directory, includ
 | `--talk-name=org.freedesktop.Flatpak` | Run host `flatpak`, `pkexec`, `gio trash` and `xdg-open` through `flatpak-spawn --host` (package transactions, Trash, opening folders and launching apps) |
 | `--filesystem=home`, `~/.var/app` | Read sizes of, snapshot, restore and trash other apps' data |
 | `~/.local/share/flatpak:ro`, `/var/lib/flatpak:ro` | Read user and system installations and exported app icons |
-| `--filesystem=host-etc` | Read `/etc/flatpak/installations.d` to discover configured named installations |
+| `--filesystem=host-etc:ro` | Read `/etc/flatpak/installations.d` to discover configured named installations |
 | `xdg-config/cosmic:ro`, `com.system76.CosmicSettingsDaemon` | Follow the COSMIC theme without writing desktop settings |
 | `--own-name=dev.nilltadios.WarehouseCosmic.UI.*` | The live GUI control API used by `warehouse-cosmic-cli ui` |
 | `--socket=wayland`, `--device=dri`, `--share=ipc` | Native Wayland window with GPU rendering |

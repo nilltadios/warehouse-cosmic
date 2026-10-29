@@ -16,7 +16,7 @@
     "--filesystem=~/.local/share/flatpak:ro",
     "--filesystem=xdg-config/cosmic:ro",
     "--filesystem=/var/lib/flatpak:ro",
-    "--filesystem=host-etc"
+    "--filesystem=host-etc:ro"
   ],
   "cleanup": ["/lib/rust", "/include", "/lib/pkgconfig", "/share/man", "*.a", "*.la"],
   "modules": [

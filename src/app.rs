@@ -16,7 +16,7 @@ use cosmic::{
 };
 use std::{
     borrow::Cow,
-    collections::{BTreeMap, BTreeSet, HashSet},
+    collections::{BTreeMap, BTreeSet, HashMap, HashSet},
     path::{Path, PathBuf},
     sync::atomic::Ordering,
     time::Duration,
@@ -386,6 +386,9 @@ pub struct App {
     commit: String,
     hold: bool,
     drag_over: bool,
+    /// Sizes of files under install review, looked up once (on the host when
+    /// the sandbox cannot see them).
+    file_sizes: HashMap<PathBuf, Option<u64>>,
     toasts: widget::Toasts<Message>,
     last_toast: Option<String>,
     preferences: Preferences,
@@ -2023,6 +2026,9 @@ impl App {
         };
         for file in files {
             if !selection.contains(&file) {
+                self.file_sizes
+                    .entry(file.clone())
+                    .or_insert_with(|| warehouse_cosmic::host::file_size(&file));
                 selection.push(file);
             }
         }
@@ -3038,6 +3044,7 @@ impl cosmic::Application for App {
             commit: String::new(),
             hold: true,
             drag_over: false,
+            file_sizes: HashMap::new(),
             toasts: widget::Toasts::new(Message::CloseToast),
             last_toast: None,
             preferences,
@@ -3590,9 +3597,13 @@ impl cosmic::Application for App {
                     } else {
                         "Flatpak bundle"
                     };
-                    let size = std::fs::metadata(path)
-                        .map(|m| backend::size(m.len()))
-                        .unwrap_or_else(|_| "Not readable".into());
+                    let size = self
+                        .file_sizes
+                        .get(path)
+                        .copied()
+                        .flatten()
+                        .map(backend::size)
+                        .unwrap_or_else(|| "Not readable".into());
                     packages = packages.add(
                         widget::row::with_capacity(2)
                             .spacing(12)

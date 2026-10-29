@@ -692,7 +692,7 @@ impl Operation {
                 result.push(CommandSpec::new(a));
             }
             Self::InstallFile { installation, path } => {
-                if !path.is_absolute() || !path.is_file() {
+                if !path.is_absolute() || !crate::host::is_file(path) {
                     return Err("Select an existing local package file".into());
                 }
                 let option = match path.extension().and_then(|s| s.to_str()) {
@@ -911,7 +911,7 @@ fn validate_location(value: &str) -> Result<()> {
     if value.starts_with('-') {
         return Err("Invalid location".into());
     }
-    if Path::new(value).is_absolute() && Path::new(value).is_file() {
+    if Path::new(value).is_absolute() && crate::host::is_file(Path::new(value)) {
         return Ok(());
     }
     let url = url::Url::parse(value).map_err(|e| e.to_string())?;

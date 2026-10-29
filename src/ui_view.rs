@@ -1181,7 +1181,7 @@ impl App {
                 if files.is_empty()
                     || files
                         .iter()
-                        .any(|path| !path.is_absolute() || !path.is_file())
+                        .any(|path| !path.is_absolute() || !warehouse_cosmic::host::is_file(path))
                 {
                     return failure("Choose existing absolute file paths".into());
                 }
