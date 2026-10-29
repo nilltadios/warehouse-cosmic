@@ -65,6 +65,8 @@ warehouse-cosmic-cli ui --instance INSTANCE wait
 
 `activate`, also spelled `click`, invokes the same message handler as the named visible control. It tests GUI transitions and rendering rather than calling the backend behind the window. It is a semantic action, not a physical pointer click or keyboard typing test. Unavailable controls are refused.
 
+Controls that start another program also require `--apply`: `package.open` launches the app, and the folder buttons (`package.data.open`, `data:ID:open`, `snapshots.open-library`, `report.open-folder`) open the file manager. `inspect` lists them with `requires: "apply"`.
+
 Every package, data or snapshot change first opens a confirmation dialog. Opening review dialogs, selecting, filtering, searching and copying need no flag. Confirming (`dialog.confirm`, `install.confirm`, `snapshot.create`) requires `--apply`; system installation changes also require `--allow-system`. Closing the selected window requires `ui close --apply`. Capture output must be a new absolute path unless `--overwrite` is explicit.
 
 `ui open` behaves like Open Files. `ui drop` sends the files as `text/uri-list` data through the window's drag-and-drop handler, including URI decoding, file-type checks and the mixed/unsupported-type dialogs. Neither installs anything. A compositor drag from a file manager uses the same handler, but `ui drop` does not test the compositor's drag session itself.

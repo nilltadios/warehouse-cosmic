@@ -22,7 +22,8 @@ open Warehouse COSMIC window like a person would (2).
                               label and what it requires: none, apply, apply+allow-system
    ui controls                only the controls
    ui tree                    rendered widgets with visible text and bounds
-   ui activate CONTROL        same handler as clicking it; add --apply for changes and
+   ui activate CONTROL        same handler as clicking it; add --apply for changes or for
+                              starting another program (Open, open folder), and
                               --apply --allow-system for system changes
    ui fill FIELD TEXT         type into a listed field (search, install.query, ...)
    ui navigate PAGE           packages, remotes, data, snapshots, install

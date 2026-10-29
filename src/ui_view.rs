@@ -63,7 +63,24 @@ const FIELDS: [(&str, &str); 8] = [
 ];
 
 impl App {
+    /// Every control that can be activated now. Controls that start another
+    /// program (an app, or the file manager for a folder) need --apply, so an
+    /// agent cannot launch anything outside this window by accident.
     pub(super) fn ui_controls(&self) -> Vec<Control> {
+        let mut list = self.visible_controls();
+        for control in &mut list {
+            if control.guard == Guard::None
+                && matches!(
+                    control.message,
+                    Message::Launch(_) | Message::Open(_) | Message::OpenReportFolder
+                )
+            {
+                control.guard = Guard::Apply;
+            }
+        }
+        list
+    }
+    fn visible_controls(&self) -> Vec<Control> {
         if self.job.is_some() {
             return vec![
                 control("operation.cancel", "Cancel", Message::Cancel),

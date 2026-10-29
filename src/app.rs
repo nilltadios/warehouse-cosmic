@@ -5235,6 +5235,15 @@ mod ui_tests {
         assert!(matches!(&app.dialog, Some(Dialog::Uninstall(list)) if list.len() == 1));
         assert!(!app.uninstall_data);
         assert!(app.ui_activate("uninstall.trash", false, false).is_ok());
+        // Starting another program needs --apply, like any outside effect.
+        let _ = app.update(Message::CloseDialog);
+        let _ = app.update(Message::Select(p.key()));
+        assert!(app.ui_activate("package.open", false, false).is_err());
+        assert!(matches!(
+            app.ui_activate("package.open", true, false),
+            Ok(Message::Launch(_))
+        ));
+        let _ = app.update(Message::Uninstall(vec![p.clone()]));
         let _ = app.update(Message::UninstallData(true));
         assert!(app.uninstall_data);
         assert!(app.ui_activate("dialog.confirm", false, false).is_err());
