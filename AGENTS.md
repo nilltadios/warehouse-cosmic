@@ -24,6 +24,16 @@ When opening the app for someone to use, leave that window open. Screenshot/test
 
 The app and its CLI must behave the same on every Wayland desktop. Use standard protocols and portals (xdg-activation, file chooser, document portal, D-Bus interfaces the app owns), not compositor- or desktop-specific APIs. Desktop-specific tooling (for example KWin pointer input) belongs in repo-only helpers behind a Cargo feature that the Flatpak never enables, such as `cosmic-tools` (`warehouse-cosmic-cosmic`) and `kde-tools` (`warehouse-cosmic-kde`), and docs present it as "if you're on COSMIC / KDE Plasma, you can also run …". Do not add desktop-specific Flatpak permissions.
 
+## The CLI never touches other apps
+
+The app and `warehouse-cosmic-cli` must not, and must not be able to, inspect or control any other application. Keep these guarantees when changing code, and treat breaking one as a security bug:
+
+- `ui` commands talk only to D-Bus names starting with `dev.nilltadios.WarehouseCosmic.UI.` and only to this app's own `Execute` method (`ui_client::call` rejects anything else). Never add a way to address another app's windows, D-Bus services, processes or input.
+- The app and CLI never synthesize pointer or keyboard input and never take desktop screenshots. Captures are the app's own render. Input and window helpers exist only as repo-only test tools that act on this app's window.
+- Host programs are a fixed list run through `host::command` with separate arguments (`flatpak`, `pkexec flatpak`, `gio trash`, `xdg-open`, `flatpak run`, `setsid flatpak run` for `ui start`). Never accept a program name or shell string from input.
+- Managing other apps as Flatpak packages and data folders (install, update, uninstall, snapshot, restore, Trash) is the app's purpose. Every such change is a dry run without `--apply`, system changes also need `--allow-system`, and starting another program from `ui` (Open, open folder) needs `--apply`.
+- Do not add Flatpak permissions that reach other apps (their D-Bus names, input or screen capture).
+
 ## Agent CLI
 
 Read `llms.txt`, `docs/cli.md` and `docs/agents.md`. Discover commands and parameter schemas before invoking mutations. Requests are typed JSON; mutations are dry-run plans unless `--apply` is passed. System mutations also require `--allow-system` and PolicyKit. No MCP server or application daemon is needed.

@@ -46,6 +46,8 @@ Typical GUI loop: inspect -> activate a control -> wait -> inspect again and rea
 first; confirm it with `ui activate dialog.confirm --apply` only when authorized.
 
 Rules
+- This CLI never inspects or controls other apps. It manages them only as Flatpak
+  packages and data folders, and changes need --apply.
 - Use exact refs and installations returned by inspect or package.list.
 - App data is shared by every installation and branch of an app ID.
 - Data removal goes to the desktop Trash; nothing is deleted permanently.

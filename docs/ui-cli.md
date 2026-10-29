@@ -73,6 +73,8 @@ Every package, data or snapshot change first opens a confirmation dialog. Openin
 
 ## What `ui` does not do
 
+`ui` controls only Warehouse COSMIC windows. It talks only to D-Bus names that start with `dev.nilltadios.WarehouseCosmic.UI.` and refuses any other target, and inside the Flatpak other apps' D-Bus services are not reachable at all. It cannot inspect or operate another application.
+
 `ui` never moves your mouse, presses keys or uses the desktop's screenshot tools; it works the same on every Wayland desktop. Physical pointer and keyboard input, the native file chooser and a compositor drag from a file manager are outside it and need a person to check.
 
 ## If you're on COSMIC

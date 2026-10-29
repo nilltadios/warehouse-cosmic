@@ -178,7 +178,7 @@ pub fn call(
     apply: bool,
     allow_system: bool,
 ) -> Result<Value, String> {
-    if !instance.starts_with(protocol::PREFIX) {
+    if !is_own_instance(instance) {
         return Err("Invalid Warehouse GUI instance".into());
     }
     let proxy =
@@ -200,6 +200,12 @@ pub fn call(
             .into());
     }
     Ok(reply)
+}
+/// Only this app's own window names may be addressed; see AGENTS.md
+/// ("The CLI never touches other apps").
+pub fn is_own_instance(name: &str) -> bool {
+    name.strip_prefix(protocol::PREFIX)
+        .is_some_and(|rest| !rest.is_empty() && !rest.contains('.'))
 }
 pub fn new_instance() -> String {
     format!(
@@ -524,4 +530,24 @@ fn primary_instance(connection: &zbus::Connection) -> Result<Option<String>, Str
         }
     }
     Ok(None)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn only_warehouse_windows_can_be_addressed() {
+        assert!(is_own_instance(&new_instance()));
+        for other in [
+            "org.freedesktop.Notifications",
+            "com.system76.CosmicFiles",
+            "org.kde.KWin",
+            ":1.42",
+            "dev.nilltadios.WarehouseCosmic",
+            "dev.nilltadios.WarehouseCosmic.UI.",
+            "dev.nilltadios.WarehouseCosmic.UI.i1.org.other",
+        ] {
+            assert!(!is_own_instance(other), "{other} must be refused");
+        }
+    }
 }

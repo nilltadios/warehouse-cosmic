@@ -4,6 +4,8 @@ Use `warehouse-cosmic-cli`. It works with the GUI closed. Run `warehouse-cosmic-
 
 To work in the open window instead, use the `ui` command group described in [GUI CLI](ui-cli.md). `ui inspect` shows the page content, the open dialog and every control a person could click, each with a label and the flags it needs, so an agent can see and do what the person sees and does. Activate controls by ID, `ui wait`, then inspect again. Capture the renderer and the widget tree for layout reports. Use an isolated test instance for preference changes and close only that instance afterward. The [project brief](project-brief.md) records the intended behavior.
 
+The CLI cannot inspect or control other applications; it manages them only as Flatpak packages and data folders, and only with `--apply`. See [the CLI's scope](cli.md#scope).
+
 1. Discover supported commands with `commands --json` or `describe ID`. Do not invent fields or use undocumented Flatpak shell flags.
 2. Read `package.list`, `remote.list`, `data.list`, and `snapshot.list` as needed. Check returned `warnings` before treating the inventory as complete.
 3. Use the returned installation and exact full ref. An app's data is shared across all installations and branches of its ID.

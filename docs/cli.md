@@ -2,6 +2,10 @@
 
 `warehouse-cosmic-cli` does one invocation's work and exits. User-level operations work without the app open or a display session. Its command parser and schemas are Rust, and it calls the same backend as the graphical app.
 
+## Scope
+
+The CLI manages Flatpak packages, remotes, app data folders and snapshots. That includes other apps as packages (install, update, uninstall) and their data folders (snapshot, restore, Trash), always as a dry run unless `--apply` is given. It never inspects or controls another application: no access to other apps' windows, input, processes or D-Bus services, and it runs only a fixed set of host programs (`flatpak`, `pkexec flatpak`, `gio trash`, `xdg-open`, `flatpak run`). `ui` commands act only on Warehouse COSMIC windows.
+
 ## Discover and read
 
 ```sh
