@@ -117,6 +117,7 @@ pub enum Message {
     Tick,
     Search(String),
     Select(String),
+    BackToList,
     Toggle(String, bool),
     Batch(bool),
     SelectAll,
@@ -349,6 +350,9 @@ pub struct App {
     loading: bool,
     query: String,
     selected: Option<String>,
+    /// The one-pane Packages layout shows details only after a package was
+    /// picked; opening the page auto-selects one for the two-pane layout.
+    package_open: bool,
     selection: HashSet<String>,
     batch: bool,
     filters: bool,
@@ -556,6 +560,19 @@ fn file_kind(path: &Path) -> &'static str {
     }
 }
 /// Parse a `text/uri-list` drop. Comments and non-file URIs are ignored.
+/// Narrowest Packages content that still fits the list beside the details.
+const PACKAGES_SPLIT_WIDTH: f32 = 560.;
+/// Document-portal transfer key offered by sandbox-aware senders.
+const FILE_TRANSFER_MIME: &str = "application/vnd.portal.filetransfer";
+/// GTK ends the key with a NUL and Qt/KDE does not; libcosmic's own handler
+/// always cut the last byte, which mangled Qt keys.
+pub fn transfer_key(data: &[u8]) -> Option<String> {
+    let key = std::str::from_utf8(data)
+        .ok()?
+        .trim_end_matches('\0')
+        .trim();
+    (!key.is_empty()).then(|| key.to_owned())
+}
 pub fn dropped_paths(data: &[u8]) -> Vec<PathBuf> {
     String::from_utf8_lossy(data)
         .lines()
@@ -773,7 +790,7 @@ impl App {
         if let Some(id) = id {
             self.nav.activate(id);
         }
-        self.set_header_title(page.name().into());
+        self.package_open = false;
         if page == Page::Packages
             && let Some(p) = self.visible_packages().first()
         {
@@ -1291,6 +1308,10 @@ impl App {
         .into()
     }
     fn packages_view(&self) -> Element<'_, Message> {
+        widget::responsive(move |size| self.packages_main(size.width)).into()
+    }
+    /// List beside details when both fit; otherwise one pane at a time.
+    fn packages_main(&self, width: f32) -> Element<'_, Message> {
         let packages = self.visible_packages();
         let mut list = widget::column::with_capacity(packages.len() + 2).spacing(4);
         for p in &packages {
@@ -1313,12 +1334,13 @@ impl App {
                 if p.eol() { " · End of life" } else { "" }
             );
             row = row.push(package_icon(&p.id, 36)).push(
-                widget::column::with_capacity(2)
+                widget::column::with_capacity(3)
                     .spacing(3)
                     .push(single_line(widget::text::body(p.name.clone())))
+                    .push(single_line(widget::text::caption(p.id.clone())))
                     .push(widget::text::caption(format!(
-                        "{}\n{} · {}{status}",
-                        p.id, p.branch, p.installation
+                        "{} · {}{status}",
+                        p.branch, p.installation
                     )))
                     .width(Length::Fill),
             );
@@ -1377,10 +1399,48 @@ impl App {
                 "package-x-generic-symbolic",
             )
         };
-        widget::row::with_capacity(3)
-            .spacing(20)
-            .push(widget::container(left).width(340).height(Length::Fill))
-            .push(widget::divider::vertical::default())
+        if width >= PACKAGES_SPLIT_WIDTH {
+            // 41 = row spacing on both sides of the divider plus the divider.
+            let list_width = ((width - 41.) * 0.45).clamp(240., 340.);
+            return widget::row::with_capacity(3)
+                .spacing(20)
+                .push(
+                    widget::container(left)
+                        .width(list_width)
+                        .height(Length::Fill),
+                )
+                .push(widget::divider::vertical::default())
+                .push(
+                    widget::container(detail)
+                        .width(Length::Fill)
+                        .height(Length::Fill),
+                )
+                .into();
+        }
+        if self.batch {
+            return widget::column::with_capacity(3)
+                .spacing(16)
+                .push(widget::container(left).height(Length::FillPortion(3)))
+                .push(widget::divider::horizontal::default())
+                .push(
+                    widget::scrollable(detail)
+                        .spacing(8)
+                        .height(Length::FillPortion(2)),
+                )
+                .into();
+        }
+        if !self.package_open || self.package().is_none() {
+            return widget::container(left).height(Length::Fill).into();
+        }
+        widget::column::with_capacity(2)
+            .spacing(12)
+            .push(
+                widget::button::icon(icon::from_name("go-previous-symbolic"))
+                    .id(widget::Id::new("packages.back"))
+                    .name("Back to Packages")
+                    .tooltip("Back")
+                    .on_press(Message::BackToList),
+            )
             .push(
                 widget::container(detail)
                     .width(Length::Fill)
@@ -1705,40 +1765,53 @@ impl App {
         .into()
     }
     fn remotes_view(&self) -> Element<'_, Message> {
+        widget::responsive(move |size| self.remotes_main(size.width)).into()
+    }
+    /// Narrow windows drop the remote-name column (Details and Copy name
+    /// still show it) and put the disabled-remotes toggle under the heading.
+    fn remotes_main(&self, width: f32) -> Element<'_, Message> {
+        let compact = width < 520.;
         let disabled = self
             .inventory
             .remotes
             .iter()
             .filter(|r| r.disabled())
             .count();
-        let mut current_header = widget::row::with_capacity(2)
-            .align_y(Alignment::Center)
-            .spacing(12)
-            .push(
-                widget::column::with_capacity(2)
-                    .spacing(4)
-                    .push(widget::text::heading("Current remotes"))
-                    .push(widget::text::caption("Remotes available on your system"))
-                    .width(Length::Fill),
-            );
-        if disabled > 0 {
-            current_header = current_header.push(
-                widget::button::text(format!(
-                    "{} disabled ({disabled})",
-                    if self.show_disabled_remotes {
-                        "Hide"
-                    } else {
-                        "Show"
-                    }
-                ))
-                .leading_icon(icon::from_name(if self.show_disabled_remotes {
-                    "view-reveal-symbolic"
+        let heading = widget::column::with_capacity(2)
+            .spacing(4)
+            .push(widget::text::heading("Current remotes"))
+            .push(widget::text::caption("Remotes available on your system"))
+            .width(Length::Fill);
+        let toggle = (disabled > 0).then(|| {
+            widget::button::text(format!(
+                "{} disabled ({disabled})",
+                if self.show_disabled_remotes {
+                    "Hide"
                 } else {
-                    "view-conceal-symbolic"
-                }))
-                .on_press(Message::ShowDisabledRemotes(!self.show_disabled_remotes)),
-            );
-        }
+                    "Show"
+                }
+            ))
+            .leading_icon(icon::from_name(if self.show_disabled_remotes {
+                "view-reveal-symbolic"
+            } else {
+                "view-conceal-symbolic"
+            }))
+            .on_press(Message::ShowDisabledRemotes(!self.show_disabled_remotes))
+        });
+        let current_header: Element<'_, Message> = if compact {
+            widget::column::with_capacity(2)
+                .spacing(8)
+                .push(heading)
+                .push_maybe(toggle)
+                .into()
+        } else {
+            widget::row::with_capacity(2)
+                .align_y(Alignment::Center)
+                .spacing(12)
+                .push(heading)
+                .push_maybe(toggle)
+                .into()
+        };
         let mut current = widget::list_column().list_item_padding([8, 12]);
         let mut count = 0;
         for r in self
@@ -1836,14 +1909,14 @@ impl App {
                             )))
                             .width(Length::Fill),
                     )
-                    .push(
+                    .push_maybe((!compact).then(|| {
                         widget::text::caption(&r.name)
                             .width(130)
                             .wrapping(iced::advanced::text::Wrapping::None)
                             .ellipsize(iced::advanced::text::Ellipsize::End(
                                 iced::advanced::text::EllipsizeHeightLimit::Lines(1),
-                            )),
-                    )
+                            ))
+                    }))
                     .push(
                         widget::tooltip(
                             widget::button::icon(icon::from_name("view-filter-symbolic"))
@@ -2095,19 +2168,27 @@ impl App {
         let descending = self.view.data_descending;
         let mut col = widget::column::with_capacity(5)
             .spacing(14)
+            // The summary wraps under the filters instead of squeezing them.
             .push(
-                widget::row::with_capacity(4)
-                    .spacing(8)
-                    .align_y(Alignment::Center)
-                    .push(filter("Active Data", false, "data.active"))
-                    .push(filter("Leftover Data", true, "data.leftover"))
-                    .push(widget::Space::new().width(Length::Fill))
-                    .push(widget::text(format!(
+                widget::flex_row(vec![
+                    widget::row::with_capacity(2)
+                        .spacing(8)
+                        .push(filter("Active Data", false, "data.active"))
+                        .push(filter("Leftover Data", true, "data.leftover"))
+                        .into(),
+                    widget::text(format!(
                         "{} folder{} · {}",
                         data.len(),
                         if data.len() == 1 { "" } else { "s" },
                         backend::size(total)
-                    ))),
+                    ))
+                    .wrapping(iced::advanced::text::Wrapping::None)
+                    .into(),
+                ])
+                .width(Length::Fill)
+                .align_items(Alignment::Center)
+                .justify_content(widget::JustifyContent::SpaceBetween)
+                .spacing(8),
             )
             .push(
                 widget::row::with_capacity(6)
@@ -3007,6 +3088,7 @@ impl cosmic::Application for App {
             loading: true,
             query: String::new(),
             selected: None,
+            package_open: false,
             selection: HashSet::new(),
             batch: false,
             filters: false,
@@ -3064,7 +3146,6 @@ impl cosmic::Application for App {
             ui_pointer: None,
             ui_pointer_serial: 0,
         };
-        app.set_header_title("Packages".into());
         let title = app.set_window_title(
             "Warehouse COSMIC".into(),
             app.core.main_window_id().unwrap(),
@@ -3187,6 +3268,22 @@ impl cosmic::Application for App {
                     .name("Refresh"),
                 "Refresh",
             ),
+            // The page title, centred in the space between the button groups
+            // so the gaps on both sides match. Not libcosmic's centre slot:
+            // that slot is laid out twice per pass, which replaces the title's
+            // text after each frame, so `ui capture` re-renders drew no title.
+            // The 4 px left padding balances the header's wider gap (8 px)
+            // before the end buttons against this row's 4 px spacing.
+            widget::container(
+                widget::text::heading(self.page.name())
+                    .wrapping(iced::advanced::text::Wrapping::None)
+                    .ellipsize(iced::advanced::text::Ellipsize::End(
+                        iced::advanced::text::EllipsizeHeightLimit::Lines(1),
+                    )),
+            )
+            .padding([0, 0, 0, 4])
+            .center_x(Length::Fill)
+            .into(),
         ]
     }
     fn header_end(&self) -> Vec<Element<'_, Message>> {
@@ -3210,9 +3307,6 @@ impl cosmic::Application for App {
                 "About Warehouse COSMIC",
             ),
         ]
-    }
-    fn header_center(&self) -> Vec<Element<'_, Message>> {
-        vec![widget::text::heading(self.page.name()).into()]
     }
     fn subscription(&self) -> Subscription<Message> {
         Subscription::batch([
@@ -3359,14 +3453,20 @@ impl cosmic::Application for App {
                 .padding(20)
                 .height(Length::Fill),
         );
-        // File managers offer text/uri-list; sandboxed senders use the document
-        // portal's file-transfer key, which is resolved to readable paths.
-        widget::dnd_destination(content, vec!["text/uri-list".into()])
-            .on_enter(|_, _, _| Message::DragOver(true))
-            .on_leave(|| Message::DragOver(false))
-            .on_finish(|mime, data, _, _, _| Message::Dropped(mime, data))
-            .on_file_transfer(Message::FileTransfer)
-            .into()
+        // The first type the drag offers wins (in this order). File managers
+        // offer text/uri-list, readable for files under the home folder. A
+        // portal key is only used from senders without it: Dolphin's transfer
+        // is gone by the time the dropped key reaches the portal ("Invalid
+        // transfer", seen with KDE Frameworks on Plasma 6.7). The key is
+        // parsed here (`transfer_key`), not by `on_file_transfer`.
+        widget::dnd_destination(
+            content,
+            vec!["text/uri-list".into(), FILE_TRANSFER_MIME.into()],
+        )
+        .on_enter(|_, _, _| Message::DragOver(true))
+        .on_leave(|| Message::DragOver(false))
+        .on_finish(|mime, data, _, _, _| Message::Dropped(mime, data))
+        .into()
     }
     fn dialog(&self) -> Option<Element<'_, Message>> {
         let dialog = self.dialog.as_ref()?;
@@ -4295,8 +4395,10 @@ impl cosmic::Application for App {
                 self.remote_menu = None;
                 self.query = q;
             }
+            Message::BackToList => self.package_open = false,
             Message::Select(key) => {
                 if self.page == Page::Packages {
+                    self.package_open = true;
                     return self.select_package(key);
                 }
                 self.selected = Some(key);
@@ -4804,7 +4906,12 @@ impl cosmic::Application for App {
             Message::DragOver(over) => self.drag_over = over,
             Message::Dropped(mime, data) => {
                 self.drag_over = false;
-                if mime == "text/uri-list" {
+                if mime == FILE_TRANSFER_MIME {
+                    match transfer_key(&data) {
+                        Some(key) => return self.update(Message::FileTransfer(key)),
+                        None => self.notice = Some("The dropped item is not a local file.".into()),
+                    }
+                } else if mime == "text/uri-list" {
                     let files = dropped_paths(&data);
                     if files.is_empty() {
                         self.notice = Some("The dropped item is not a local file.".into());
@@ -5182,6 +5289,20 @@ mod ui_tests {
         assert_eq!(app.ui_instance, identity);
         assert_eq!(app.inventory.installations[app.install_scope], "system");
         assert!(app.job.is_none());
+    }
+    #[test]
+    fn portal_transfer_keys_keep_their_last_character() {
+        // Qt/KDE (Dolphin) sends the key bare; GTK appends a NUL.
+        assert_eq!(
+            transfer_key(b"7130218693419683811").as_deref(),
+            Some("7130218693419683811")
+        );
+        assert_eq!(
+            transfer_key(b"7130218693419683811\0").as_deref(),
+            Some("7130218693419683811")
+        );
+        assert_eq!(transfer_key(b"\0"), None);
+        assert_eq!(transfer_key(&[0xff, 0xfe]), None);
     }
     #[test]
     fn dropped_uris_with_spaces_open_review_and_reject_unsupported_or_mixed_files() {

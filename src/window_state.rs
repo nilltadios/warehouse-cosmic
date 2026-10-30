@@ -27,14 +27,18 @@ impl Default for WindowState {
         }
     }
 }
+/// Smallest window the layouts were checked at (verification/layout-sweep.sh
+/// and drag-sweep.sh): every page and the header title still fit.
+pub const MIN_WIDTH: u32 = 380;
+pub const MIN_HEIGHT: u32 = 400;
 impl WindowState {
     pub fn observe(&mut self, mode: Mode, width: f32, height: f32) {
         self.mode = mode;
         if mode == Mode::Windowed
             && width.is_finite()
             && height.is_finite()
-            && width >= 940.
-            && height >= 560.
+            && width >= MIN_WIDTH as f32
+            && height >= MIN_HEIGHT as f32
         {
             self.width = (width.round() as u32).min(16384);
             self.height = (height.round() as u32).min(16384);
@@ -42,8 +46,8 @@ impl WindowState {
     }
     pub fn size(self) -> cosmic::iced::Size {
         cosmic::iced::Size::new(
-            self.width.clamp(940, 16384) as f32,
-            self.height.clamp(560, 16384) as f32,
+            self.width.clamp(MIN_WIDTH, 16384) as f32,
+            self.height.clamp(MIN_HEIGHT, 16384) as f32,
         )
     }
 }
@@ -155,7 +159,7 @@ mod tests {
                 ..state
             }
             .size(),
-            cosmic::iced::Size::new(940., 16384.)
+            cosmic::iced::Size::new(MIN_WIDTH as f32, 16384.)
         );
     }
 }

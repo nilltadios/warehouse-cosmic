@@ -73,7 +73,7 @@ fn main() -> cosmic::iced::Result {
             .as_deref()
             .is_some_and(|p| p.ends_with("-narrow"))
     {
-        state.width = 940;
+        state.width = window_state::MIN_WIDTH;
     }
     let size = state.size();
     flags.window_state = state;
@@ -91,7 +91,11 @@ fn main() -> cosmic::iced::Result {
     let settings = cosmic::app::Settings::default()
         .theme(preferences::load().unwrap_or_default().theme.theme())
         .size(size)
-        .size_limits(cosmic::iced::Limits::NONE.min_width(940.).min_height(560.))
+        .size_limits(
+            cosmic::iced::Limits::NONE
+                .min_width(window_state::MIN_WIDTH as f32)
+                .min_height(window_state::MIN_HEIGHT as f32),
+        )
         .default_icon_theme("WarehouseCosmic");
     if isolated {
         cosmic::app::run::<app::App>(settings, flags)

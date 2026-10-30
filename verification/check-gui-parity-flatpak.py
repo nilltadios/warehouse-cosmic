@@ -253,7 +253,8 @@ try:
     ui(instance, "snapshot-cancel", "activate", "dialog.cancel")
 
     # Narrow layouts. Live resizing depends on the compositor (a tiling COSMIC
-    # session may refuse it), so fresh capture processes start at 940 px.
+    # session may refuse it), so fresh capture processes start at the minimum
+    # width (window_state::MIN_WIDTH).
     gui = [str(pathlib.Path(client[0]).with_name("warehouse-cosmic"))] if client is not base else ["flatpak", "run", app]
     wide = captures["data-active-dark"]["size"][0]
     for page in ("install", "data", "snapshots", "packages"):

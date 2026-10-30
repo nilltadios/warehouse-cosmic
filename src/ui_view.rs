@@ -499,6 +499,14 @@ impl App {
         let Some(p) = self.package() else {
             return;
         };
+        // Shown in the one-pane layout; harmless in the two-pane one.
+        if self.package_open {
+            list.push(control(
+                "packages.back",
+                "Back to Packages",
+                Message::BackToList,
+            ));
+        }
         if !p.is_runtime() {
             list.push(control(
                 "package.open",
@@ -1296,11 +1304,13 @@ impl App {
                 } else {
                     let width = width.unwrap_or(self.window_state.width);
                     let height = height.unwrap_or(self.window_state.height);
-                    if !(940..=16384).contains(&width) || !(560..=16384).contains(&height) {
-                        return failure(
-                            "Window dimensions must fit 940..16384 by 560..16384 logical pixels"
-                                .into(),
-                        );
+                    use crate::window_state::{MIN_HEIGHT, MIN_WIDTH};
+                    if !(MIN_WIDTH..=16384).contains(&width)
+                        || !(MIN_HEIGHT..=16384).contains(&height)
+                    {
+                        return failure(format!(
+                            "Window dimensions must fit {MIN_WIDTH}..16384 by {MIN_HEIGHT}..16384 logical pixels"
+                        ));
                     }
                     iced::window::resize(window, iced::Size::new(width as f32, height as f32))
                 };

@@ -40,7 +40,7 @@ If you're testing on KDE Plasma, you can also run the older KWin-based scripts (
 
 `check-remotes-flatpak.py` captures the compact remote list, narrow window, action menu, disabled/search/empty states, details, preset review and package-filter navigation. It verifies that host remotes do not change, that the narrow render is smaller and that test instances exit. `check-popular-remotes.py` fetches the preset publishers' definitions and saves response data, URLs, times and hashes without configuring host remotes.
 
-`--preview PAGE` only navigates views; `--preview PAGE-narrow` starts at the 940-pixel minimum width for narrow-layout captures. A capture process exits immediately after writing its PNG; on COSMIC sessions the normal event-loop teardown intermittently crashed with SIGSEGV after a successful capture (also on the original 2026-10-28 commit). `--capture /absolute/path.png` captures and exits. Paths must be accessible to the sandbox. External files selected through a portal and CLI paths granted with `flatpak run --filesystem=/chosen/directory` follow Flatpak's usual access rules.
+`--preview PAGE` only navigates views; `--preview PAGE-narrow` starts at the 380-pixel minimum width (`window_state::MIN_WIDTH`) for narrow-layout captures. A capture process exits immediately after writing its PNG; on COSMIC sessions the normal event-loop teardown intermittently crashed with SIGSEGV after a successful capture (also on the original 2026-10-28 commit). `--capture /absolute/path.png` captures and exits. Paths must be accessible to the sandbox. External files selected through a portal and CLI paths granted with `flatpak run --filesystem=/chosen/directory` follow Flatpak's usual access rules.
 
 ## Publishing and dependencies
 
