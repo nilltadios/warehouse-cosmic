@@ -38,6 +38,8 @@ Common tasks (read-only unless noted)
    Installed apps and their scope:     run --cmd 'package.list={"kind":"applications"}'
    Is an update available:             run --cmd 'package.update-check={"installation":"user","reference":"APP_ID"}'
    Move leftover data to Trash:        run --cmd 'data.trash={"ids":["APP_ID"]}'   (plan; add --apply)
+   Launchers/icons overriding an app:  run --cmd 'override.list={"state":"broken"}'
+   Use the app's own launcher/icon:    run --cmd 'override.trash={"paths":["PATH"]}'   (plan; add --apply)
    "installation" is the value package.list reports: user, system or a named installation.
    describe COMMAND shows each parameter with a description.
 

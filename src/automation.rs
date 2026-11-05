@@ -233,6 +233,45 @@ pub struct DataList {
     #[serde(default)]
     pub search: String,
 }
+#[derive(Debug, Default, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum OverrideState {
+    #[default]
+    All,
+    /// Launchers that fail or start something other than the app's Flatpak.
+    Broken,
+    /// Working launchers and icons that replace the app's own.
+    Shadowing,
+}
+#[derive(Debug, Default, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct OverrideList {
+    #[serde(default)]
+    pub state: OverrideState,
+    /// Only these application IDs. Empty lists every app.
+    #[serde(default)]
+    pub ids: Vec<String>,
+    /// Also list files the user chose to keep.
+    #[serde(default = "yes")]
+    pub include_kept: bool,
+}
+fn yes() -> bool {
+    true
+}
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct OverridePaths {
+    /// Paths exactly as override.list returns them.
+    pub paths: Vec<PathBuf>,
+}
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct OverrideKeep {
+    /// Paths exactly as override.list returns them.
+    pub paths: Vec<PathBuf>,
+    /// true stops warnings while each file stays unchanged; false warns again.
+    pub keep: bool,
+}
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct RemoteSearch {
@@ -285,6 +324,12 @@ pub enum Request {
     Data(DataList),
     #[serde(rename = "data.trash")]
     TrashData(Ids),
+    #[serde(rename = "override.list")]
+    Overrides(OverrideList),
+    #[serde(rename = "override.trash")]
+    TrashOverrides(OverridePaths),
+    #[serde(rename = "override.keep")]
+    KeepOverrides(OverrideKeep),
     #[serde(rename = "snapshot.list")]
     Snapshots(Empty),
     #[serde(rename = "snapshot.create")]
@@ -342,6 +387,7 @@ impl Request {
                 | Self::Remotes(_)
                 | Self::RemotePackages(_)
                 | Self::Data(_)
+                | Self::Overrides(_)
                 | Self::Snapshots(_)
         )
     }
@@ -471,6 +517,24 @@ pub fn catalog() -> Vec<Value> {
             "Move shared app data to the desktop Trash. Close these apps first.",
             true,
             json!({"ids":["org.example.App"]}),
+        ),
+        entry::<OverrideList>(
+            "override.list",
+            "List launchers (~/.local/share/applications/APP_ID.desktop) and icons (~/.local/share/icons/*/*/apps/APP_ID.*) that take priority over a Flatpak's own, for installed apps and apps with leftover data. state: broken finds launchers that fail, for example one pinned to a branch that is not installed. Nothing is changed.",
+            false,
+            json!({"state":"broken"}),
+        ),
+        entry::<OverridePaths>(
+            "override.trash",
+            "Move launchers or icons found by override.list to the desktop Trash so the app's own are used, then refresh existing menu and icon caches. Open windows keep their old icon until reopened.",
+            true,
+            json!({"paths":["/home/user/.local/share/applications/org.example.App.desktop"]}),
+        ),
+        entry::<OverrideKeep>(
+            "override.keep",
+            "Keep launchers or icons found by override.list on purpose. The app stops prompting about each file until it changes. keep: false prompts again.",
+            true,
+            json!({"paths":["/home/user/.local/share/icons/hicolor/scalable/apps/org.example.App.svg"],"keep":true}),
         ),
         entry::<Empty>(
             "snapshot.list",
@@ -806,6 +870,21 @@ fn prepare(
             }
             Operation::TrashData(p.ids.clone())
         }
+        Request::TrashOverrides(OverridePaths { paths: files })
+        | Request::KeepOverrides(OverrideKeep { paths: files, .. }) => {
+            for file in files {
+                if !inv.overrides.iter().any(|o| &o.path == file) {
+                    return Err(invalid(format!(
+                        "{} is not a launcher or icon reported by override.list",
+                        file.display()
+                    )));
+                }
+            }
+            match request {
+                Request::KeepOverrides(p) => Operation::KeepOverrides(files.clone(), p.keep),
+                _ => Operation::TrashOverrides(files.clone()),
+            }
+        }
         Request::Snapshot(p) => {
             for id in &p.ids {
                 backend::ensure_real_dir(&paths.app_data(id).map_err(invalid)?).map_err(invalid)?;
@@ -898,6 +977,17 @@ pub fn run_request(request: &Request, paths: &Paths, policy: &Policy, job: &Job)
                 } && d.id.to_lowercase().contains(&p.search.to_lowercase()))
                 .collect::<Vec<_>>()
         )),
+        Request::Overrides(p) => Some(json!(
+            inv.overrides
+                .iter()
+                .filter(|o| match p.state {
+                    OverrideState::All => true,
+                    OverrideState::Broken => o.broken,
+                    OverrideState::Shadowing => !o.broken,
+                } && (p.include_kept || !o.kept)
+                    && (p.ids.is_empty() || p.ids.contains(&o.id)))
+                .collect::<Vec<_>>()
+        )),
         Request::Snapshots(_) => Some(json!(inv.snapshots)),
         _ => None,
     };
@@ -915,6 +1005,12 @@ pub fn run_request(request: &Request, paths: &Paths, policy: &Policy, job: &Job)
                 "bytes": matched.iter().filter_map(|d| d["bytes"].as_u64()).sum::<u64>(),
                 "scanned_folders": inv.data.len(),
                 "root": paths.home.join(".var/app"),
+            });
+        }
+        if let Request::Overrides(_) = request {
+            result["summary"] = json!({
+                "matched": result["data"].as_array().map_or(0, Vec::len),
+                "scanned_roots": [paths.share.join("applications"), paths.share.join("icons")],
             });
         }
         return Ok(result);
@@ -1282,6 +1378,7 @@ mod tests {
         let paths = Paths {
             home: root.path().join("home"),
             data: root.path().join("data"),
+            share: root.path().join("share"),
         };
         assert_eq!(
             prepare(&request, &inv, &paths, &policy).unwrap_err().code,

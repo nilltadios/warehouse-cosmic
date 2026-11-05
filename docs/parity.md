@@ -18,6 +18,7 @@ The reference is Warehouse 2.2.0 (`io.github.flattool.Warehouse`, Flathub). The 
 | Disable updates, disable autoremoval | Block automatic updates (mask) and Pin runtime, with wildcard removals shown in the confirmation |
 | Batch selection | Select mode, Select All, Copy Names/IDs/Refs, Update, Create Snapshot, Trash Data, Uninstall; Delete/Backspace acts on the selection after confirmation |
 | Active and leftover data | Compact Active/Leftover toggles, Name/ID/Size sort with direction, responsive cards with copy/open/snapshot/Trash, total size |
+| Overriding launchers and icons (beyond Warehouse) | After install/update/source change/uninstall (and at start for broken launchers), a panel offers Fix It / Use App's Icon (Trash), Not Now or Don't Ask Again; the fix stays on the app page, the Packages list marks broken launchers, and Leftover Data lists leftovers ([details](launcher-overrides.md)) |
 | Install a leftover app | Find in a Remote opens the remote search with the app ID and searches it |
 | Snapshots | Grouped by app with installed state; restore, export, rename, Trash, Install App, New Snapshot per app; batch restore/Trash/install |
 | New snapshot dialog | Name field, app search, icons/names/IDs, selection markers, Select All, selected count, Create enabled only when valid |

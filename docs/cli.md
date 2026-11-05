@@ -4,7 +4,7 @@
 
 ## Scope
 
-The CLI manages Flatpak packages, remotes, app data folders and snapshots. That includes other apps as packages (install, update, uninstall) and their data folders (snapshot, restore, Trash), always as a dry run unless `--apply` is given. It never inspects or controls another application: no access to other apps' windows, input, processes or D-Bus services, and it runs only a fixed set of host programs (`flatpak`, `pkexec flatpak`, `gio trash`, `xdg-open`, `flatpak run`). `ui` commands act only on Warehouse COSMIC windows.
+The CLI manages Flatpak packages, remotes, app data folders and snapshots. That includes other apps as packages (install, update, uninstall) and their data folders (snapshot, restore, Trash), always as a dry run unless `--apply` is given. It never inspects or controls another application: no access to other apps' windows, input, processes or D-Bus services, and it runs only a fixed set of host programs (`flatpak`, `pkexec flatpak`, `gio trash`, `xdg-open`, `flatpak run`, and `update-desktop-database` / `gtk-update-icon-cache` for the user's own menu and icon caches). Launchers and icons in `~/.local/share` that override an app's own are listed with `override.list` and moved to Trash only on request; see [launcher overrides](launcher-overrides.md). `ui` commands act only on Warehouse COSMIC windows.
 
 ## Discover and read
 
@@ -18,6 +18,7 @@ warehouse-cosmic-cli schema
 warehouse-cosmic-cli inspect
 warehouse-cosmic-cli run --cmd 'package.list={"kind":"runtimes","installation":"user"}'
 warehouse-cosmic-cli run --cmd 'data.list={"state":"leftover"}'
+warehouse-cosmic-cli run --cmd 'override.list={"state":"broken"}'
 ```
 
 `guide` prints a short workflow for the headless commands and the live GUI controls. `commands` prints a table by default. `--json` includes parameter schemas and examples. `describe ID` prints one catalog entry as JSON. `schema` prints the JSON Schema for a complete command request. Unknown command IDs, fields, enum values, and wrong parameter types are errors. Schemas and examples are generated from the same Rust types that parse requests.

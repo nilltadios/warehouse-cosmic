@@ -43,6 +43,32 @@ fn guarded(
         ..control(id, label, message)
     }
 }
+/// Fix and keep buttons for override files. Both change files or stored
+/// choices, so they need --apply.
+fn override_controls(prefix: &str, items: &[&Override]) -> Vec<Control> {
+    let mut list = Vec::new();
+    for (i, o) in items.iter().enumerate() {
+        let (fix, keep) = super::override_labels(o);
+        let file = o.path.display();
+        list.push(guarded(
+            format!("{prefix}.{i}.use"),
+            format!("{fix}: move {file} to Trash"),
+            Message::UseOwnFiles(vec![o.path.clone()]),
+            Guard::Apply,
+        ));
+        list.push(guarded(
+            format!("{prefix}.{i}.keep"),
+            if o.kept {
+                format!("Ask Again about {file}")
+            } else {
+                format!("{keep}: stop prompting about {file}")
+            },
+            Message::KeepFiles(vec![o.path.clone()], !o.kept),
+            Guard::Apply,
+        ));
+    }
+    list
+}
 fn system_operation(operation: &Operation) -> bool {
     operation
         .commands()
@@ -131,6 +157,19 @@ impl App {
                 "result.dismiss",
                 "Dismiss the last result",
                 Message::ClearOutcome,
+            ));
+        }
+        let alerts: Vec<&Override> = self
+            .override_alerts
+            .iter()
+            .filter_map(|p| self.inventory.overrides.iter().find(|o| &o.path == p))
+            .collect();
+        if !alerts.is_empty() {
+            list.extend(override_controls("overrides", &alerts));
+            list.push(control(
+                "overrides.dismiss",
+                "Not Now: hide launcher and icon prompts until the next operation on the app or the next start",
+                Message::DismissOverrides,
             ));
         }
         if self.core.window.show_context {
@@ -573,6 +612,13 @@ impl App {
                     Message::Ask(Operation::TrashData(vec![p.id.clone()])),
                 ));
             }
+            let own: Vec<&Override> = self
+                .inventory
+                .overrides
+                .iter()
+                .filter(|o| o.id == p.id)
+                .collect();
+            list.extend(override_controls("package.override", &own));
             list.push(control(
                 "package.snapshot",
                 "New Snapshot",
@@ -774,6 +820,15 @@ impl App {
         ));
     }
     fn data_controls(&self, list: &mut Vec<Control>) {
+        if self.leftovers {
+            let left: Vec<&Override> = self
+                .inventory
+                .overrides
+                .iter()
+                .filter(|o| !o.installed)
+                .collect();
+            list.extend(override_controls("data.override", &left));
+        }
         list.push(control(
             "data.active",
             "Active Data",
@@ -1032,14 +1087,16 @@ impl App {
             Page::Packages => json!({
                 "filters_open":self.filters, "filters":self.view, "batch":self.batch,
                 "selection":self.selection,
-                "packages":self.visible_packages().iter().map(|p| json!({"key":p.key(),"name":p.name,"id":p.id,"ref":p.full_ref(),"installation":p.installation,"origin":p.origin,"version":p.version,"masked":p.masked,"pinned":p.pinned,"eol":p.eol()})).collect::<Vec<_>>(),
+                "packages":self.visible_packages().iter().map(|p| json!({"key":p.key(),"name":p.name,"id":p.id,"ref":p.full_ref(),"installation":p.installation,"origin":p.origin,"version":p.version,"masked":p.masked,"pinned":p.pinned,"eol":p.eol(),"launcher_broken":self.broken_launcher(&p.id)})).collect::<Vec<_>>(),
                 "selected":self.package().filter(|_| !self.batch).map(|p| json!({"package":p,
                     "data_bytes":self.inventory.data.iter().find(|d| d.id == p.id).map(|d| d.bytes),
+                    "overrides":self.inventory.overrides.iter().filter(|o| o.id == p.id).collect::<Vec<_>>(),
                     "details":self.detail})),
             }),
             Page::Data => json!({"filter":if self.leftovers { "leftover" } else { "active" },
                 "sort":self.view.data_sort,"descending":self.view.data_descending,"batch":self.batch,"selection":self.selection,
-                "folders":self.visible_data().iter().map(|d| json!({"id":d.id,"name":self.data_name(d),"bytes":d.bytes,"installed":d.installed,"error":d.error})).collect::<Vec<_>>()}),
+                "folders":self.visible_data().iter().map(|d| json!({"id":d.id,"name":self.data_name(d),"bytes":d.bytes,"installed":d.installed,"error":d.error})).collect::<Vec<_>>(),
+                "leftover_overrides":self.inventory.overrides.iter().filter(|o| self.leftovers && !o.installed).collect::<Vec<_>>()}),
             Page::Snapshots => json!({"batch":self.batch,"selection":self.selection,
                 "groups":self.snapshot_groups().iter().map(|(id, items)| json!({"id":id,"name":self.app_name(id),"installed":self.app_installed(id),
                     "snapshots":items.iter().map(|s| json!({"name":s.name,"path":s.path,"timestamp":s.timestamp,"version":s.version,"bytes":s.bytes,"official":s.official})).collect::<Vec<_>>()})).collect::<Vec<_>>()}),
@@ -1100,7 +1157,8 @@ impl App {
             "last_operation":self.outcome.as_ref().map(|(view, o)| json!({
                 "title":if o.ok { &view.done } else if o.cancelled { &view.cancelled } else { &view.failed },
                 "ok":o.ok,"cancelled":o.cancelled,"steps":o.steps,"errors":o.errors,"report":o.report})), "sidebar_visible":self.core.nav_bar_active(),
-            "window":self.window_state, "pointer":self.ui_pointer, "pointer_serial":self.ui_pointer_serial, "search":self.query, "notice":self.notice, "toast":self.last_toast, "drag_over":self.drag_over,
+            "window":self.window_state, "pointer":self.ui_pointer, "pointer_serial":self.ui_pointer_serial, "search":self.query, "notice":self.notice, "toast":self.last_toast,
+            "override_alerts":self.override_alerts.iter().filter_map(|p| self.inventory.overrides.iter().find(|o| &o.path == p)).collect::<Vec<_>>(), "drag_over":self.drag_over,
             "show_disabled_remotes":self.show_disabled_remotes, "remote_menu":self.remote_menu,
             "data_filter":if self.leftovers { "leftover" } else { "active" },
             "remotes":self.inventory.remotes.iter().filter(|r| remotes::visible(r, &self.query, self.show_disabled_remotes)).map(|r| json!({"name":r.name,"title":remotes::title(r),"installation":r.installation,"disabled":r.disabled()})).collect::<Vec<_>>(),

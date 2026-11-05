@@ -21,6 +21,7 @@ use std::{
     sync::atomic::Ordering,
     time::Duration,
 };
+use warehouse_cosmic::overrides::{self, Kind as OverrideKind, Override};
 #[path = "ui_view.rs"]
 mod ui_view;
 
@@ -154,6 +155,11 @@ pub enum Message {
     ClearNotice,
     Uninstall(Vec<Package>),
     UninstallData(bool),
+    /// Move launchers or icons that override an app's own to Trash.
+    UseOwnFiles(Vec<PathBuf>),
+    /// Keep (true) these override files, or warn about them again.
+    KeepFiles(Vec<PathBuf>, bool),
+    DismissOverrides,
     BatchUninstall,
     BatchTrash,
     BatchSnapshot,
@@ -370,6 +376,15 @@ pub struct App {
     show_output: bool,
     job_started: Option<std::time::Instant>,
     outcome: Option<(JobView, Outcome)>,
+    /// App IDs the running operation changes, with the package keys installed
+    /// before it, to check for overriding launchers and icons afterwards.
+    override_check: Option<(BTreeSet<String>, HashSet<String>)>,
+    /// Override files to ask about after the last operation.
+    override_alerts: Vec<PathBuf>,
+    /// Files whose prompt was closed with Not Now in this session. They are
+    /// asked about again after the next operation on their app or the next
+    /// time the app starts.
+    override_later: HashSet<PathBuf>,
     uninstall_data: bool,
     remote_name: String,
     remote_url: String,
@@ -437,6 +452,90 @@ fn chip<'a>(
         widget::button::standard(label)
     };
     control.on_press(message)
+}
+/// App IDs an operation installs, changes or removes. `None` for operations
+/// after which launchers and icons are not checked.
+fn affected_ids(op: &Operation) -> Option<BTreeSet<String>> {
+    let id = |r: &String| {
+        let r = r.strip_prefix("app/").unwrap_or(r);
+        r.split('/').next().unwrap_or(r).to_string()
+    };
+    Some(match op {
+        Operation::Update(list) | Operation::Uninstall(list, _) => {
+            list.iter().map(|p| p.id.clone()).collect()
+        }
+        Operation::Reinstall { package, .. } | Operation::Version(package, ..) => {
+            BTreeSet::from([package.id.clone()])
+        }
+        Operation::Install { refs, .. } => refs.iter().map(id).collect(),
+        Operation::InstallQueue(groups) => {
+            groups.iter().flat_map(|g| g.refs.iter().map(id)).collect()
+        }
+        // Bundles name their app inside; the package list before and after shows it.
+        Operation::InstallFile { .. } | Operation::InstallFiles { .. } => BTreeSet::new(),
+        _ => return None,
+    })
+}
+/// Button labels for an override file: the fix, and keeping it.
+pub(crate) fn override_labels(o: &Override) -> (&'static str, &'static str) {
+    match (o.installed, o.kind) {
+        (false, _) => ("Move to Trash", "Don't Ask Again"),
+        (true, OverrideKind::Launcher) => ("Fix It", "Don't Ask Again"),
+        // A custom icon is not broken and may be deliberate.
+        (true, OverrideKind::Icon) => ("Use App's Icon", "Don't Ask Again"),
+    }
+}
+fn override_buttons<'a>(o: &Override, id: &str) -> Element<'a, Message> {
+    let (fix, keep) = override_labels(o);
+    let files = vec![o.path.clone()];
+    let keep_button = if o.kept {
+        widget::button::standard("Ask Again")
+            .id(widget::Id::new(format!("{id}.keep")))
+            .on_press(Message::KeepFiles(files.clone(), false))
+    } else {
+        widget::button::standard(keep)
+            .id(widget::Id::new(format!("{id}.keep")))
+            .on_press(Message::KeepFiles(files.clone(), true))
+    };
+    widget::flex_row(vec![
+        widget::button::suggested(fix)
+            .id(widget::Id::new(format!("{id}.use")))
+            .on_press(Message::UseOwnFiles(files))
+            .into(),
+        keep_button.into(),
+    ])
+    .spacing(8)
+    .row_spacing(8)
+    .into()
+}
+/// One override file: what it does, and buttons to fix or keep it.
+fn override_row<'a>(o: &Override, id: &str, quiet: bool) -> Element<'a, Message> {
+    let text: Element<'a, Message> = if quiet && !o.broken {
+        widget::text::caption(o.message.clone())
+            .wrapping(iced::advanced::text::Wrapping::WordOrGlyph)
+            .into()
+    } else {
+        widget::text(o.message.clone())
+            .wrapping(iced::advanced::text::Wrapping::WordOrGlyph)
+            .into()
+    };
+    let mut col = widget::column::with_capacity(3).spacing(6).push(text);
+    if o.kept {
+        col = col.push(widget::text::caption("You chose to keep this file."));
+    }
+    widget::row::with_capacity(2)
+        .spacing(10)
+        .align_y(Alignment::Start)
+        .push(ic(
+            if o.broken {
+                "dialog-warning-symbolic"
+            } else {
+                "dialog-information-symbolic"
+            },
+            16,
+        ))
+        .push(col.push(override_buttons(o, id)).width(Length::Fill))
+        .into()
 }
 fn package_row_style(selected: bool) -> cosmic::theme::Button {
     use cosmic::widget::button::Catalog;
@@ -798,6 +897,137 @@ impl App {
         }
         Task::none()
     }
+    /// After an install, update, source change or uninstall, ask about broken
+    /// launchers and custom icons of exactly the apps it changed.
+    fn check_overrides(&mut self) {
+        let Some((mut ids, before)) = self.override_check.take() else {
+            // Outside an operation (start, Refresh, changes made by other
+            // tools), only broken launchers of installed apps prompt; custom
+            // icons and working launchers stay notes on the app's page.
+            let current = &self.inventory.overrides;
+            self.override_alerts
+                .retain(|p| current.iter().any(|o| &o.path == p && !o.kept));
+            let new: Vec<PathBuf> = current
+                .iter()
+                .filter(|o| {
+                    o.broken
+                        && o.installed
+                        && !o.kept
+                        && o.kind == OverrideKind::Launcher
+                        && !self.override_later.contains(&o.path)
+                        && !self.override_alerts.contains(&o.path)
+                })
+                .map(|o| o.path.clone())
+                .collect();
+            self.override_alerts.extend(new);
+            return;
+        };
+        let after: HashSet<String> = self.inventory.packages.iter().map(Package::key).collect();
+        // Keys are INSTALLATION:KIND/ID/ARCH/BRANCH.
+        ids.extend(
+            before
+                .symmetric_difference(&after)
+                .filter_map(|key| key.split('/').nth(1).map(str::to_string)),
+        );
+        // An uninstalled app with no data folder or launcher left is not in
+        // the inventory's scan, so its icons are looked up here.
+        let known: Vec<&str> = ids.iter().map(String::as_str).collect();
+        for o in overrides::scan(&self.paths, &self.inventory.packages, &known) {
+            if !self.inventory.overrides.iter().any(|x| x.path == o.path) {
+                self.inventory.overrides.push(o);
+            }
+        }
+        // Don't Ask Again on a leftover of an uninstalled app does not carry
+        // over to a new install of it: the same file may now break the app.
+        let app_ids = |keys: &HashSet<String>| -> HashSet<String> {
+            keys.iter()
+                .filter(|k| k.contains(":app/"))
+                .filter_map(|k| k.split('/').nth(1).map(str::to_string))
+                .collect()
+        };
+        let (was, now) = (app_ids(&before), app_ids(&after));
+        let reinstalled: Vec<PathBuf> = self
+            .inventory
+            .overrides
+            .iter()
+            .filter(|o| o.kept && now.contains(&o.id) && !was.contains(&o.id))
+            .map(|o| o.path.clone())
+            .collect();
+        if !reinstalled.is_empty() {
+            match overrides::set_kept(&self.paths, &reinstalled, false) {
+                Ok(()) => {
+                    for o in &mut self.inventory.overrides {
+                        if reinstalled.contains(&o.path) {
+                            o.kept = false;
+                        }
+                    }
+                }
+                Err(e) => self.notice = Some(e),
+            }
+        }
+        // An operation on an app asks again about files postponed with Not Now.
+        let overrides = &self.inventory.overrides;
+        self.override_later.retain(|p| {
+            !overrides
+                .iter()
+                .any(|o| &o.path == p && ids.contains(&o.id))
+        });
+        self.override_alerts = overrides
+            .iter()
+            .filter(|o| {
+                ids.contains(&o.id) && !o.kept && (o.broken || o.kind == OverrideKind::Icon)
+            })
+            .map(|o| o.path.clone())
+            .collect();
+    }
+    /// A launcher of this app fails to start it, and the user has not kept it.
+    fn broken_launcher(&self, id: &str) -> bool {
+        self.inventory
+            .overrides
+            .iter()
+            .any(|o| o.id == id && o.broken && !o.kept && o.kind == OverrideKind::Launcher)
+    }
+    fn overrides_panel(&self) -> Option<Element<'_, Message>> {
+        let items: Vec<&Override> = self
+            .override_alerts
+            .iter()
+            .filter_map(|p| self.inventory.overrides.iter().find(|o| &o.path == p))
+            .collect();
+        if items.is_empty() {
+            return None;
+        }
+        let launcher = items.iter().any(|o| o.kind == OverrideKind::Launcher);
+        let icon = items.iter().any(|o| o.kind == OverrideKind::Icon);
+        let title = match (launcher, icon) {
+            (true, true) => "Launcher conflict and custom icon found",
+            (true, false) => "Launcher conflict found",
+            _ => "Custom icon found",
+        };
+        let mut list = widget::column::with_capacity(items.len() + 2)
+            .spacing(12)
+            .push(widget::text::heading(title));
+        for (i, o) in items.iter().enumerate() {
+            list = list.push(override_row(o, &format!("overrides.{i}"), false));
+        }
+        if icon {
+            list = list.push(widget::text::caption(
+                "Open windows and the taskbar keep the old icon until the app is reopened.",
+            ));
+        }
+        Some(panel(
+            widget::row::with_capacity(2)
+                .spacing(12)
+                .align_y(Alignment::Start)
+                .push(list.width(Length::Fill))
+                .push(
+                    widget::button::icon(icon::from_name("window-close-symbolic"))
+                        .id(widget::Id::new("overrides.dismiss"))
+                        .name("Not Now")
+                        .tooltip("Not now. Fix it later from the app's page.")
+                        .on_press(Message::DismissOverrides),
+                ),
+        ))
+    }
     fn set_notice(&mut self, result: Result<(), String>) {
         if let Err(e) = result {
             self.notice = Some(e);
@@ -956,6 +1186,24 @@ impl App {
                 format!("Couldn't move data of {} to Trash", apps(ids)),
                 ids.first().cloned(),
             ),
+            Operation::TrashOverrides(files) | Operation::KeepOverrides(files, _) => {
+                let what = match files.as_slice() {
+                    [file] => file
+                        .file_name()
+                        .unwrap_or_default()
+                        .to_string_lossy()
+                        .into_owned(),
+                    list => format!("{} launchers and icons", list.len()),
+                };
+                let keep = matches!(op, Operation::KeepOverrides(..));
+                (
+                    format!("{} {what}", if keep { "Keeping" } else { "Moving" })
+                        + if keep { "" } else { " to Trash" },
+                    format!("{what} {}", if keep { "kept" } else { "moved to Trash" }),
+                    format!("Couldn't {} {what}", if keep { "keep" } else { "move" }),
+                    None,
+                )
+            }
             Operation::Snapshot { ids, .. } => (
                 format!("Backing up {}", apps(ids)),
                 format!("Snapshot of {} created", apps(ids)),
@@ -1020,6 +1268,13 @@ impl App {
         self.job_view = self.job_view(&op);
         self.show_output = false;
         self.outcome = None;
+        self.override_check = affected_ids(&op).map(|ids| {
+            let before = self.inventory.packages.iter().map(Package::key).collect();
+            (ids, before)
+        });
+        if !matches!(op, Operation::TrashOverrides(_)) {
+            self.override_alerts.clear();
+        }
         let job = Job::default();
         let work = job.clone();
         self.job = Some(job);
@@ -1327,11 +1582,17 @@ impl App {
                         .on_toggle(move |v| Message::Toggle(k.clone(), v)),
                 );
             }
+            let broken_launcher = self.broken_launcher(&p.id);
             let status = format!(
-                "{}{}{}",
+                "{}{}{}{}",
                 if p.masked { " · Updates blocked" } else { "" },
                 if p.pinned { " · Pinned" } else { "" },
-                if p.eol() { " · End of life" } else { "" }
+                if p.eol() { " · End of life" } else { "" },
+                if broken_launcher {
+                    " · Launcher broken"
+                } else {
+                    ""
+                }
             );
             row = row.push(package_icon(&p.id, 36)).push(
                 widget::column::with_capacity(3)
@@ -1344,6 +1605,9 @@ impl App {
                     )))
                     .width(Length::Fill),
             );
+            if broken_launcher {
+                row = row.push(ic("dialog-warning-symbolic", 16));
+            }
             let selected = if self.batch {
                 self.selection.contains(&key)
             } else {
@@ -1524,6 +1788,23 @@ impl App {
             settings = settings
                 .push(row)
                 .push(widget::divider::horizontal::default());
+            let own: Vec<_> = self
+                .inventory
+                .overrides
+                .iter()
+                .filter(|o| o.id == p.id)
+                .collect();
+            if !own.is_empty() {
+                let mut list = widget::column::with_capacity(own.len() + 1)
+                    .spacing(12)
+                    .push(widget::text::caption("Launcher and Icon"));
+                for (i, o) in own.iter().enumerate() {
+                    list = list.push(override_row(o, &format!("package.override.{i}"), true));
+                }
+                settings = settings
+                    .push(list)
+                    .push(widget::divider::horizontal::default());
+            }
         }
         settings = settings
             .push(info_row(
@@ -2220,6 +2501,21 @@ impl App {
             );
         if self.batch {
             col = col.push(self.batch_view());
+        }
+        let left: Vec<_> = self
+            .inventory
+            .overrides
+            .iter()
+            .filter(|o| self.leftovers && !o.installed)
+            .collect();
+        if !left.is_empty() {
+            let mut list = widget::column::with_capacity(left.len() + 1)
+                .spacing(12)
+                .push(widget::text::heading("Leftover Launchers and Icons"));
+            for (i, o) in left.iter().enumerate() {
+                list = list.push(override_row(o, &format!("data.override.{i}"), false));
+            }
+            col = col.push(panel(list));
         }
         if data.is_empty() {
             col = col.push(self.empty(
@@ -3106,6 +3402,9 @@ impl cosmic::Application for App {
             show_output: false,
             job_started: None,
             outcome: None,
+            override_check: None,
+            override_alerts: vec![],
+            override_later: HashSet::new(),
             uninstall_data: false,
             remote_name: String::new(),
             remote_url: String::new(),
@@ -3391,6 +3690,9 @@ impl cosmic::Application for App {
             && !outcome.ok
         {
             col = col.push(self.outcome_panel(view, outcome));
+        }
+        if let Some(alerts) = self.overrides_panel() {
+            col = col.push(alerts);
         }
         if self.drag_over {
             col = col.push(self.drop_banner());
@@ -4232,6 +4534,7 @@ impl cosmic::Application for App {
                                 .unwrap_or(0);
                         }
                         self.inventory = inv;
+                        self.check_overrides();
                         self.install_scope = self
                             .install_scope
                             .min(self.inventory.installations.len().saturating_sub(1));
@@ -4626,6 +4929,26 @@ impl cosmic::Application for App {
                     self.uninstall_data = false;
                     self.dialog = Some(Dialog::Uninstall(packages));
                 }
+            }
+            Message::UseOwnFiles(files) => {
+                if !files.is_empty() {
+                    return self.run(Operation::TrashOverrides(files));
+                }
+            }
+            Message::KeepFiles(files, keep) => {
+                let result = overrides::set_kept(&self.paths, &files, keep);
+                if result.is_ok() {
+                    for o in &mut self.inventory.overrides {
+                        if files.contains(&o.path) {
+                            o.kept = keep;
+                        }
+                    }
+                    self.override_alerts.retain(|p| !files.contains(p));
+                }
+                self.set_notice(result);
+            }
+            Message::DismissOverrides => {
+                self.override_later.extend(self.override_alerts.drain(..));
             }
             Message::BatchUninstall => {
                 return self.update(Message::Uninstall(self.selected_packages()));
@@ -5080,6 +5403,47 @@ impl App {
             }
             return task;
         }
+        // Display-only sample of the launcher and icon prompts; no file is read or changed.
+        if preview == "overrides"
+            && let Some(p) = self.package().cloned()
+            && !p.is_runtime()
+        {
+            let samples = [
+                (
+                    OverrideKind::Launcher,
+                    true,
+                    format!("applications/{}.desktop", p.id),
+                    format!(
+                        "replaces this app's own and starts branch master, which is not installed (installed: {})",
+                        p.branch
+                    ),
+                ),
+                (
+                    OverrideKind::Icon,
+                    false,
+                    format!("icons/hicolor/scalable/apps/{}.svg", p.id),
+                    "replaces this app's own icon".to_string(),
+                ),
+            ];
+            for (kind, broken, file, what) in samples {
+                let noun = if kind == OverrideKind::Icon {
+                    "icon"
+                } else {
+                    "launcher"
+                };
+                self.inventory.overrides.push(Override {
+                    id: p.id.clone(),
+                    kind,
+                    path: self.paths.share.join(&file),
+                    broken,
+                    installed: true,
+                    message: format!("The {noun} ~/.local/share/{file} {what}."),
+                    kept: false,
+                });
+                self.override_alerts.push(self.paths.share.join(file));
+            }
+            return task;
+        }
         if preview == "uninstall"
             && let Some(p) = self.package().cloned()
         {
@@ -5380,6 +5744,193 @@ mod ui_tests {
         }]));
         assert!(app.ui_activate("dialog.confirm", true, false).is_err());
         assert!(app.ui_activate("dialog.confirm", true, true).is_ok());
+    }
+    #[test]
+    fn source_changes_and_uninstalls_ask_about_that_apps_broken_launchers_and_icons() {
+        let temp = tempfile::tempdir().unwrap();
+        let mut app = app();
+        app.paths = Paths {
+            home: temp.path().into(),
+            data: temp.path().join("data"),
+            share: temp.path().join("share"),
+        };
+        let write = |path: PathBuf, text: &str| {
+            std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+            std::fs::write(&path, text).unwrap();
+            path
+        };
+        let share = app.paths.share.clone();
+        let launcher = write(
+            share.join("applications/org.example.App.desktop"),
+            "[Desktop Entry]\nExec=/usr/bin/flatpak run --branch=master org.example.App\n",
+        );
+        let icon = write(
+            share.join("icons/hicolor/scalable/apps/org.example.App.svg"),
+            "<svg/>",
+        );
+        // Another app's broken launcher is not part of this operation.
+        let other_launcher = write(
+            share.join("applications/org.example.Other.desktop"),
+            "[Desktop Entry]\nExec=flatpak run --branch=master org.example.Other\n",
+        );
+        let p = package("org.example.App", "user");
+        app.inventory.packages = vec![p.clone(), package("org.example.Other", "user")];
+        app.inventory.overrides = overrides::scan(&app.paths, &app.inventory.packages, &[]);
+        let remote = flathub("user");
+        let op = Operation::Reinstall {
+            package: p.clone(),
+            remote,
+        };
+        let installed = app.inventory.packages.iter().map(Package::key).collect();
+        app.override_check = affected_ids(&op).map(|ids| (ids, installed));
+        app.check_overrides();
+        assert_eq!(app.override_alerts, [launcher.clone(), icon.clone()]);
+        assert!(app.overrides_panel().is_some());
+        // Fixing moves a file, so agents need --apply.
+        assert!(app.ui_activate("overrides.0.use", false, false).is_err());
+        assert!(matches!(
+            app.ui_activate("overrides.0.use", true, false),
+            Ok(Message::UseOwnFiles(files)) if files == [launcher.clone()]
+        ));
+        let _ = app.update(Message::KeepFiles(vec![icon.clone()], true));
+        assert_eq!(app.override_alerts, std::slice::from_ref(&launcher));
+        assert!(
+            overrides::scan(&app.paths, &app.inventory.packages, &[])
+                .iter()
+                .any(|o| o.path == icon && o.kept)
+        );
+        // Not Now hides the prompt until the next operation on the app; the
+        // fix stays on the app's page and the list marks the app.
+        let _ = app.update(Message::DismissOverrides);
+        assert!(app.overrides_panel().is_none());
+        // A Refresh asks only about broken launchers not postponed: here the
+        // other app's, which this operation did not include.
+        app.check_overrides();
+        assert_eq!(app.override_alerts, std::slice::from_ref(&other_launcher));
+        let _ = app.update(Message::DismissOverrides);
+        app.check_overrides();
+        assert!(app.override_alerts.is_empty());
+        assert!(app.broken_launcher("org.example.App"));
+        let _ = app.update(Message::Select(p.key()));
+        assert!(matches!(
+            app.ui_activate("package.override.0.use", true, false),
+            Ok(Message::UseOwnFiles(files)) if files == [launcher.clone()]
+        ));
+        let installed = app.inventory.packages.iter().map(Package::key).collect();
+        app.override_check =
+            affected_ids(&Operation::Update(vec![p.clone()])).map(|ids| (ids, installed));
+        app.check_overrides();
+        assert_eq!(app.override_alerts, std::slice::from_ref(&launcher));
+        let _ = app.update(Message::DismissOverrides);
+
+        // After an uninstall, the removed app's icon is found even without
+        // leftover data, and the buttons offer Trash instead.
+        std::fs::remove_file(&launcher).unwrap();
+        let other = write(
+            share.join("icons/hicolor/48x48/apps/org.example.Gone.png"),
+            "png",
+        );
+        let gone = package("org.example.Gone", "user");
+        let mut before: HashSet<_> = app.inventory.packages.iter().map(Package::key).collect();
+        before.insert(gone.key());
+        app.inventory.overrides = overrides::scan(&app.paths, &app.inventory.packages, &[]);
+        app.override_check =
+            affected_ids(&Operation::Uninstall(vec![gone], false)).map(|ids| (ids, before));
+        app.check_overrides();
+        assert_eq!(app.override_alerts, std::slice::from_ref(&other));
+        let gone = app
+            .inventory
+            .overrides
+            .iter()
+            .find(|o| o.path == other)
+            .unwrap();
+        assert_eq!(override_labels(gone), ("Move to Trash", "Don't Ask Again"));
+    }
+    #[test]
+    fn uninstall_then_bundle_install_asks_about_the_old_launcher_even_after_dont_ask_again() {
+        let temp = tempfile::tempdir().unwrap();
+        let mut app = app();
+        app.paths = Paths {
+            home: temp.path().into(),
+            data: temp.path().join("data"),
+            share: temp.path().join("share"),
+        };
+        let apps = app.paths.share.join("applications");
+        std::fs::create_dir_all(&apps).unwrap();
+        let launcher = apps.join("org.example.App.desktop");
+        std::fs::write(
+            &launcher,
+            "[Desktop Entry]\nExec=flatpak run --branch=master org.example.App\nX-Flatpak=org.example.App\n",
+        )
+        .unwrap();
+        let p = package("org.example.App", "user");
+        let keys = |list: &[Package]| list.iter().map(Package::key).collect::<HashSet<_>>();
+        // 1. Uninstall: the launcher is now a leftover.
+        app.inventory.packages = vec![];
+        app.inventory.overrides = overrides::scan(&app.paths, &[], &[]);
+        app.override_check = affected_ids(&Operation::Uninstall(vec![p.clone()], false))
+            .map(|ids| (ids, keys(std::slice::from_ref(&p))));
+        app.check_overrides();
+        assert_eq!(app.override_alerts, std::slice::from_ref(&launcher));
+        let o = &app.inventory.overrides[0];
+        assert!(!o.installed && override_labels(o).0 == "Move to Trash");
+        let _ = app.update(Message::KeepFiles(vec![launcher.clone()], true));
+        // 2. Install from a dropped bundle: the app ID comes from the package list.
+        let op = Operation::InstallFiles {
+            installation: "user".into(),
+            paths: vec![temp.path().join("app.flatpak")],
+        };
+        app.override_check = affected_ids(&op).map(|ids| (ids, HashSet::new()));
+        app.inventory.packages = vec![p.clone()];
+        app.inventory.overrides = overrides::scan(&app.paths, &app.inventory.packages, &[]);
+        app.check_overrides();
+        assert_eq!(app.override_alerts, std::slice::from_ref(&launcher));
+        let o = &app.inventory.overrides[0];
+        assert!(o.broken && o.installed && !o.kept && override_labels(o).0 == "Fix It");
+        assert!(app.broken_launcher("org.example.App"));
+    }
+    #[test]
+    fn broken_launchers_found_at_start_prompt_once_and_icons_stay_quiet() {
+        let temp = tempfile::tempdir().unwrap();
+        let mut app = app();
+        app.paths = Paths {
+            home: temp.path().into(),
+            data: temp.path().join("data"),
+            share: temp.path().join("share"),
+        };
+        let apps = app.paths.share.join("applications");
+        std::fs::create_dir_all(&apps).unwrap();
+        // Broken by a source change made outside Warehouse, before this version.
+        let launcher = apps.join("org.example.App.desktop");
+        std::fs::write(
+            &launcher,
+            "[Desktop Entry]\nExec=flatpak run --branch=master org.example.App\n",
+        )
+        .unwrap();
+        let icon = app
+            .paths
+            .share
+            .join("icons/hicolor/scalable/apps/org.example.App.svg");
+        std::fs::create_dir_all(icon.parent().unwrap()).unwrap();
+        std::fs::write(&icon, "<svg/>").unwrap();
+        app.inventory.packages = vec![package("org.example.App", "user")];
+        app.inventory.overrides = overrides::scan(&app.paths, &app.inventory.packages, &[]);
+        app.check_overrides();
+        assert_eq!(app.override_alerts, std::slice::from_ref(&launcher));
+        assert!(matches!(
+            app.ui_activate("overrides.0.keep", true, false),
+            Ok(Message::KeepFiles(_, true))
+        ));
+        // Not Now: a Refresh does not ask again in this session.
+        let _ = app.update(Message::DismissOverrides);
+        app.check_overrides();
+        assert!(app.override_alerts.is_empty());
+        // Don't Ask Again: a new session does not ask either.
+        let _ = app.update(Message::KeepFiles(vec![launcher.clone()], true));
+        app.override_later.clear();
+        app.inventory.overrides = overrides::scan(&app.paths, &app.inventory.packages, &[]);
+        app.check_overrides();
+        assert!(app.override_alerts.is_empty() && !app.broken_launcher("org.example.App"));
     }
     #[test]
     fn queued_packages_keep_their_remote_and_installation_across_remote_switches() {

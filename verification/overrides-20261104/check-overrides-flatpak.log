@@ -1,0 +1,9 @@
+fixture app: ai.storyteller.artcraft-launcher (installed branch stable)
+           Ref: app/dev.nilltadios.WarehouseCosmic/x86_64/stable
+        Commit: 438bc0555fcfd60a2bc2460e57a9ab66092e390d45b387e1f40a230bd79a52a0
+PASS override.list: The launcher ~/Documents/Claude/2026-11-04/warehouse-issue-1/flatpak-check-3/share/applications/ai.storyteller.artcraft-launcher.desktop replaces this app's own and starts branch fixture-missing, which is not installed (installed: stable). | The icon ~/Documents/Claude/2026-11-04/warehouse-issue-1/flatpak-check-3/share/icons/hicolor/scalable/apps/ai.storyteller.artcraft-launcher.svg replaces this app's own icon.
+PASS captures in /home/nilllinux22/Documents/Claude/2026-11-04/warehouse-issue-1/flatpak-check-3
+PASS refuses paths override.list did not report
+PASS dry run leaves the launcher
+PASS launcher moved to Trash through host gio; menu cache refreshed
+Remove the fixture later with: gio trash /home/nilllinux22/Documents/Claude/2026-11-04/warehouse-issue-1/flatpak-check-3   (the trashed fixture launcher is ai.storyteller.artcraft-launcher.desktop in the desktop Trash)

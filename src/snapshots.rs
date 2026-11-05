@@ -458,6 +458,7 @@ mod tests {
         let p = Paths {
             home: t.path().join("home"),
             data: t.path().join("data"),
+            share: t.path().join("share"),
         };
         fs::create_dir_all(p.app_data("org.example.App").unwrap()).unwrap();
         (t, p)

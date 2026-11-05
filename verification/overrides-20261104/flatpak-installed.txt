@@ -1,0 +1,2 @@
+           Ref: app/dev.nilltadios.WarehouseCosmic/x86_64/stable
+        Commit: 438bc0555fcfd60a2bc2460e57a9ab66092e390d45b387e1f40a230bd79a52a0

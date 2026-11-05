@@ -82,6 +82,9 @@ pub struct Inventory {
     pub remotes: Vec<Remote>,
     pub data: Vec<DataFolder>,
     pub snapshots: Vec<Snapshot>,
+    /// Launchers and icons in the user's data folder that override a Flatpak's own.
+    #[serde(default)]
+    pub overrides: Vec<crate::overrides::Override>,
     pub installations: Vec<String>,
     pub warnings: Vec<String>,
 }
@@ -89,6 +92,9 @@ pub struct Inventory {
 pub struct Paths {
     pub home: PathBuf,
     pub data: PathBuf,
+    /// The user's data folder on the host (`$XDG_DATA_HOME`), which holds
+    /// launchers and icons that override Flatpak's exports.
+    pub share: PathBuf,
 }
 impl Paths {
     pub fn discover() -> Result<Self> {
@@ -99,7 +105,8 @@ impl Paths {
             .map(PathBuf::from)
             .unwrap_or_else(|| home.join(".local/share"))
             .join("warehouse-cosmic");
-        Ok(Self { home, data })
+        let share = crate::overrides::user_share(&home, crate::host::sandboxed());
+        Ok(Self { home, data, share })
     }
     pub fn app_data(&self, id: &str) -> Result<PathBuf> {
         validate_id(id)?;
@@ -355,6 +362,13 @@ pub fn load(paths: &Paths) -> Result<Inventory> {
             .push(format!("Cannot read {}: {e}", root.display())),
     }
     inv.data.sort_by_key(|d| d.id.to_lowercase());
+    let leftover: Vec<&str> = inv
+        .data
+        .iter()
+        .filter(|d| !d.installed)
+        .map(|d| d.id.as_str())
+        .collect();
+    inv.overrides = crate::overrides::scan(paths, &inv.packages, &leftover);
     for (root, official) in [
         (paths.snapshots(), false),
         (paths.official_snapshots(), true),
@@ -488,6 +502,10 @@ pub enum Operation {
     /// Queued remote packages, grouped by installation and remote.
     InstallQueue(Vec<InstallGroup>),
     TrashData(Vec<String>),
+    /// Launchers or icons in the user's data folder that override a Flatpak's own.
+    TrashOverrides(Vec<PathBuf>),
+    /// Remember (true) or forget the choice to keep these override files.
+    KeepOverrides(Vec<PathBuf>, bool),
     Snapshot {
         ids: Vec<String>,
         name: String,
@@ -524,6 +542,9 @@ impl Operation {
             | Self::InstallFiles { .. }
             | Self::InstallQueue(_) => "Install packages",
             Self::TrashData(..) => "Move user data to Trash",
+            Self::TrashOverrides(..) => "Move launchers and icons to Trash",
+            Self::KeepOverrides(_, true) => "Keep launchers and icons",
+            Self::KeepOverrides(_, false) => "Stop keeping launchers and icons",
             Self::Snapshot { .. } => "Create snapshots",
             Self::Restore(..) => "Restore snapshot",
             Self::RestoreMany(..) => "Restore snapshots",
@@ -750,6 +771,11 @@ impl Operation {
                 }
             }
             Self::ImportSnapshot { id, .. } => validate_id(id)?,
+            Self::TrashOverrides(files) | Self::KeepOverrides(files, _) => {
+                if files.is_empty() {
+                    return Err("Select at least one launcher or icon".into());
+                }
+            }
             Self::RestoreMany(snapshots) | Self::TrashSnapshots(snapshots) => {
                 if snapshots.is_empty() {
                     return Err("Select at least one snapshot".into());
@@ -811,7 +837,12 @@ impl Operation {
             | Self::InstallFile { .. }
             | Self::InstallFiles { .. }
             | Self::InstallQueue(_) => "Install",
-            Self::TrashData(..) | Self::TrashSnapshot(..) | Self::TrashSnapshots(..) => "Trash",
+            Self::TrashData(..)
+            | Self::TrashOverrides(..)
+            | Self::TrashSnapshot(..)
+            | Self::TrashSnapshots(..) => "Trash",
+            Self::KeepOverrides(_, true) => "Don't Ask Again",
+            Self::KeepOverrides(_, false) => "Ask Again",
             Self::Snapshot { .. } => "Create",
             Self::Restore(..) | Self::RestoreMany(..) => "Restore",
             Self::ExportSnapshot(..) => "Export",
@@ -827,6 +858,7 @@ impl Operation {
                 | Self::RemoteRemove(..)
                 | Self::RemoteEnabled(_, false)
                 | Self::TrashData(..)
+                | Self::TrashOverrides(..)
                 | Self::TrashSnapshot(..)
                 | Self::TrashSnapshots(..)
                 | Self::Restore(..)
@@ -845,6 +877,15 @@ impl Operation {
             Self::TrashData(ids) => format!(
                 "{}\nApp data is shared across installations and branches. Recover it from your desktop Trash. Close these apps yourself before continuing.",
                 ids.join("\n")
+            ),
+            Self::TrashOverrides(files) => format!(
+                "{}\nAfterwards the desktop uses the app's own launcher and icon, if the app is installed. Recover these files from your desktop Trash. Open windows keep their old icon until the app is reopened.",
+                files.iter().map(|f| f.display().to_string()).collect::<Vec<_>>().join("\n")
+            ),
+            Self::KeepOverrides(files, keep) => format!(
+                "{}\n{}",
+                files.iter().map(|f| f.display().to_string()).collect::<Vec<_>>().join("\n"),
+                if *keep { "Stop warning about these files while they stay unchanged." } else { "Warn about these files again." }
             ),
             Self::Snapshot { ids, name } => format!(
                 "{}\n{name}\nClose these apps yourself for a consistent snapshot.",
@@ -1056,6 +1097,20 @@ pub fn execute(op: Operation, paths: &Paths, job: &Job) -> Result<Report> {
                     move_to_trash(&p)?;
                     report.steps.push(format!("Moved {} to Trash", p.display()));
                 }
+            }
+            Operation::TrashOverrides(files) => {
+                job.check()?;
+                let (steps, errors) = crate::overrides::trash(paths, files)?;
+                report.steps.extend(steps);
+                report.errors.extend(errors);
+            }
+            Operation::KeepOverrides(files, keep) => {
+                crate::overrides::set_kept(paths, files, *keep)?;
+                report.steps.push(format!(
+                    "{} {} file(s)",
+                    if *keep { "Kept" } else { "Stopped keeping" },
+                    files.len()
+                ));
             }
             Operation::Snapshot { ids, name } => {
                 for id in ids {

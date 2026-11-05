@@ -25,6 +25,7 @@ Native Rust/libcosmic Flatpak toolbox and standalone headless CLI.
 - schemas/request.json: generated request JSON Schema
 - examples/audit.json: read-only audit
 - examples/leftovers.json: leftover app data (read-only); see the result's summary
+- docs/launcher-overrides.md: launchers/icons in ~/.local/share that override an app's own; override.list / override.trash / override.keep
 - docs/verification.md: reproducible tests and known limits
 - docs/flatpak.md: runtime, build, signed publishing, permissions and updates
 - docs/project-brief.md: product goals and UI requirements

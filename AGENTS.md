@@ -30,7 +30,7 @@ The app and `warehouse-cosmic-cli` must not, and must not be able to, inspect or
 
 - `ui` commands talk only to D-Bus names starting with `dev.nilltadios.WarehouseCosmic.UI.` and only to this app's own `Execute` method (`ui_client::call` rejects anything else). Never add a way to address another app's windows, D-Bus services, processes or input.
 - The app and CLI never synthesize pointer or keyboard input and never take desktop screenshots. Captures are the app's own render. Input and window helpers exist only as repo-only test tools that act on this app's window.
-- Host programs are a fixed list run through `host::command` with separate arguments (`flatpak`, `pkexec flatpak`, `gio trash`, `xdg-open`, `flatpak run`, `setsid flatpak run` for `ui start`). Never accept a program name or shell string from input.
+- Host programs are a fixed list run through `host::command` with separate arguments (`flatpak`, `pkexec flatpak`, `gio trash`, `xdg-open`, `flatpak run`, `setsid flatpak run` for `ui start`, and `update-desktop-database` / `gtk-update-icon-cache` on the user's own menu and icon folders after moving an overriding launcher or icon to Trash). Never accept a program name or shell string from input.
 - Managing other apps as Flatpak packages and data folders (install, update, uninstall, snapshot, restore, Trash) is the app's purpose. Every such change is a dry run without `--apply`, system changes also need `--allow-system`, and starting another program from `ui` (Open, open folder) needs `--apply`.
 - Do not add Flatpak permissions that reach other apps (their D-Bus names, input or screen capture).
 

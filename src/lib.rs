@@ -3,6 +3,7 @@
 pub mod automation;
 pub mod backend;
 pub mod host;
+pub mod overrides;
 pub mod snapshots;
 pub mod ui_client;
 pub mod ui_protocol;

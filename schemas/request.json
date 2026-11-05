@@ -347,6 +347,57 @@
       "properties": {
         "command": {
           "type": "string",
+          "const": "override.list"
+        },
+        "params": {
+          "$ref": "#/$defs/OverrideList"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "override.trash"
+        },
+        "params": {
+          "$ref": "#/$defs/OverridePaths"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "const": "override.keep"
+        },
+        "params": {
+          "$ref": "#/$defs/OverrideKeep"
+        }
+      },
+      "required": [
+        "command",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
           "const": "snapshot.list"
         },
         "params": {
@@ -783,6 +834,86 @@
       "additionalProperties": false,
       "required": [
         "ids"
+      ]
+    },
+    "OverrideList": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "$ref": "#/$defs/OverrideState",
+          "default": "all"
+        },
+        "ids": {
+          "description": "Only these application IDs. Empty lists every app.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "include_kept": {
+          "description": "Also list files the user chose to keep.",
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "OverrideState": {
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": [
+            "all"
+          ]
+        },
+        {
+          "description": "Launchers that fail or start something other than the app's Flatpak.",
+          "type": "string",
+          "const": "broken"
+        },
+        {
+          "description": "Working launchers and icons that replace the app's own.",
+          "type": "string",
+          "const": "shadowing"
+        }
+      ]
+    },
+    "OverridePaths": {
+      "type": "object",
+      "properties": {
+        "paths": {
+          "description": "Paths exactly as override.list returns them.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "paths"
+      ]
+    },
+    "OverrideKeep": {
+      "type": "object",
+      "properties": {
+        "paths": {
+          "description": "Paths exactly as override.list returns them.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "keep": {
+          "description": "true stops warnings while each file stays unchanged; false warns again.",
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "paths",
+        "keep"
       ]
     },
     "CreateSnapshot": {

@@ -1,0 +1,980 @@
+Emptying app dir '/run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build'
+Downloading sources
+Starting build of dev.nilltadios.WarehouseCosmic
+Cache hit for rust-toolchain, skipping build
+Cache miss, checking out last cache hit
+========================================================================
+Building module warehouse-cosmic in /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/builder-state/build/warehouse-cosmic-1
+========================================================================
+Running: rustc --version && cargo --version
+rustc 1.99.1 (58cf8f9c3 2026-10-13)
+cargo 1.99.1 (5f94df478 2026-08-27)
+Running: touch Cargo.toml Cargo.lock llms.txt && find src resources docs -type f -exec touch {} +
+Running: cargo build --offline --frozen --profile flatpak-dev --bins -j ${FLATPAK_BUILDER_N_JOBS:-4}
+   Compiling zstd-sys v2.1.2+zstd.1.5.7
+   Compiling zstd-safe v8.2.0
+   Compiling zstd v0.14.3
+   Compiling warehouse-cosmic v0.2.1 (/run/build/warehouse-cosmic)
+    Finished `flatpak-dev` profile [optimized] target(s) in 30.44s
+Running: install -Dm755 /run/ccache/warehouse-target/flatpak-dev/warehouse-cosmic /app/bin/warehouse-cosmic
+Running: install -Dm755 /run/ccache/warehouse-target/flatpak-dev/warehouse-cosmic-cli /app/bin/warehouse-cosmic-cli
+Running: install -Dm644 resources/dev.nilltadios.WarehouseCosmic.desktop /app/share/applications/dev.nilltadios.WarehouseCosmic.desktop
+Running: install -Dm644 resources/dev.nilltadios.WarehouseCosmic.svg /app/share/icons/hicolor/scalable/apps/dev.nilltadios.WarehouseCosmic.svg
+Running: cp -r resources/icons/WarehouseCosmic /app/share/icons/
+Running: install -Dm644 resources/dev.nilltadios.WarehouseCosmic.metainfo.xml /app/share/metainfo/dev.nilltadios.WarehouseCosmic.metainfo.xml
+Running: install -d /app/share/warehouse-cosmic && cp -r docs examples schemas llms.txt LICENSE NOTICE /app/share/warehouse-cosmic/
+Recording license file LICENSE
+compressing debuginfo in: /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/rust/bin/cargo
+processing: /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/rust/bin/cargo
+[31] .debug_abbrev compressed -> .zdebug_abbrev (1599 => 1232 77.05%)
+[32] .debug_info compressed -> .zdebug_info (367019 => 343303 93.54%)
+[33] .debug_aranges compressed -> .zdebug_aranges (5368 => 5099 94.99%)
+[34] .debug_ranges compressed -> .zdebug_ranges (65289 => 60067 92.00%)
+[35] .debug_str compressed -> .zdebug_str (409469 => 298204 72.83%)
+[36] .debug_line compressed -> .zdebug_line (153271 => 135311 88.28%)
+[38] Updating section string table
+stripping /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/rust/bin/cargo to /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/debug/lib/rust/bin/cargo.debug
+compressing debuginfo in: /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/rust/bin/rustc
+processing: /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/rust/bin/rustc
+Nothing to do.
+stripping /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/rust/bin/rustc to /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/debug/lib/rust/bin/rustc.debug
+compressing debuginfo in: /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/rust/bin/rustdoc
+processing: /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/rust/bin/rustdoc
+Nothing to do.
+stripping /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/rust/bin/rustdoc to /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/debug/lib/rust/bin/rustdoc.debug
+compressing debuginfo in: /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/rust/lib/libLLVM.so.23.1-rust-1.99.1-stable
+processing: /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/rust/lib/libLLVM.so.23.1-rust-1.99.1-stable
+Nothing to do.
+stripping /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/rust/lib/libLLVM.so.23.1-rust-1.99.1-stable to /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/debug/lib/rust/lib/libLLVM.so.23.1-rust-1.99.1-stable.debug
+compressing debuginfo in: /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/rust/lib/librustc_driver-7ed0375ae352bd75.so
+processing: /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/rust/lib/librustc_driver-7ed0375ae352bd75.so
+Nothing to do.
+stripping /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/rust/lib/librustc_driver-7ed0375ae352bd75.so to /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/debug/lib/rust/lib/librustc_driver-7ed0375ae352bd75.so.debug
+eu-strip: illformed file '/run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/rust/lib/librustc_driver-7ed0375ae352bd75.so'
+compressing debuginfo in: /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/bin/rust-lld
+processing: /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/bin/rust-lld
+[38] .debug_info compressed -> .zdebug_info (2487 => 2397 96.38%)
+[40] .debug_abbrev compressed -> .zdebug_abbrev (730 => 669 91.64%)
+[41] .debug_loc compressed -> .zdebug_loc (385 => 342 88.83%)
+[43] .debug_aranges compressed -> .zdebug_aranges (78 => 63 80.77%)
+[45] .debug_ranges compressed -> .zdebug_ranges (110 => 93 84.55%)
+[47] .debug_line compressed -> .zdebug_line (708 => 682 96.33%)
+[49] .debug_str compressed -> .zdebug_str (1192 => 1111 93.20%)
+[51] Updating section string table
+stripping /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/bin/rust-lld to /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/debug/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/bin/rust-lld.debug
+compressing debuginfo in: /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/bin/rust-objcopy
+processing: /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/bin/rust-objcopy
+Nothing to do.
+stripping /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/bin/rust-objcopy to /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/debug/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/bin/rust-objcopy.debug
+compressing debuginfo in: /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libstd-7e719de9c4abc98f.so
+processing: /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libstd-7e719de9c4abc98f.so
+[29] .debug_abbrev compressed -> .zdebug_abbrev (1303 => 1014 77.82%)
+[30] .debug_info compressed -> .zdebug_info (460069 => 429816 93.42%)
+[31] .debug_aranges compressed -> .zdebug_aranges (8884 => 8731 98.28%)
+[32] .debug_ranges compressed -> .zdebug_ranges (89882 => 82573 91.87%)
+[33] .debug_str compressed -> .zdebug_str (517187 => 383125 74.08%)
+[34] .debug_line compressed -> .zdebug_line (202575 => 178312 88.02%)
+[37] Updating section string table
+stripping /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libstd-7e719de9c4abc98f.so to /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/debug/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libstd-7e719de9c4abc98f.so.debug
+eu-strip: Cannot remove symbol [1627] from allocated symbol table [1]
+compressing debuginfo in: /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/rust/libexec/rust-analyzer-proc-macro-srv
+processing: /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/rust/libexec/rust-analyzer-proc-macro-srv
+Nothing to do.
+stripping /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/rust/libexec/rust-analyzer-proc-macro-srv to /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files/lib/debug/lib/rust/libexec/rust-analyzer-proc-macro-srv.debug
+Committing stage build-warehouse-cosmic to cache
+Cleaning up
+Removing files/lib/rust/share/zsh/site-functions/_cargo
+Removing files/lib/rust/share/zsh/site-functions
+Removing files/lib/rust/share/zsh
+Removing files/lib/rust/share/man/man1/rustdoc.1
+Removing files/lib/rust/share/man/man1/rustc.1
+Removing files/lib/rust/share/man/man1/cargo.1
+Removing files/lib/rust/share/man/man1/cargo-yank.1
+Removing files/lib/rust/share/man/man1/cargo-version.1
+Removing files/lib/rust/share/man/man1/cargo-vendor.1
+Removing files/lib/rust/share/man/man1/cargo-update.1
+Removing files/lib/rust/share/man/man1/cargo-uninstall.1
+Removing files/lib/rust/share/man/man1/cargo-tree.1
+Removing files/lib/rust/share/man/man1/cargo-test.1
+Removing files/lib/rust/share/man/man1/cargo-search.1
+Removing files/lib/rust/share/man/man1/cargo-rustdoc.1
+Removing files/lib/rust/share/man/man1/cargo-rustc.1
+Removing files/lib/rust/share/man/man1/cargo-run.1
+Removing files/lib/rust/share/man/man1/cargo-report.1
+Removing files/lib/rust/share/man/man1/cargo-report-future-incompatibilities.1
+Removing files/lib/rust/share/man/man1/cargo-remove.1
+Removing files/lib/rust/share/man/man1/cargo-publish.1
+Removing files/lib/rust/share/man/man1/cargo-pkgid.1
+Removing files/lib/rust/share/man/man1/cargo-package.1
+Removing files/lib/rust/share/man/man1/cargo-owner.1
+Removing files/lib/rust/share/man/man1/cargo-new.1
+Removing files/lib/rust/share/man/man1/cargo-metadata.1
+Removing files/lib/rust/share/man/man1/cargo-logout.1
+Removing files/lib/rust/share/man/man1/cargo-login.1
+Removing files/lib/rust/share/man/man1/cargo-locate-project.1
+Removing files/lib/rust/share/man/man1/cargo-install.1
+Removing files/lib/rust/share/man/man1/cargo-init.1
+Removing files/lib/rust/share/man/man1/cargo-info.1
+Removing files/lib/rust/share/man/man1/cargo-help.1
+Removing files/lib/rust/share/man/man1/cargo-generate-lockfile.1
+Removing files/lib/rust/share/man/man1/cargo-fix.1
+Removing files/lib/rust/share/man/man1/cargo-fetch.1
+Removing files/lib/rust/share/man/man1/cargo-doc.1
+Removing files/lib/rust/share/man/man1/cargo-clean.1
+Removing files/lib/rust/share/man/man1/cargo-check.1
+Removing files/lib/rust/share/man/man1/cargo-build.1
+Removing files/lib/rust/share/man/man1/cargo-bench.1
+Removing files/lib/rust/share/man/man1/cargo-add.1
+Removing files/lib/rust/share/man/man1
+Removing files/lib/rust/share/man
+Removing files/lib/rust/share/doc/rust/licenses/Unicode-3.0.txt
+Removing files/lib/rust/share/doc/rust/licenses/OFL-1.1.txt
+Removing files/lib/rust/share/doc/rust/licenses/NCSA.txt
+Removing files/lib/rust/share/doc/rust/licenses/MIT.txt
+Removing files/lib/rust/share/doc/rust/licenses/LLVM-exception.txt
+Removing files/lib/rust/share/doc/rust/licenses/ISC.txt
+Removing files/lib/rust/share/doc/rust/licenses/GPL-3.0-or-later.txt
+Removing files/lib/rust/share/doc/rust/licenses/GPL-2.0-only.txt
+Removing files/lib/rust/share/doc/rust/licenses/GCC-exception-3.1.txt
+Removing files/lib/rust/share/doc/rust/licenses/CC-BY-SA-4.0.txt
+Removing files/lib/rust/share/doc/rust/licenses/BSD-2-Clause.txt
+Removing files/lib/rust/share/doc/rust/licenses/Apache-2.0.txt
+Removing files/lib/rust/share/doc/rust/licenses
+Removing files/lib/rust/share/doc/rust/README.md
+Removing files/lib/rust/share/doc/rust/COPYRIGHT.html
+Removing files/lib/rust/share/doc/rust/COPYRIGHT-library.html
+Removing files/lib/rust/share/doc/rust
+Removing files/lib/rust/share/doc/cargo/README.md
+Removing files/lib/rust/share/doc/cargo/LICENSE-THIRD-PARTY
+Removing files/lib/rust/share/doc/cargo/LICENSE-MIT
+Removing files/lib/rust/share/doc/cargo/LICENSE-APACHE
+Removing files/lib/rust/share/doc/cargo
+Removing files/lib/rust/share/doc
+Removing files/lib/rust/share
+Removing files/lib/rust/libexec/rust-analyzer-proc-macro-srv
+Removing files/lib/rust/libexec
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libunwind-87f8da15080ba246.rmeta
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libunwind-87f8da15080ba246.rlib
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libtest-a1ccee9d65338c17.rmeta
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libtest-a1ccee9d65338c17.rlib
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libsysroot-22c4bd49b12831db.rmeta
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libsysroot-22c4bd49b12831db.rlib
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libstd_detect-ce90372c8b94015d.rmeta
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libstd_detect-ce90372c8b94015d.rlib
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libstd-7e719de9c4abc98f.so
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libstd-7e719de9c4abc98f.rmeta
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libstd-7e719de9c4abc98f.rlib
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/librustc_std_workspace_std-5437dec005526111.rmeta
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/librustc_std_workspace_std-5437dec005526111.rlib
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/librustc_std_workspace_core-fb3f24e4abf4be88.rmeta
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/librustc_std_workspace_core-fb3f24e4abf4be88.rlib
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/librustc_std_workspace_alloc-e4d7e1d94de777fa.rmeta
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/librustc_std_workspace_alloc-e4d7e1d94de777fa.rlib
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/librustc_literal_escaper-0bcf9fe2451b4cf2.rmeta
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/librustc_literal_escaper-0bcf9fe2451b4cf2.rlib
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/librustc_demangle-23edf219dcb73297.rmeta
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/librustc_demangle-23edf219dcb73297.rlib
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/librustc-stable_rt.ubsan.a
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/librustc-stable_rt.tsan.a
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/librustc-stable_rt.safestack.a
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/librustc-stable_rt.rtsan.a
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/librustc-stable_rt.msan.a
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/librustc-stable_rt.lsan.a
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/librustc-stable_rt.dfsan.a
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/librustc-stable_rt.asan.a
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libprofiler_builtins-1eed01feea74fabd.rmeta
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libprofiler_builtins-1eed01feea74fabd.rlib
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libproc_macro-012ffcc53aba0ce4.rmeta
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libproc_macro-012ffcc53aba0ce4.rlib
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libpanic_unwind-4c962e8757b7fd52.rmeta
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libpanic_unwind-4c962e8757b7fd52.rlib
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libpanic_abort-5cae43b27ff5f42e.rmeta
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libpanic_abort-5cae43b27ff5f42e.rlib
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libobject-9ab214bf508f4fb2.rmeta
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libobject-9ab214bf508f4fb2.rlib
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libminiz_oxide-4ee1421476c1c513.rmeta
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libminiz_oxide-4ee1421476c1c513.rlib
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libmemchr-e57d23b4cf2c7093.rmeta
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libmemchr-e57d23b4cf2c7093.rlib
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/liblibc-6cf0fcd942b0e793.rmeta
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/liblibc-6cf0fcd942b0e793.rlib
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libhashbrown-bd00bf133bcf4229.rmeta
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libhashbrown-bd00bf133bcf4229.rlib
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libgimli-a024a39c5ca178d0.rmeta
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libgimli-a024a39c5ca178d0.rlib
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libgetopts-d370f30754c98ce9.rmeta
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libgetopts-d370f30754c98ce9.rlib
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libcore-1d288395a3394ed3.rmeta
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libcore-1d288395a3394ed3.rlib
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libcompiler_builtins-2d9557d6e902a200.rmeta
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libcompiler_builtins-2d9557d6e902a200.rlib
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libcfg_if-77a19c181a6f6522.rmeta
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libcfg_if-77a19c181a6f6522.rlib
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/liballoc-3988244237fec6ee.rmeta
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/liballoc-3988244237fec6ee.rlib
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libadler2-e749a99f48dba5bc.rmeta
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libadler2-e749a99f48dba5bc.rlib
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libaddr2line-b2546485fb156a81.rmeta
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libaddr2line-b2546485fb156a81.rlib
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/bin/wasm-component-ld
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/bin/rust-objcopy
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/bin/rust-lld
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/bin/gcc-ld/wasm-ld
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/bin/gcc-ld/lld-link
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/bin/gcc-ld/ld64.lld
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/bin/gcc-ld/ld.lld
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/bin/gcc-ld
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/bin
+Removing files/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu
+Removing files/lib/rust/lib/rustlib/uninstall.sh
+Removing files/lib/rust/lib/rustlib/rust-installer-version
+Removing files/lib/rust/lib/rustlib/manifest-rustc
+Removing files/lib/rust/lib/rustlib/manifest-rust-std-x86_64-unknown-linux-gnu
+Removing files/lib/rust/lib/rustlib/manifest-cargo
+Removing files/lib/rust/lib/rustlib/install.log
+Removing files/lib/rust/lib/rustlib/etc/rust_types.py
+Removing files/lib/rust/lib/rustlib/etc/lldb_providers.py
+Removing files/lib/rust/lib/rustlib/etc/lldb_lookup.py
+Removing files/lib/rust/lib/rustlib/etc/gdb_providers.py
+Removing files/lib/rust/lib/rustlib/etc/gdb_lookup.py
+Removing files/lib/rust/lib/rustlib/etc/gdb_load_rust_pretty_printers.py
+Removing files/lib/rust/lib/rustlib/etc
+Removing files/lib/rust/lib/rustlib/components
+Removing files/lib/rust/lib/rustlib
+Removing files/lib/rust/lib/librustc_driver-7ed0375ae352bd75.so
+Removing files/lib/rust/lib/libLLVM.so.23.1-rust-1.99.1-stable
+Removing files/lib/rust/lib/libLLVM-23-rust-1.99.1-stable.so
+Removing files/lib/rust/lib
+Removing files/lib/rust/etc/target-spec-json-schema.json
+Removing files/lib/rust/etc/bash_completion.d/cargo
+Removing files/lib/rust/etc/bash_completion.d
+Removing files/lib/rust/etc
+Removing files/lib/rust/bin/rustdoc
+Removing files/lib/rust/bin/rustc
+Removing files/lib/rust/bin/rust-lldb
+Removing files/lib/rust/bin/rust-gdbgui
+Removing files/lib/rust/bin/rust-gdb
+Removing files/lib/rust/bin/cargo
+Removing files/lib/rust/bin
+Removing files/lib/rust
+Removing files/lib/debug/lib/rust/libexec/rust-analyzer-proc-macro-srv.debug
+Removing files/lib/debug/lib/rust/libexec
+Removing files/lib/debug/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib/libstd-7e719de9c4abc98f.so.debug
+Removing files/lib/debug/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/lib
+Removing files/lib/debug/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/bin/rust-objcopy.debug
+Removing files/lib/debug/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/bin/rust-lld.debug
+Removing files/lib/debug/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu/bin
+Removing files/lib/debug/lib/rust/lib/rustlib/x86_64-unknown-linux-gnu
+Removing files/lib/debug/lib/rust/lib/rustlib
+Removing files/lib/debug/lib/rust/lib/libLLVM.so.23.1-rust-1.99.1-stable.debug
+Removing files/lib/debug/lib/rust/lib
+Removing files/lib/debug/lib/rust/bin/rustdoc.debug
+Removing files/lib/debug/lib/rust/bin/rustc.debug
+Removing files/lib/debug/lib/rust/bin/cargo.debug
+Removing files/lib/debug/lib/rust/bin
+Removing files/lib/debug/lib/rust
+Running appstreamcli compose
+Only accepting components: dev.nilltadios.WarehouseCosmic, dev.nilltadios.WarehouseCosmic.desktop
+Processing directory: /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/build/files
+Composing metadata...
+Success!
+Committing stage cleanup to cache
+Finishing app
+Exporting share/applications/dev.nilltadios.WarehouseCosmic.desktop
+Exporting share/icons/hicolor/scalable/apps/dev.nilltadios.WarehouseCosmic.svg
+Not exporting share/icons/WarehouseCosmic/LICENSE, wrong extension
+Not exporting share/icons/WarehouseCosmic/SOURCE.txt, wrong extension
+Not exporting share/icons/WarehouseCosmic/index.theme, wrong extension
+Not exporting share/icons/WarehouseCosmic/scalable/actions/address-book-new-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/application-exit-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/application-menu-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/appointment-new-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/appointment-new.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/call-start-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/call-stop-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/close-menu-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/contact-new-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/date-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/date.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/document-new-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/document-open-recent-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/document-open-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/document-page-setup-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/document-print-preview-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/document-print-preview.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/document-print-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/document-properties-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/document-revert-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/document-save-as-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/document-save-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/document-send-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/edit-clear-symbolic-rtl.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/edit-clear-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/edit-clear.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/edit-copy-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/edit-cut-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/edit-delete-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/edit-find-replace-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/edit-find-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/edit-paste-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/edit-paste.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/edit-redo-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/edit-select-all-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/edit-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/edit-undo-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/focus-windows-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/folder-new-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/font-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/format-indent-less-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/format-indent-more-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/format-justify-center-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/format-justify-fill-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/format-justify-left-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/format-justify-right-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/format-text-bold-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/format-text-direction-ltr-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/format-text-direction-symbolic-rtl.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/format-text-italic-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/format-text-strikethrough-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/format-text-underline-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/go-bottom-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/go-down-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/go-first-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/go-home-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/go-jump-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/go-last-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/go-next-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/go-previous-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/go-top-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/go-up-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/grip-lines-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/help-about-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/help-about.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/help-contents-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/help-contents.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/help-faq-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/help-faq.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/image-crop-rotate-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/image-red-eye-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/insert-arrow-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/insert-drawing-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/insert-ellipse-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/insert-image-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/insert-line-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/insert-link-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/insert-object-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/insert-polygon-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/insert-rectangle-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/insert-star-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/insert-text-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/list-add-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/list-remove-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/mail-forward-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/mail-forward.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/mail-mark-important-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/mail-mark-important.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/mail-mark-junk-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/mail-mark-junk.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/mail-mark-notjunk-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/mail-mark-notjunk.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/mail-mark-read-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/mail-mark-read.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/mail-mark-unread-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/mail-mark-unread.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/mail-message-new-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/mail-reply-all-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/mail-reply-all.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/mail-send-receive-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/mail-send-receive.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/mail-send-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/markup-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/media-eject-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/media-playback-pause-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/media-playback-start-symbolic-rtl.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/media-playback-start-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/media-playback-stop-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/media-record-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/media-seek-backward-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/media-seek-forward-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/media-skip-backward-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/media-skip-forward-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/navbar-closed-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/navbar-open-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/notification-alert-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/object-flip-horizontal-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/object-flip-vertical-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/object-rotate-left-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/object-rotate-right-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/object-select-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/open-menu-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/pan-down-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/pan-end-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/pan-start-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/pan-up-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/pen-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/pencil-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/pin-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/printer-queue-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/process-stop-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/process-stop.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/ratios-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/stroke-width-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/system-lock-screen-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/system-lock-screen.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/system-log-out-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/system-log-out.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/system-reboot-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/system-reboot.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/system-run-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/system-search-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/system-shutdown-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/system-shutdown.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/system-suspend-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/system-suspend.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/text-highlight-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/tools-check-spelling-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/view-actual-size-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/view-fit-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/view-fullscreen-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/view-more-horizontal-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/view-more-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/view-refresh-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/view-refresh.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/view-restore-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/view-sort-ascending-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/view-sort-descending-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/window-close-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/window-maximize-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/window-minimize-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/window-new-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/window-pop-out-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/window-restore-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/window-stack-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/window-swap-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/zoom-fit-best-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/zoom-in-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/zoom-in.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/zoom-original-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/zoom-original.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/zoom-out-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/actions/zoom-out.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/accessories-calculator-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/accessories-calculator.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/accessories-character-map-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/accessories-character-map.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/accessories-clock-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/accessories-clock.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/accessories-dictionary-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/accessories-dictionary.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/accessories-screenshot-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/accessories-screenshot.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/accessories-text-editor-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/accessories-text-editor.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/addressbook-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/addressbook.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/application-default-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/application-default.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/application-font-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/chat-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/chat.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/cheese-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/disk-usage-analyzer-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/disk-usage-analyzer.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/disks-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/disks.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/document-viewer-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/firmware-manager-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/firmware-manager.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/help-browser-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/help-contents-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/help-contents.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/help-faq-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/help-faq.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/mail-archive-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/multimedia-audio-player-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/multimedia-audio-player.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/multimedia-equalizer-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/multimedia-photo-manager-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/multimedia-photo-manager.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/multimedia-photo-viewer-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/multimedia-photo-viewer.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/multimedia-video-player-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/multimedia-video-player.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/multimedia-volume-control-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/multimedia-volume-control.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/office-calendar-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/office-calendar.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/password-manager-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/password-manager.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-X11-applications-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-about.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-appearance-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-appearance.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-applications-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-applications.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-bluetooth.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-date-and-time.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-default-applications-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-default-applications.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-desktop-accessibility-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-desktop-accessibility.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-desktop-keyboard.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-desktop-locale-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-desktop-locale.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-desktop-screensaver-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-desktop-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-desktop-wallpaper-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-desktop-wallpaper.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-desktop.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-displays.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-dock-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-dock.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-input-devices-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-input-devices.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-mouse.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-network-and-wireless-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-network-and-wireless.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-panel-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-panel.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-power-and-battery-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-power-and-battery.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-region-and-language-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-region-and-language.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-sound-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-sound.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-startup-applications-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-startup-applications.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-system-and-accounts.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-time-and-language-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-time-and-language.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-touchpad.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-updates-and-recovery-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-updates-and-recovery.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-users.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-vpn-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-vpn.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-window-management-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-window-management.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-wired-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-wired.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-wireless-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-wireless.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-workspaces-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-workspaces.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/preferences-x11-applications-compatibility.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/setroubleshoot_icon-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/sparkleshare-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/system-file-manager-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/system-file-manager.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/system-software-install-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/system-software-install.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/system-users-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/system-users.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/user-info-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/user-info.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/utilities-system-monitor-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/utilities-system-monitor.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/utilities-terminal-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/utilities-terminal.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/utilities-tweak-tool-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/weather-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/weather.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/web-browser-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/apps/web-browser.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/categories/applications-accessibility-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/categories/applications-engineering-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/categories/applications-engineering.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/categories/applications-games-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/categories/applications-games.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/categories/applications-graphics-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/categories/applications-graphics.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/categories/applications-multimedia-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/categories/applications-multimedia.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/categories/applications-science-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/categories/applications-science.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/categories/applications-system-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/categories/applications-system.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/categories/applications-utilities-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/categories/applications-utilities.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/categories/applications-video-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/categories/preferences-desktop-online-accounts-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/categories/preferences-desktop-online-accounts.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/categories/preferences-other-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/categories/preferences-other.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/categories/preferences-system-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/categories/preferences-system.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/categories/slideshow-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/categories/system-help-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/categories/system-help.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/ac-adapter-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/audio-card-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/audio-card-usb-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/audio-card.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/audio-headphones-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/audio-headset-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/audio-input-microphone-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/audio-input-microphone.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/audio-speaker-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/audio-speaker-testing-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/audio-speakers-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/audio-speakers.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/audio-subwoofer-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/audio-subwoofer-testing-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/audio-subwoofer-testing.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/audio-subwoofer.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/battery-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/battery.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/bluetooth-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/bluetooth.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/camera-photo-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/camera-photo.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/camera-video-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/camera-web-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/camera-web.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/computer-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/computer.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/display-projector-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/display-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/drive-harddisk-ieee1394-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/drive-harddisk-ieee1394.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/drive-harddisk-solidstate-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/drive-harddisk-system-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/drive-harddisk-system.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/drive-harddisk-usb-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/drive-harddisk-usb.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/drive-multidisk-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/drive-optical-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/drive-optical.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/drive-removable-media-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/drive-removable-media.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/input-dialpad-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/input-gaming-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/input-gaming.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/input-keyboard-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/input-keyboard.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/input-mouse-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/input-mouse.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/input-tablet-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/input-tablet.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/input-touchpad-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/input-touchpad.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/laptop-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/media-flash-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/media-flash.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/media-floppy-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/media-floppy.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/media-removable-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/media-removable.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/media-tape-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/media-zip-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/multimedia-player-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/multimedia-player.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/network-wired-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/network-wired.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/network-wireless-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/network-wireless.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/payment-card-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/payment-card.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/phone-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/phone.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/printer-network-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/printer-network.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/printer-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/printer.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/scanner-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/scanner.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/sim-card-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/smartphone-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/speaker-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/tablet-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/tv-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/uninterruptible-power-supply-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/video-display-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/devices/video-display.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/emblems/emblem-default-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/emblems/emblem-default.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/emblems/emblem-documents-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/emblems/emblem-documents.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/emblems/emblem-favorite-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/emblems/emblem-favorite.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/emblems/emblem-important-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/emblems/emblem-important.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/emblems/emblem-music-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/emblems/emblem-ok-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/emblems/emblem-photos-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/emblems/emblem-photos.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/emblems/emblem-shared-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/emblems/emblem-shared.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/emblems/emblem-synchronizing-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/emblems/emblem-synchronizing.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/emblems/emblem-system-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/emblems/emblem-system.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/emblems/emblem-videos-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/application-certificate-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/application-octet-stream.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/application-pdf.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/application-pgp.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/application-rss+xml-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/application-x-addon-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/application-x-addon.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/application-x-cd-image.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/application-x-desktop.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/application-x-ebook.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/application-x-epub.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/application-x-executable-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/application-x-executable.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/application-x-firmware-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/application-x-firmware.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/application-x-php.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/audio-x-generic-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/audio-x-generic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/font-x-generic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/image-x-generic-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/image-x-generic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/image-x-xcf.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/inode-directory-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/inode-directory.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/media-optical-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/media-optical.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/package-x-deb.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/package-x-generic-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/package-x-generic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/package-x-rpm.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/playlist-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/playlist.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-html-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-html.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-c#.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-c++.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-c.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-cheader.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-cmake.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-css.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-csv.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-dockerfile.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-flatpak.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-generic-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-generic-template.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-generic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-go.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-godot.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-haskell.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-html.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-java.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-javascript.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-json.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-just.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-kotlin.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-lua.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-makefile.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-markdown.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-perl.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-python.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-r.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-ron.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-ruby.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-rust.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-script.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/text-x-xml.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/video-x-generic-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/video-x-generic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/x-office-address-book-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/x-office-address-book.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/x-office-calendar-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/x-office-calendar.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/x-office-database.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/x-office-document-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/x-office-document.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/x-office-drawing-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/x-office-drawing.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/x-office-presentation-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/x-office-presentation.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/x-office-spreadsheet-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/x-office-spreadsheet.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/mimetypes/x-office.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/applications-audio-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/applications-office-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/applications-office.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/folder-documents-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/folder-documents.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/folder-download-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/folder-download.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/folder-music-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/folder-music.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/folder-pictures-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/folder-pictures.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/folder-publicshare-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/folder-publicshare.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/folder-recent-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/folder-recent.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/folder-remote-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/folder-remote.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/folder-saved-search-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/folder-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/folder-templates-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/folder-templates.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/folder-videos-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/folder-videos.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/folder.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/mail-archive-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/mail-folder-inbox-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/mail-folder-outbox-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/network-server-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/network-server.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/network-workgroup-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/network-workgroup.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/start-here-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/user-bookmarks-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/user-bookmarks.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/user-desktop-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/user-desktop.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/user-home-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/user-home.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/user-trash-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/places/user-trash.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/airplane-mode-disabled-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/airplane-mode-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/appointment-missed-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/appointment-missed.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/appointment-soon-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/appointment-soon.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/audio-volume-high-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/audio-volume-low-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/audio-volume-medium-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/audio-volume-muted-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/audio-volume-overamplified-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/bluetooth-active-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/bluetooth-disabled-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/changes-allow-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/changes-allow.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/changes-prevent-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/changes-prevent.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/checkbox-checked-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/checkbox-mixed-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/connection-secure-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/dialog-error-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/dialog-error.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/dialog-information-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/dialog-information.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/dialog-password-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/dialog-password.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/dialog-question-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/dialog-question.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/dialog-warning-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/dialog-warning.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/display-brightness-high-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/display-brightness-low-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/display-brightness-medium-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/display-brightness-off-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/display-brightness-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/folder-drag-accept-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/folder-drag-accept.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/folder-open-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/folder-open.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/folder-visiting-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/image-loading-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/image-loading.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/keyboard-brightness-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/mail-attachment-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/mail-read-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/mail-read.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/mail-replied-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/mail-replied.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/mail-unread-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/media-playlist-repeat-symbolic-rtl.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/media-playlist-repeat-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/media-playlist-shuffle-symbolic-rtl.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/media-playlist-shuffle-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/microphone-sensitivity-high-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/microphone-sensitivity-low-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/microphone-sensitivity-medium-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/microphone-sensitivity-muted-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-disconnected-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-error-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-idle-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-receive-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-transmit-receive-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-transmit-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-wired-acquiring-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-wired-disconnected-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-wired-disconnected.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-wired-error-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-wired-no-route-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-wired-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-wired.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-wireless-acquiring-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-wireless-connected-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-wireless-disconnected-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-wireless-encrypted-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-wireless-error-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-wireless-hotspot-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-wireless-hotspot.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-wireless-no-route-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-wireless-secure-signal-excellent-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-wireless-secure-signal-good-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-wireless-secure-signal-none-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-wireless-secure-signal-ok-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-wireless-secure-signal-weak-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-wireless-signal-excellent-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-wireless-signal-good-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-wireless-signal-none-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-wireless-signal-ok-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/network-wireless-signal-weak-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/notification-disabled-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/notification-new-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/notification-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/plugged-into-power-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/printer-error-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/printer-error.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/printer-printing-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/printer-printing.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/radio-checked-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/security-high-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/security-low-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/security-medium-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/software-update-available-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/software-update-available.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/software-update-urgent-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/software-update-urgent.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/task-due-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/task-due.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/task-past-due-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/task-past-due.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/user-available-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/user-away-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/user-idle-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/user-offline-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/user-trash-full-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/user-trash-full.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/weather-clear-night-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/weather-clear-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/weather-few-clouds-night-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/weather-few-clouds-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/weather-fog-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/weather-overcast-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/weather-severe-alert-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/weather-showers-scattered-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/weather-showers-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/weather-snow-symbolic.svg, non-allowed export filename
+Not exporting share/icons/WarehouseCosmic/scalable/status/weather-storm-symbolic.svg, non-allowed export filename
+Exporting share/metainfo/dev.nilltadios.WarehouseCosmic.metainfo.xml
+Please review the exported files and the metadata
+Committing stage finish to cache
+Exporting dev.nilltadios.WarehouseCosmic to repo
+Commit: 438bc0555fcfd60a2bc2460e57a9ab66092e390d45b387e1f40a230bd79a52a0
+Metadata Total: 101
+Metadata Written: 7
+Content Total: 740
+Content Written: 3
+Content Bytes Written: 41252257 (41.3 MB)
+Exporting dev.nilltadios.WarehouseCosmic.Debug to repo
+Commit: 2e62903495fff1256e9ea701df975bd37e90d1a2098899ef11e6f3eb0eb20b57
+Metadata Total: 9
+Metadata Written: 1
+Content Total: 1
+Content Written: 0
+Content Bytes Written: 0 (0 bytes)
+Pruning cache
+Built /run/media/nilllinux22/da541299-ef49-4bb2-a30a-23737f1882da/@home/realcachy/Documents/warehouse-cosmic/flatpak/out-dev/repo (dev profile). Nothing was installed.
+exit=0

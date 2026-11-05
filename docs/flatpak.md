@@ -86,8 +86,8 @@ The app needs access to `org.freedesktop.Flatpak` and the home directory, includ
 
 | Permission | Used for |
 |---|---|
-| `--talk-name=org.freedesktop.Flatpak` | Run host `flatpak`, `pkexec`, `gio trash` and `xdg-open` through `flatpak-spawn --host` (package transactions, Trash, opening folders and launching apps) |
-| `--filesystem=home`, `~/.var/app` | Read sizes of, snapshot, restore and trash other apps' data |
+| `--talk-name=org.freedesktop.Flatpak` | Run host `flatpak`, `pkexec`, `gio trash` and `xdg-open` through `flatpak-spawn --host` (package transactions, Trash, opening folders and launching apps), and `update-desktop-database` / `gtk-update-icon-cache` after an overriding launcher or icon is moved to Trash |
+| `--filesystem=home`, `~/.var/app` | Read sizes of, snapshot, restore and trash other apps' data; find launchers and icons in `~/.local/share` that override an app's own ([launcher overrides](launcher-overrides.md)) |
 | `~/.local/share/flatpak:ro`, `/var/lib/flatpak:ro` | Read user and system installations and exported app icons |
 | `--filesystem=host-etc:ro` | Read `/etc/flatpak/installations.d` to discover configured named installations |
 | `xdg-config/cosmic:ro`, `com.system76.CosmicSettingsDaemon` | Follow the COSMIC theme without writing desktop settings |

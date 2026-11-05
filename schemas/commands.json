@@ -638,6 +638,126 @@
       "dry_run_by_default": true
     },
     {
+      "command": "override.list",
+      "description": "List launchers (~/.local/share/applications/APP_ID.desktop) and icons (~/.local/share/icons/*/*/apps/APP_ID.*) that take priority over a Flatpak's own, for installed apps and apps with leftover data. state: broken finds launchers that fail, for example one pinned to a branch that is not installed. Nothing is changed.",
+      "mutates": false,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "OverrideList",
+        "type": "object",
+        "properties": {
+          "state": {
+            "$ref": "#/$defs/OverrideState",
+            "default": "all"
+          },
+          "ids": {
+            "description": "Only these application IDs. Empty lists every app.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": []
+          },
+          "include_kept": {
+            "description": "Also list files the user chose to keep.",
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "$defs": {
+          "OverrideState": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "all"
+                ]
+              },
+              {
+                "description": "Launchers that fail or start something other than the app's Flatpak.",
+                "type": "string",
+                "const": "broken"
+              },
+              {
+                "description": "Working launchers and icons that replace the app's own.",
+                "type": "string",
+                "const": "shadowing"
+              }
+            ]
+          }
+        }
+      },
+      "example": {
+        "state": "broken"
+      },
+      "dry_run_by_default": false
+    },
+    {
+      "command": "override.trash",
+      "description": "Move launchers or icons found by override.list to the desktop Trash so the app's own are used, then refresh existing menu and icon caches. Open windows keep their old icon until reopened.",
+      "mutates": true,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "OverridePaths",
+        "type": "object",
+        "properties": {
+          "paths": {
+            "description": "Paths exactly as override.list returns them.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "paths"
+        ]
+      },
+      "example": {
+        "paths": [
+          "/home/user/.local/share/applications/org.example.App.desktop"
+        ]
+      },
+      "dry_run_by_default": true
+    },
+    {
+      "command": "override.keep",
+      "description": "Keep launchers or icons found by override.list on purpose. The app stops prompting about each file until it changes. keep: false prompts again.",
+      "mutates": true,
+      "params_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "OverrideKeep",
+        "type": "object",
+        "properties": {
+          "paths": {
+            "description": "Paths exactly as override.list returns them.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "keep": {
+            "description": "true stops warnings while each file stays unchanged; false warns again.",
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "paths",
+          "keep"
+        ]
+      },
+      "example": {
+        "paths": [
+          "/home/user/.local/share/icons/hicolor/scalable/apps/org.example.App.svg"
+        ],
+        "keep": true
+      },
+      "dry_run_by_default": true
+    },
+    {
       "command": "snapshot.list",
       "description": "List this app's snapshots and the official Warehouse library (read-only).",
       "mutates": false,

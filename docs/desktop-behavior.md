@@ -1,5 +1,7 @@
 # Opening packages and restoring the window
 
+After an install, update, source change or uninstall, and at start for broken launchers, the app points out launchers and icons in `~/.local/share` that override an app's own, with Fix It, Not Now and Don't Ask Again. See [launcher overrides](launcher-overrides.md).
+
 Opening a `.flatpak` or `.flatpakref` file displays a compact review with filenames, file types and sizes. Choose User, System or a configured named installation before pressing Install. User is selected initially. Cancel leaves the installation unchanged. The review also handles multiple selected files and wraps long names. The agent CLI retains its structured command plans.
 
 Dragging files onto the window's page area does the same as opening them. While a drag is over the window, a banner explains what each file type does. `.flatpak` and `.flatpakref` files open the install review, one `.flatpakrepo` file opens Add Remote, and one `.tar.zst` snapshot opens Import Snapshot. Unsupported, mixed or multiple remote/snapshot files are refused with an explanation, as in Warehouse. File managers provide `text/uri-list` paths; sandboxed senders use the document portal's file transfer, whose files the app reads through `/run/user/UID/doc`. Nothing is installed until the review is confirmed.
