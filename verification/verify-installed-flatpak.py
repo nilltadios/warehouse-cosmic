@@ -24,7 +24,7 @@ def run(name, *args):
 
 permissions = run("normal-permissions", "flatpak", "info", "--user", "--show-permissions", app)
 assert "~/.local/share/flatpak:ro" in permissions
-assert "sockets=wayland;" in permissions
+assert "sockets=wayland;" in permissions and "fallback-x11;" in permissions
 assert "org.freedesktop.Flatpak=talk" in permissions
 assert "xdg-config/cosmic:ro" in permissions
 run("normal-cosmic-theme-access", "flatpak", "run", "--command=sh", app, "-c",

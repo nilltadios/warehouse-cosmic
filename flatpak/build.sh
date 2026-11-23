@@ -29,6 +29,14 @@ fi
 # Leave two cores for the desktop on larger machines.
 cores="$(nproc)"
 jobs="${BUILD_JOBS:-$(( cores > 4 ? cores - 2 : 2 ))}"
+if command -v flatpak-builder >/dev/null 2>&1; then
+  builder=(flatpak-builder)
+elif flatpak info org.flatpak.Builder >/dev/null 2>&1; then
+  builder=(flatpak run org.flatpak.Builder)
+else
+  echo "flatpak-builder is not installed (and org.flatpak.Builder Flatpak was not found)." >&2
+  exit 1
+fi
 
 if [[ $dev == 1 ]]; then
   output="${positional[0]:-$PWD/flatpak/out-dev}"
@@ -41,7 +49,7 @@ if [[ $dev == 1 ]]; then
   output="$(realpath "$output")"
   install_args=()
   if [[ $install == 1 ]]; then install_args=(--install); fi
-  flatpak-builder --user --ccache --jobs="$jobs" --disable-rofiles-fuse --force-clean --default-branch=stable \
+  "${builder[@]}" --user --ccache --jobs="$jobs" --disable-rofiles-fuse --force-clean --default-branch=stable \
     --state-dir="$output/builder-state" --repo="$output/repo" "${install_args[@]}" \
     "$output/build" "$inputs/$app.json"
   if [[ $install == 1 ]]; then
@@ -62,7 +70,7 @@ fi
 inputs="$(realpath "$inputs")"
 sign=()
 if [[ -n "${FLATPAK_SIGNING_KEY:-}" ]]; then sign=("--gpg-sign=$FLATPAK_SIGNING_KEY"); fi
-flatpak-builder --user --ccache --jobs="$jobs" --disable-rofiles-fuse --force-clean --default-branch=stable \
+"${builder[@]}" --user --ccache --jobs="$jobs" --disable-rofiles-fuse --force-clean --default-branch=stable \
   --state-dir="$output/builder-state" --repo="$output/repo" "${sign[@]}" \
   "$output/build" "$inputs/$app.json"
 flatpak build-update-repo --generate-static-deltas --title='Warehouse COSMIC' "${sign[@]}" "$output/repo"

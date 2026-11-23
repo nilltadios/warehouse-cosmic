@@ -10,7 +10,7 @@ The Rust toolchain version is pinned in `rust-toolchain.toml`, and every crate a
 cargo run --locked --bin warehouse-cosmic
 ```
 
-The default build uses native Wayland and wgpu; X11 is not enabled. A software-rendered GUI build:
+The default build uses native Wayland (with X11 fallback) and wgpu. A software-rendered GUI build:
 
 ```sh
 cargo build --locked --no-default-features --features gui --bin warehouse-cosmic

@@ -80,7 +80,7 @@ This workflow starts a fresh remote repository per build, as the Parsec publishe
 
 ## Host access and app data
 
-The GUI stays inside the Flatpak and uses Wayland only. GPU access is `--device=dri`; there is no X11 socket permission. The app includes its own fallback icon theme. Package queries, transactions, package launches and folder opening use `flatpak-spawn --host` with argument arrays. Transactions use `--watch-bus` so their helper exits when its bridge disappears. Launched apps are independent. System changes still go through host PolicyKit.
+The GUI stays inside the Flatpak and uses Wayland with X11 fallback (`--socket=fallback-x11`, so X11 is only exposed when no Wayland session is present). GPU access is `--device=dri`. The app includes its own fallback icon theme. Package queries, transactions, package launches and folder opening use `flatpak-spawn --host` with argument arrays. Transactions use `--watch-bus` so their helper exits when its bridge disappears. Launched apps are independent. System changes still go through host PolicyKit.
 
 The app needs access to `org.freedesktop.Flatpak` and the home directory, including other apps' `~/.var/app` data, to perform its management functions. This is a powerful management application: Flatpak host-command access and home access together mean it is effectively unsandboxed. Every permission and its use:
 
@@ -92,7 +92,7 @@ The app needs access to `org.freedesktop.Flatpak` and the home directory, includ
 | `--filesystem=host-etc:ro` | Read `/etc/flatpak/installations.d` to discover configured named installations |
 | `xdg-config/cosmic:ro`, `com.system76.CosmicSettingsDaemon` | Follow the COSMIC theme without writing desktop settings |
 | `--own-name=dev.nilltadios.WarehouseCosmic.UI.*` | The live GUI control API used by `warehouse-cosmic-cli ui` |
-| `--socket=wayland`, `--device=dri`, `--share=ipc` | Native Wayland window with GPU rendering |
+| `--socket=wayland`, `--socket=fallback-x11`, `--device=dri`, `--share=ipc` | Native Wayland window (with X11 fallback) and GPU rendering |
 
 Shared COSMIC themes at `~/.config/cosmic` are explicitly read-only through `--filesystem=xdg-config/cosmic:ro`. This narrower grant overrides the broad home permission for that directory and also exposes it under the app's sandbox config path. Warehouse's own preferences remain in a separate writable directory. Theme choices affect this app rather than rewriting desktop theme files.
 

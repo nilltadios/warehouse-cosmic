@@ -104,11 +104,11 @@ try:
     run("add-isolated-remote", ["flatpak", "remote-add", "--user", "warehouse-cosmic-fixture", str(local_repo)])
     run("install-package", ["flatpak", "install", "--user", "--no-deps", "--noninteractive", "-y", "warehouse-cosmic-fixture", app])
     permissions = run("permissions", ["flatpak", "info", "--user", "--show-permissions", app])
-    assert "sockets=wayland;" in permissions and "x11" not in permissions
+    assert "sockets=wayland;" in permissions and "fallback-x11;" in permissions and ";x11;" not in permissions and "sockets=x11;" not in permissions
     assert "org.freedesktop.Flatpak=talk" in permissions and "~/.var/app" in permissions
     catalog = cli("headless-discovery", "commands", "--json")
     assert len(catalog["commands"]) == 27
-    denied = json.loads(run("denied-host-permission", ["flatpak", "run", "--no-talk-name=org.freedesktop.Flatpak", "--nosocket=wayland", "--command=warehouse-cosmic-cli", app, "inspect"], expected=1))
+    denied = json.loads(run("denied-host-permission", ["flatpak", "run", "--no-talk-name=org.freedesktop.Flatpak", "--nosocket=wayland", "--nosocket=fallback-x11", "--command=warehouse-cosmic-cli", app, "inspect"], expected=1))
     assert denied["ok"] is False and app_data.is_dir()
     info = request("real-parsec-info", "package.info", {"installation": "user", "reference": "app/com.parsecgaming.parsec/x86_64/stable"})
     assert info["results"][0]["data"]["package"]["origin"] == "parsec-autobuild"
