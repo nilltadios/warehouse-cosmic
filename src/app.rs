@@ -188,6 +188,7 @@ pub enum Message {
     FilePicked(FilePurpose, Result<PathBuf, String>),
     FilesPicked(Result<Vec<PathBuf>, String>),
     Dropped(String, Vec<u8>),
+    DroppedFiles(Vec<PathBuf>),
     DragOver(bool),
     FileTransfer(String),
     NewSnapshot,
@@ -3630,6 +3631,11 @@ impl cosmic::Application for App {
                 | iced::window::Event::Resized(_)
                 | iced::window::Event::Focused
                 | iced::window::Event::Unfocused => Some(Message::WindowChanged(id)),
+                // X11 delivers XDND file drops through winit window events;
+                // Wayland leaves these unimplemented and uses dnd_destination.
+                iced::window::Event::FileHovered(_) => Some(Message::DragOver(true)),
+                iced::window::Event::FilesHoveredLeft => Some(Message::DragOver(false)),
+                iced::window::Event::FileDropped(files) => Some(Message::DroppedFiles(files)),
                 _ => None,
             }),
             if self.job.is_some() || self.flags.capture.is_some() {
@@ -5243,6 +5249,14 @@ impl cosmic::Application for App {
                     }
                 }
             }
+            Message::DroppedFiles(files) => {
+                self.drag_over = false;
+                if files.is_empty() {
+                    self.notice = Some("The dropped item is not a local file.".into());
+                } else {
+                    self.open_files(files);
+                }
+            }
             Message::FileTransfer(key) => {
                 self.drag_over = false;
                 return cosmic::command::file_transfer_receive(key).map(|result| {
@@ -5709,6 +5723,26 @@ mod ui_tests {
             matches!(&app.dialog, Some(Dialog::ImportSnapshot))
                 && app.import_id == "org.example.App"
         );
+        assert!(app.job.is_none());
+    }
+    #[test]
+    fn x11_dropped_files_open_review_and_handle_empty_drops() {
+        let mut app = app();
+        let _ = app.update(Message::DragOver(true));
+        assert!(app.drag_over);
+        let _ = app.update(Message::DroppedFiles(vec![]));
+        assert!(!app.drag_over);
+        assert_eq!(
+            app.notice.as_deref(),
+            Some("The dropped item is not a local file.")
+        );
+        assert!(app.dialog.is_none());
+
+        let file = PathBuf::from("/home/user/My Apps/Example App.flatpak");
+        let _ = app.update(Message::DragOver(true));
+        let _ = app.update(Message::DroppedFiles(vec![file.clone()]));
+        assert!(!app.drag_over);
+        assert!(matches!(&app.dialog, Some(Dialog::InstallFiles(paths)) if paths == &[file]));
         assert!(app.job.is_none());
     }
     #[test]
